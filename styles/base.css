@@ -1,0 +1,213 @@
+/* ============================================
+   VERSE — Base Styles
+   Reset · Tokens · Typography · Themes
+   ============================================ */
+
+/* --- Reset --- */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+  font-size: 16px;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 400;
+  line-height: 1.6;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.35s ease, color 0.35s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100dvh;
+}
+
+img, svg { display: block; max-width: 100%; }
+button { cursor: pointer; font-family: inherit; }
+a { color: inherit; text-decoration: none; }
+ul, ol { list-style: none; }
+input, textarea, select { font-family: inherit; font-size: inherit; }
+
+/* --- Accent Color Palettes --- */
+:root {
+  /* Indigo (default) */
+  --accent-h: 235;
+  --accent-s: 45%;
+  --accent-l-light: 22%;
+  --accent-l-dark: 72%;
+}
+
+[data-accent="indigo"]  { --accent-h: 235; --accent-s: 45%; --accent-l-light: 22%; --accent-l-dark: 72%; }
+[data-accent="rose"]    { --accent-h: 348; --accent-s: 60%; --accent-l-light: 40%; --accent-l-dark: 72%; }
+[data-accent="emerald"] { --accent-h: 160; --accent-s: 50%; --accent-l-light: 28%; --accent-l-dark: 65%; }
+[data-accent="amber"]   { --accent-h: 32;  --accent-s: 65%; --accent-l-light: 35%; --accent-l-dark: 70%; }
+[data-accent="violet"]  { --accent-h: 270; --accent-s: 50%; --accent-l-light: 35%; --accent-l-dark: 72%; }
+[data-accent="ocean"]   { --accent-h: 200; --accent-s: 60%; --accent-l-light: 30%; --accent-l-dark: 68%; }
+
+/* --- Light Theme (default) --- */
+:root, [data-theme="light"] {
+  --bg-primary: #faf8f4;
+  --bg-secondary: #f5f2ec;
+  --bg-tertiary: #eee9e0;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fdfcfa;
+  --bg-overlay: rgba(26, 26, 46, 0.5);
+
+  --text-primary: #1a1a2e;
+  --text-secondary: #5a5a6e;
+  --text-tertiary: #8a8a9a;
+  --text-inverse: #f5f0e8;
+
+  --border-primary: #d0ccc4;
+  --border-secondary: #ddd9d0;
+  --border-tertiary: #e8e4dc;
+
+  --accent: hsl(var(--accent-h), var(--accent-s), var(--accent-l-light));
+  --accent-soft: hsl(var(--accent-h), var(--accent-s), 94%);
+  --accent-hover: hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l-light) + 8%));
+  --accent-text: #f5f0e8;
+
+  --featured-bg: #f5e6d3;
+  --featured-text: #8b5e3c;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+  --shadow-glow: 0 0 0 3px hsl(var(--accent-h), var(--accent-s), 90%);
+
+  --scrollbar-thumb: #ccc7be;
+  --scrollbar-track: transparent;
+
+  color-scheme: light;
+}
+
+/* --- Dark Theme --- */
+[data-theme="dark"] {
+  --bg-primary: #0e0e1a;
+  --bg-secondary: #16162a;
+  --bg-tertiary: #1e1e36;
+  --bg-card: #1a1a30;
+  --bg-card-hover: #22223a;
+  --bg-overlay: rgba(0, 0, 0, 0.65);
+
+  --text-primary: #e8e4dc;
+  --text-secondary: #9a96a6;
+  --text-tertiary: #6a667a;
+  --text-inverse: #1a1a2e;
+
+  --border-primary: #3a3650;
+  --border-secondary: #2e2a42;
+  --border-tertiary: #242038;
+
+  --accent: hsl(var(--accent-h), var(--accent-s), var(--accent-l-dark));
+  --accent-soft: hsl(var(--accent-h), 30%, 18%);
+  --accent-hover: hsl(var(--accent-h), var(--accent-s), calc(var(--accent-l-dark) - 8%));
+  --accent-text: #0e0e1a;
+
+  --featured-bg: #3a2a18;
+  --featured-text: #e8c89a;
+
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.2), 0 1px 2px rgba(0,0,0,0.15);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.25);
+  --shadow-glow: 0 0 0 3px hsl(var(--accent-h), 30%, 25%);
+
+  --scrollbar-thumb: #3a3650;
+  --scrollbar-track: transparent;
+
+  color-scheme: dark;
+}
+
+/* --- Typography --- */
+.serif {
+  font-family: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+h1 { font-size: clamp(1.75rem, 4vw, 2.25rem); }
+h2 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
+h3 { font-size: clamp(1rem, 2.5vw, 1.125rem); }
+
+/* --- Scrollbar --- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* --- Selection --- */
+::selection {
+  background: hsl(var(--accent-h), var(--accent-s), 85%);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] ::selection {
+  background: hsl(var(--accent-h), var(--accent-s), 25%);
+}
+
+/* --- Focus --- */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* --- Page Transitions --- */
+#app {
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  background-color: var(--bg-primary);
+  min-height: 100dvh;
+  box-shadow: 0 0 50px rgba(0,0,0,0.05);
+  animation: pageIn 0.3s ease-out;
+}
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-enter {
+  animation: pageIn 0.3s ease-out;
+}
+
+/* --- Utilities --- */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+@media (max-width: 480px) {
+  .container { padding: 0 1rem; }
+}

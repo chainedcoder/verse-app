@@ -1,0 +1,478 @@
+/* ============================================
+   VERSE — Layout Styles
+   Nav · Grid · Responsive Breakpoints
+   ============================================ */
+
+/* --- Navbar --- */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 60px;
+
+  background: var(--bg-primary);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: background-color 0.35s ease;
+}
+
+.navbar-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.navbar-logo:hover {
+  opacity: 0.8;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 28px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.navbar-link {
+  cursor: pointer;
+  transition: color 0.2s ease;
+  position: relative;
+  padding: 4px 0;
+}
+
+.navbar-link:hover,
+.navbar-link.active {
+  color: var(--text-primary);
+}
+
+.navbar-link.active::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+
+.navbar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Hamburger */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  z-index: 201;
+}
+
+.hamburger-line {
+  width: 22px;
+  height: 2px;
+  background: var(--text-primary);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.hamburger.open .hamburger-line:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.hamburger.open .hamburger-line:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.hamburger.open .hamburger-line:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Mobile Drawer */
+.mobile-drawer {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 300px;
+  max-width: 85vw;
+  background: var(--bg-card);
+  z-index: 200;
+  padding: 80px 24px 24px;
+  flex-direction: column;
+  gap: 8px;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-lg);
+  border-left: 1px solid var(--border-tertiary);
+}
+
+.mobile-drawer.open {
+  transform: translateX(0);
+}
+
+.mobile-drawer-link {
+  padding: 14px 16px;
+  font-size: 15px;
+  color: var(--text-secondary);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mobile-drawer-link:hover,
+.mobile-drawer-link.active {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.mobile-drawer-divider {
+  border: none;
+  border-top: 1px solid var(--border-tertiary);
+  margin: 8px 0;
+}
+
+.drawer-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--bg-overlay);
+  z-index: 199;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.drawer-overlay.open {
+  opacity: 1;
+}
+
+/* --- Main Layout Grids --- */
+.feed-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  min-height: calc(100dvh - 60px);
+}
+
+.feed-main {
+  padding: 24px;
+  border-right: 1px solid var(--border-tertiary);
+}
+
+.feed-sidebar {
+  padding: 24px;
+}
+
+.poem-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+}
+
+.poem-main {
+  padding: 48px 60px;
+  border-right: 1px solid var(--border-tertiary);
+}
+
+.poem-side {
+  padding: 32px 24px;
+}
+
+.profile-works-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+/* --- Author List --- */
+.author-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.author-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.author-list-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* --- Profile Header --- */
+.profile-hero {
+  padding: 32px;
+  border-bottom: 1px solid var(--border-tertiary);
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.profile-stats {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+/* --- Poem Viewer --- */
+
+.poem-body {
+  border-left: 3px solid var(--accent);
+  padding-left: 24px;
+}
+
+/* --- Export Page --- */
+.export-header {
+  margin-bottom: 24px;
+}
+
+.export-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+/* ============================================
+   RESPONSIVE BREAKPOINTS
+   ============================================ */
+
+/* Tablet landscape + small laptops (1024px - 1200px) */
+@media (max-width: 1200px) {
+  .feed-layout {
+    grid-template-columns: 1fr 300px;
+  }
+
+  .poem-main {
+    padding: 40px 40px;
+  }
+
+  .template-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Tablets (mobile and small tablets < 768px) */
+@media (max-width: 767px) {
+  .feed-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .feed-main {
+    border-right: none;
+    border-bottom: 1px solid var(--border-tertiary);
+  }
+
+  .poem-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .poem-main {
+    border-right: none;
+    padding: 32px 24px;
+  }
+
+  .poem-side {
+    border-top: 1px solid var(--border-tertiary);
+    padding: 24px;
+  }
+
+  .profile-works-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .template-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .navbar-links {
+    display: none;
+  }
+
+  #nav-login,
+  #nav-signup {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .mobile-drawer {
+    display: flex;
+  }
+
+  .drawer-overlay {
+    display: block;
+  }
+}
+
+/* Large phones (480px - 767px) */
+@media (max-width: 767px) {
+  .navbar {
+    padding: 0 16px;
+  }
+
+  .feed-main {
+    padding: 16px;
+  }
+
+  .feed-sidebar {
+    padding: 16px;
+  }
+
+  .poem-main {
+    padding: 24px 16px;
+  }
+
+  .poem-side {
+    padding: 20px 16px;
+  }
+
+  .profile-hero {
+    padding: 20px 16px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .profile-stats {
+    justify-content: center;
+  }
+
+  .profile-works-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .template-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .export-actions {
+    flex-direction: column;
+  }
+
+  .export-actions .btn {
+    width: 100%;
+  }
+
+
+}
+
+/* Small phones (< 480px) */
+@media (max-width: 480px) {
+  .feed-main { padding: 12px; }
+  .feed-sidebar { padding: 12px; }
+
+  .card { padding: 16px; }
+  .card-compact { padding: 14px 16px; }
+
+  .poem-main { padding: 20px 14px; }
+
+  .poem-body {
+    padding-left: 16px;
+  }
+
+  .template-grid {
+    grid-template-columns: 1fr;
+  }
+
+  h1 { font-size: 1.5rem; }
+
+  .profile-hero {
+    padding: 16px 12px;
+  }
+
+  .tab-item {
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+}
+
+/* ============================================
+   ULTRAWIDE & 4K DISPLAYS
+   ============================================ */
+
+/* 1440p / Ultrawide displays (1600px+) */
+@media (min-width: 1600px) {
+  .feed-layout {
+    grid-template-columns: 1fr 400px;
+  }
+
+  .poem-layout {
+    grid-template-columns: 1fr 400px;
+  }
+
+  /* Multi-column grid for feed cards */
+  #poem-feed {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* Constrain and center single poem content for readability */
+  .poem-main > * {
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .profile-works-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .template-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* 4K displays (2200px+) */
+@media (min-width: 2200px) {
+  .feed-layout, .poem-layout {
+    grid-template-columns: 1fr 480px;
+  }
+
+  #poem-feed {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+
+  .poem-main > * {
+    max-width: 1100px;
+  }
+
+  .profile-works-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+
+  .template-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
