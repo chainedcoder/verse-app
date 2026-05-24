@@ -168,6 +168,9 @@
   display: grid;
   grid-template-columns: 1fr 340px;
   min-height: calc(100dvh - 60px);
+  max-width: 1680px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .feed-main {
@@ -263,7 +266,7 @@
    RESPONSIVE BREAKPOINTS
    ============================================ */
 
-/* Tablet landscape + small laptops (1024px - 1200px) */
+/* Tablet landscape + small laptops (1024px - 1280px) */
 @media (max-width: 1200px) {
   .feed-layout {
     grid-template-columns: 1fr 300px;
@@ -416,8 +419,18 @@
 }
 
 /* ============================================
-   ULTRAWIDE & 4K DISPLAYS
+   LARGE SCREENS & ULTRAWIDE
    ============================================ */
+
+/* Large desktops (1280px+): start columning the feed to avoid over-stretched cards */
+@media (min-width: 1280px) {
+  #poem-feed {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
+}
 
 /* 1440p / Ultrawide displays (1600px+) */
 @media (min-width: 1600px) {
@@ -429,12 +442,10 @@
     grid-template-columns: 1fr 400px;
   }
 
-  /* Multi-column grid for feed cards */
+  /* 3-column feed at this width */
   #poem-feed {
-    display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
-    align-items: start;
   }
 
   /* Constrain and center single poem content for readability */

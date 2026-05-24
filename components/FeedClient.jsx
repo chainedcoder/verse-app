@@ -36,7 +36,7 @@ export default function FeedClient({ initialPoems, tags, trendingAuthors, initia
           ))}
         </div>
 
-        <div className="poem-feed-container" style={{ transition: "opacity 0.3s ease" }}>
+        <div id="poem-feed" style={{ transition: "opacity 0.3s ease" }}>
           {filteredPoems.length === 0 ? (
             <div className="empty-state">
               <i className="ti ti-feather" aria-hidden="true"></i>
