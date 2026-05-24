@@ -1,0 +1,398 @@
+diff --git a/app/poem/[id]/page.jsx b/app/poem/[id]/page.jsx
+index d1c0330..d9f559c 100644
+--- a/app/poem/[id]/page.jsx
++++ b/app/poem/[id]/page.jsx
+@@ -44,6 +44,7 @@ export default async function PoemPage(props) {
+   let isLiked = false
+   let isFollowingAuthor = false
+   let userCollections = []
++  let userId = null
+ 
+   if (session?.user?.id) {
+     const userId = session.user.id
+@@ -75,6 +76,7 @@ export default async function PoemPage(props) {
+       initialLiked={isLiked} 
+       initialFollowingAuthor={isFollowingAuthor} 
+       userCollections={userCollections}
++      userId={userId}
+     />
+   )
+ }
+diff --git a/components/PoemPageClient.jsx b/components/PoemPageClient.jsx
+index c8c2acb..12be050 100644
+--- a/components/PoemPageClient.jsx
++++ b/components/PoemPageClient.jsx
+@@ -1,13 +1,14 @@
+ "use client"
+ 
+-import { useState, useTransition } from "react"
++import { useState, useTransition, useEffect } from "react"
+ import { useRouter } from "next/navigation"
+ import Link from "next/link"
+ import { toggleLike } from "@/app/actions/interactions"
+ import { togglePoemInCollection } from "@/app/actions/collections"
++import { createComment, getCommentsForPoem, deleteComment } from "@/app/actions/comments"
+ import AuthorCard from "@/components/AuthorCard"
+ 
+-export default function PoemPageClient({ poem, initialLiked = false, initialFollowingAuthor = false, userCollections = [] }) {
++export default function PoemPageClient({ poem, initialLiked = false, initialFollowingAuthor = false, userCollections = [], userId = null }) {
+   const router = useRouter()
+   const author = poem.author
+   const [liked, setLiked] = useState(initialLiked)
+@@ -16,6 +17,10 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
+   const [toastMessage, setToastMessage] = useState("")
+   const [collectionsModalOpen, setCollectionsModalOpen] = useState(false)
+   const [localCollections, setLocalCollections] = useState(userCollections)
++  const [comments, setComments] = useState([])
++  const [commentInput, setCommentInput] = useState("")
++  const [commentPending, setCommentPending] = useState(false)
++  const [deletingCommentId, setDeletingCommentId] = useState(null)
+ 
+   const showToast = (msg) => {
+     setToastMessage(msg)
+@@ -54,6 +59,279 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
+     navigator.clipboard.writeText(url).then(() => showToast("Link copied!"))
+   }
+ 
++  const fetchComments = async () => {
++    const result = await getCommentsForPoem(poem.id)
++    if (result.success) {
++      setComments(result.comments)
++    } else {
++      showToast("Failed to load comments")
++    }
++  }
++
++  const handleCommentSubmit = async (e) => {
++    e.preventDefault()
++    if (!commentInput.trim() || !userId) return
++    
++    setCommentPending(true)
++    const result = await createComment(poem.id, commentInput)
++    if (result.success) {
++      setCommentInput("")
++      fetchComments()
++      showToast("Comment posted!")
++    } else {
++      showToast(result.error || "Failed to post comment")
++    }
++    setCommentPending(false)
++  }
++
++  const handleDeleteComment = async (commentId) => {
++    setDeletingCommentId(commentId)
++    const result = await deleteComment(commentId)
++    if (result.success) {
++      fetchComments()
++      showToast("Comment deleted")
++    } else {
++      showToast(result.error || "Failed to delete comment")
++    }
++    setDeletingCommentId(null)
++  }
++
++  useEffect(() => {
++    fetchComments()
++  }, [poem.id])
++
++  const tagsList = poem.tags ? poem.tags.split(',') : []
++
++  return (
++    <div className="poem-layout">
++      {/* Main poem */}
++      <div className="poem-main">
++        <div style={{ marginBottom: "24px" }}>
++          <button className="poem-viewer-back" onClick={() => router.back()}>
++            <i className="ti ti-arrow-left" style={{ fontSize: "18px" }} aria-hidden="true"></i>
++            <span>Back</span>
++          </button>
++        </div>
++
++        <div className="tag-row" style={{ marginBottom: "16px" }}>
++          {tagsList.map(t => <span key={t} className="tag">{t.trim()}</span>)}
++        </div>
++        <h1 className="poem-viewer-title serif">{poem.title}</h1>
++        <div className="poem-viewer-meta">{author.name} · published <span suppressHydrationWarning>{poem.createdAt ? new Date(poem.createdAt).toLocaleDateString('en-US', { timeZone: 'UTC' }) : 'Recently'}</span></div>
++
++        <div className="poem-body">
++          <div className="poem-viewer-text" dangerouslySetInnerHTML={{ __html: poem.fullText.replace(/\n/g, "<br>") }} />
++        </div>
++
++        {/* Poem footer */}
++        <div className="poem-footer" style={{ marginTop: "32px", paddingTop: "20px", borderTop: "1px solid var(--border-tertiary)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
++          <button className={`action-icon ${liked ? "liked" : ""}`} onClick={handleLike} style={{ fontSize: "14px" }}>
++            <i className={`ti ${liked ? "ti-heart-filled" : "ti-heart"}`} style={{ fontSize: "20px" }} aria-hidden="true"></i>
++            <span className="like-count" style={{ marginLeft: "4px" }}>{likeCount}</span> likes
++          </button>
++          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", position: "relative" }}>
++            <button className="btn btn-ghost btn-sm" onClick={() => setCollectionsModalOpen(!collectionsModalOpen)}>
++              <i className="ti ti-bookmark" style={{ fontSize: "14px" }} aria-hidden="true"></i> Save
++            </button>
++            <button className="btn btn-ghost btn-sm" onClick={handleShare}>
++              <i className="ti ti-share" style={{ fontSize: "14px" }} aria-hidden="true"></i> Share
++            </button>
++            <Link href={`/export/${poem.id}`} className="btn btn-primary btn-sm">
++              <i className="ti ti-download" style={{ fontSize: "14px" }} aria-hidden="true"></i> Download
++            </Link>
++
++            {collectionsModalOpen && (
++              <div style={{
++                position: "absolute", top: "100%", right: "0", marginTop: "8px",
++                backgroundColor: "var(--bg-card)", border: "1px solid var(--border-secondary)",
++                borderRadius: "8px", padding: "16px", minWidth: "250px",
++                boxShadow: "0 10px 30px rgba(0,0,0,0.15)", zIndex: 100
++              }}>
++                <h4 style={{ marginBottom: "12px", fontSize: "14px", color: "var(--text-secondary)" }}>Save to Collection</h4>
++                {localCollections.length === 0 ? (
++                  <div style={{ fontSize: "14px", color: "var(--text-tertiary)" }}>
++                    You don't have any collections yet. <br />
++                    <Link href="/collections/create" style={{ color: "var(--primary)", textDecoration: "none" }}>Create one here</Link>.
++                  </div>
++                ) : (
++                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
++                    {localCollections.map(c => (
++                      <label key={c.id} style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "14px" }}>
++                        <input 
++                          type="checkbox" 
++                          checked={c.hasPoem} 
++                          onChange={() => handleToggleCollection(c.id, c.hasPoem)}
++                        />
++                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name}</span>
++                      </label>
++                    ))}
++                  </div>
++                )}
++              </div>
++            )}
++          </div>
++        </div>
++      </div>
++
++      {/* Side panel */}
++      <div className="poem-side">
++        {/* We reuse AuthorCard, but note that AuthorCard also expects author.poems and author.readers count if available */}
++        <AuthorCard author={author} initialFollowing={initialFollowingAuthor} />
++
++        <hr className="divider" style={{ marginBottom: "20px" }} />
++
++        {/* Download formats */}
++        <div className="section-title">Download as</div>
++        <div className="download-options">
++          {[
++            { id: "siteview", title: "Site view", desc: "As seen on Verse, with your theme" },
++            { id: "minimal", title: "Minimal poster", desc: "Clean white, typography only" },
++            { id: "dark", title: "Dark cinematic", desc: "Deep navy, serif layout" },
++            { id: "love", title: "Love letter", desc: "Cream + floral illustration" },
++            { id: "story", title: "Instagram story", desc: "9:16 vertical format" },
++          ].map(opt => (
++            <Link key={opt.id} href={`/export/${poem.id}?template=${opt.id}`} className="download-option">
++              <div>
++                <div className="download-option-title">{opt.title}</div>
++                <div className="download-option-desc">{opt.desc}</div>
++              </div>
++              <i className="ti ti-download" style={{ fontSize: "16px", color: "var(--text-tertiary)" }} aria-hidden="true"></i>
++            </Link>
++          ))}
++        </div>
++
++        <hr className="divider" style={{ margin: "20px 0" }} />
++        <div className="section-title">Share</div>
++        <div className="share-buttons">
++          <button className="btn btn-ghost btn-sm" onClick={handleShare} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
++            <i className="ti ti-copy" style={{ fontSize: "13px" }} aria-hidden="true"></i> Copy link
++          </button>
++          <button className="btn btn-ghost btn-sm" onClick={() => showToast("Open Instagram and paste your poem image!")} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
++            <i className="ti ti-brand-instagram" style={{ fontSize: "13px" }} aria-hidden="true"></i> Instagram
++          </button>
++        </div>
++
++        {/* Comments Section */}
++        <hr className="divider" style={{ margin: "24px 0" }} />
++        <div className="section-title">Comments ({comments.length})</div>
++        
++        {userId ? (
++          <form onSubmit={handleCommentSubmit} style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
++            <textarea
++              value={commentInput}
++              onChange={(e) => setCommentInput(e.target.value)}
++              placeholder="Add a comment..."
++              className="textarea textarea-sm"
++              rows={2}
++              disabled={commentPending}
++            />
++            <button 
++              type="submit" 
++              className={`btn btn-primary btn-sm ${commentPending ? "btn-loading" : ""}`} 
++              disabled={commentPending || !commentInput.trim()}
++            >
++              {commentPending ? "Posting..." : "Post"}
++            </button>
++          </form>
++        ) : (
++          <div className="alert alert-info">
++            <p>Sign in to join the conversation.</p>
++            <Link href="/login" className="btn btn-primary btn-sm">Sign in</Link>
++          </div>
++        )}
++
++        <div className="comments-list">
++          {comments.length === 0 ? (
++            <p className="text-center text-tertiary py-4">No comments yet. Be the first to comment!</p>
++          ) : (
++            comments.map(comment => (
++              <div key={comment.id} className="comment-card p-4 mb-3 bg-card border border-secondary rounded-lg">
++                <div className="flex items-start gap-3">
++                  {comment.author.image ? (
++                    <img 
++                      src={comment.author.image} 
++                      alt={`${comment.author.name}'s avatar`} 
++                      className="w-10 h-10 rounded-full object-cover"
++                    />
++                  ) : (
++                    <div className="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-full text-xs font-medium">
++                      {comment.author.name ? comment.author.name.match(/\b\w/g)?.join('').toUpperCase() : '?'}
++                    </div>
++                  )}
++                  <div className="flex-1">
++                    <div className="flex items-baseline mb-1">
++                      <span className="font-medium">{comment.author.name}</span>
++                      <span className="ml-2 text-xs text-tertiary">
++                        {new Date(comment.createdAt).toLocaleDateString('en-US', {
++                          month: 'short',
++                          day: 'numeric',
++                          year: 'numeric'
++                        })}
++                      </span>
++                    </div>
++                    <p className="text-sm text-primary">{comment.content}</p>
++                    {comment.authorId === userId && (
++                      <button 
++                        onClick={() => handleDeleteComment(comment.id)}
++                        className="mt-2 btn btn-ghost btn-xs text-danger"
++                        disabled={deletingCommentId === comment.id}
++                      >
++                        {deletingCommentId === comment.id ? "Deleting..." : "Delete"}
++                      </button>
++                    )}
++                  </div>
++                </div>
++              </div>
++            ))
++          )}
++        </div>
++      </div>
++      
++      {toastMessage && (
++        <div style={{ 
++          position: "fixed", bottom: "30px", left: "50%", transform: "translateX(-50%)", 
++          backgroundColor: "var(--bg-card)", color: "var(--text-primary)", 
++          padding: "12px 24px", borderRadius: "100px", boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
++          zIndex: 9999, fontSize: "14px", fontWeight: 500, border: "1px solid var(--border-secondary)",
++          transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out"
++        }}>
++          {toastMessage}
++        </div>
++      )}
++    </div>
++  )
++}
++
++  const handleLike = () => {
++    const newLiked = !liked
++    setLiked(newLiked)
++    setLikeCount(prev => newLiked ? prev + 1 : prev - 1)
++    
++    startTransition(async () => {
++      await toggleLike(poem.id)
++    })
++  }
++
++  const handleToggleCollection = (collectionId, currentlyHas) => {
++    setLocalCollections(prev => prev.map(c => 
++      c.id === collectionId ? { ...c, hasPoem: !currentlyHas } : c
++    ))
++    
++    startTransition(async () => {
++      try {
++        await togglePoemInCollection(collectionId, poem.id)
++        showToast(currentlyHas ? "Removed from collection" : "Saved to collection")
++      } catch (e) {
++        showToast("Error updating collection")
++      }
++    })
++  }
++
++  const handleShare = () => {
++    const url = `${window.location.origin}/poem/${poem.id}`
++    navigator.clipboard.writeText(url).then(() => showToast("Link copied!"))
++  }
++
+   const tagsList = poem.tags ? poem.tags.split(',') : []
+ 
+   return (
+diff --git a/prisma/schema.prisma b/prisma/schema.prisma
+index 884f239..3df4539 100644
+--- a/prisma/schema.prisma
++++ b/prisma/schema.prisma
+@@ -15,16 +15,17 @@ model User {
+   image         String?
+   bio           String?
+   location      String?
+-  
++   
+   accounts      Account[]
+   sessions      Session[]
+   poems         Poem[]
+   likes         Like[]
+-  
++  comments      Comment[]
++   
+   followers     Follow[] @relation("following")
+   following     Follow[] @relation("follower")
+   collections   Collection[]
+-  
++   
+   createdAt DateTime @default(now())
+   updatedAt DateTime @updatedAt
+ }
+@@ -74,6 +75,7 @@ model Poem {
+   authorId  String
+   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+   likes     Like[]
++  comments  Comment[]
+   collections Collection[] @relation("CollectionPoems")
+   createdAt DateTime @default(now())
+ }
+@@ -89,6 +91,19 @@ model Like {
+   @@unique([poemId, userId])
+ }
+ 
++model Comment {
++  id        String   @id @default(cuid())
++  content   String
++  poemId    String
++  authorId  String
++  poem      Poem     @relation(fields: [poemId], references: [id], onDelete: Cascade)
++  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
++  createdAt DateTime @default(now())
++  updatedAt DateTime @updatedAt
++
++  @@index([poemId, createdAt])
++}
++
+ model Follow {
+   id          String   @id @default(cuid())
+   followerId  String
+diff --git a/verse_project_audit.md b/verse_project_audit.md
+index 1e10fd7..24a1a27 100644
+--- a/verse_project_audit.md
++++ b/verse_project_audit.md
+@@ -149,7 +149,7 @@ Users have **no way to create content**. There is no poem editor, no form, no su
+ - [ ] Add embed code generation for poems
+ 
+ ### 8.3 Comments & Notifications
+-- [ ] Build comment system UI on poem detail page
++- [x] Build comment system UI on poem detail page
+ - [ ] Build notification center in navbar
+ 
+ ---

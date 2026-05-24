@@ -44,9 +44,10 @@ export default async function PoemPage(props) {
   let isLiked = false
   let isFollowingAuthor = false
   let userCollections = []
+  let userId = null
 
   if (session?.user?.id) {
-    const userId = session.user.id
+    userId = session.user.id
     
     const [likeRecord, followRecord, collections] = await Promise.all([
       prisma.like.findUnique({
@@ -75,6 +76,7 @@ export default async function PoemPage(props) {
       initialLiked={isLiked} 
       initialFollowingAuthor={isFollowingAuthor} 
       userCollections={userCollections}
+      userId={userId}
     />
   )
 }

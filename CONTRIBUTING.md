@@ -86,6 +86,26 @@ npm run lint
 * Adhere to React Hooks rules.
 * We prefer functional components and Next.js Server Components by default. Add `"use client"` only when interactivity or browser APIs (like `useState`, `window`, `navigator`) are required.
 
+## 📏 Strict Project Requirements
+
+Before submitting any code, you must ensure your contributions adhere to our high standards for quality:
+
+### 1. Style & UI/UX Conformance
+- **Strict adherence** to the existing design system is required. 
+- You must use the pre-defined CSS variables (e.g., `var(--bg-card)`, `var(--text-primary)`), component classes (`.card`, `.btn`, `.avatar`), and layout spacing.
+- Do not introduce arbitrary inline styles or unapproved Tailwind utilities unless absolutely necessary.
+- Ensure animations, transitions, and hover states match the site's existing aesthetic.
+
+### 2. Performance Requirements
+- Optimize all database queries using Prisma `select` clauses where appropriate to avoid over-fetching.
+- Images and heavy assets must be lazy-loaded or optimized via Next.js `<Image>` component.
+- Prevent unnecessary client-side re-renders by properly structuring your React state and using Server Components by default.
+
+### 3. Thorough & Complete Features
+- Features must be **100% thorough and complete** before pushing to `main`. 
+- No "half-finished" UI states, broken flows, or missing empty states.
+- If a feature includes an action (e.g., commenting), you must handle loading states, success toasts, and error boundaries robustly.
+
 ## 🤝 How to Contribute
 
 ### 1. Find an Issue

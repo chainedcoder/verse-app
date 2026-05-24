@@ -1,13 +1,14 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { toggleLike } from "@/app/actions/interactions"
 import { togglePoemInCollection } from "@/app/actions/collections"
+import { createComment, getCommentsForPoem, deleteComment } from "@/app/actions/comments"
 import AuthorCard from "@/components/AuthorCard"
 
-export default function PoemPageClient({ poem, initialLiked = false, initialFollowingAuthor = false, userCollections = [] }) {
+export default function PoemPageClient({ poem, initialLiked = false, initialFollowingAuthor = false, userCollections = [], userId = null }) {
   const router = useRouter()
   const author = poem.author
   const [liked, setLiked] = useState(initialLiked)
@@ -16,6 +17,10 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
   const [toastMessage, setToastMessage] = useState("")
   const [collectionsModalOpen, setCollectionsModalOpen] = useState(false)
   const [localCollections, setLocalCollections] = useState(userCollections)
+  const [comments, setComments] = useState([])
+  const [commentInput, setCommentInput] = useState("")
+  const [commentPending, setCommentPending] = useState(false)
+  const [deletingCommentId, setDeletingCommentId] = useState(null)
 
   const showToast = (msg) => {
     setToastMessage(msg)
@@ -53,6 +58,47 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
     const url = `${window.location.origin}/poem/${poem.id}`
     navigator.clipboard.writeText(url).then(() => showToast("Link copied!"))
   }
+
+  const fetchComments = async () => {
+    const result = await getCommentsForPoem(poem.id)
+    if (result.success) {
+      setComments(result.comments)
+    } else {
+      showToast("Failed to load comments")
+    }
+  }
+
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault()
+    if (!commentInput.trim() || !userId) return
+    
+    setCommentPending(true)
+    const result = await createComment(poem.id, commentInput)
+    if (result.success) {
+      setCommentInput("")
+      fetchComments()
+      showToast("Comment posted!")
+    } else {
+      showToast(result.error || "Failed to post comment")
+    }
+    setCommentPending(false)
+  }
+
+  const handleDeleteComment = async (commentId) => {
+    setDeletingCommentId(commentId)
+    const result = await deleteComment(commentId)
+    if (result.success) {
+      fetchComments()
+      showToast("Comment deleted")
+    } else {
+      showToast(result.error || "Failed to delete comment")
+    }
+    setDeletingCommentId(null)
+  }
+
+  useEffect(() => {
+    fetchComments()
+  }, [poem.id])
 
   const tagsList = poem.tags ? poem.tags.split(',') : []
 
@@ -163,6 +209,88 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
           <button className="btn btn-ghost btn-sm" onClick={() => showToast("Open Instagram and paste your poem image!")} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
             <i className="ti ti-brand-instagram" style={{ fontSize: "13px" }} aria-hidden="true"></i> Instagram
           </button>
+        </div>
+
+        {/* Comments Section */}
+        <hr className="divider" style={{ margin: "24px 0" }} />
+        <div className="section-title">Comments ({comments.length})</div>
+        
+        {userId ? (
+          <form onSubmit={handleCommentSubmit} style={{ display: "flex", gap: "12px", marginBottom: "24px", flexDirection: "column" }}>
+            <textarea
+              value={commentInput}
+              onChange={(e) => setCommentInput(e.target.value)}
+              placeholder="Add a comment..."
+              className="input"
+              rows={3}
+              style={{ resize: "none" }}
+              disabled={commentPending}
+            />
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button 
+                type="submit" 
+                className="btn btn-primary btn-sm" 
+                disabled={commentPending || !commentInput.trim()}
+              >
+                {commentPending ? "Posting..." : "Post comment"}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="empty-state" style={{ padding: "24px", border: "1px solid var(--border-secondary)", borderRadius: "12px", marginBottom: "24px" }}>
+            <p style={{ marginBottom: "12px" }}>Sign in to join the conversation.</p>
+            <Link href="/login" className="btn btn-primary btn-sm">Sign in</Link>
+          </div>
+        )}
+
+        <div className="comments-list">
+          {comments.length === 0 ? (
+            <p className="empty-state" style={{ padding: "32px 16px" }}>No comments yet. Be the first to comment!</p>
+          ) : (
+            comments.map(comment => (
+              <div key={comment.id} className="comment-card card card-compact" style={{ marginBottom: "12px", padding: "16px" }}>
+                <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
+                  {comment.author.image ? (
+                    <img 
+                      src={comment.author.image} 
+                      alt="" 
+                      className="avatar avatar-md"
+                      style={{ objectFit: "cover" }}
+                    />
+                  ) : (
+                    <div className="avatar avatar-md avatar-warm">
+                      {comment.author.name ? comment.author.name.match(/\b\w/g)?.join('').substring(0, 2).toUpperCase() : '?'}
+                    </div>
+                  )}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: "flex", alignItems: "baseline", marginBottom: "6px" }}>
+                      <span style={{ fontSize: "14px", fontWeight: "600", color: "var(--text-primary)", marginRight: "8px" }}>{comment.author.name}</span>
+                      <span className="stat" style={{ fontSize: "11px" }}>
+                        {new Date(comment.createdAt).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        })}
+                      </span>
+                    </div>
+                    <p style={{ fontSize: "14px", color: "var(--text-secondary)", lineHeight: "1.5", margin: 0, whiteSpace: "pre-wrap" }}>{comment.content}</p>
+                    {comment.authorId === userId && (
+                      <div style={{ marginTop: "8px" }}>
+                        <button 
+                          onClick={() => handleDeleteComment(comment.id)}
+                          className="btn btn-ghost btn-sm"
+                          style={{ padding: "4px 8px", fontSize: "11px", color: "var(--danger)", borderColor: "transparent", background: "none" }}
+                          disabled={deletingCommentId === comment.id}
+                        >
+                          {deletingCommentId === comment.id ? "Deleting..." : "Delete"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
       

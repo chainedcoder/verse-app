@@ -13,6 +13,15 @@ export async function toggleLike(poemId) {
 
   const userId = session.user.id
 
+  const poem = await prisma.poem.findUnique({
+    where: { id: poemId },
+    select: { authorId: true }
+  })
+  
+  if (!poem) {
+    return { success: false, error: "Poem not found" }
+  }
+
   const existingLike = await prisma.like.findUnique({
     where: {
       poemId_userId: {
@@ -37,6 +46,18 @@ export async function toggleLike(poemId) {
         userId
       }
     })
+    
+    if (poem.authorId !== userId) {
+      await prisma.notification.create({
+        data: {
+          userId: poem.authorId,
+          type: "LIKE",
+          actorId: userId,
+          poemId: poemId
+        }
+      })
+    }
+    
     isLiked = true
   }
 
@@ -83,6 +104,15 @@ export async function toggleFollow(authorId) {
         followingId: authorId
       }
     })
+    
+    await prisma.notification.create({
+      data: {
+        userId: authorId,
+        type: "FOLLOW",
+        actorId: followerId
+      }
+    })
+    
     isFollowing = true
   }
 

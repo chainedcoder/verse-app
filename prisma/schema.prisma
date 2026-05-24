@@ -15,16 +15,19 @@ model User {
   image         String?
   bio           String?
   location      String?
-  
+   
   accounts      Account[]
   sessions      Session[]
   poems         Poem[]
   likes         Like[]
-  
+  comments           Comment[]
+  notifications      Notification[] @relation("userNotifications")
+  actorNotifications Notification[] @relation("actorNotifications")
+   
   followers     Follow[] @relation("following")
   following     Follow[] @relation("follower")
   collections   Collection[]
-  
+   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -74,8 +77,10 @@ model Poem {
   authorId  String
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   likes     Like[]
-  collections Collection[] @relation("CollectionPoems")
-  createdAt DateTime @default(now())
+  comments      Comment[]
+  collections   Collection[] @relation("CollectionPoems")
+  notifications Notification[] @relation("poemNotifications")
+  createdAt     DateTime @default(now())
 }
 
 model Like {
@@ -87,6 +92,19 @@ model Like {
   createdAt DateTime @default(now())
 
   @@unique([poemId, userId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  poemId    String
+  authorId  String
+  poem      Poem     @relation(fields: [poemId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([poemId, createdAt])
 }
 
 model Follow {
@@ -112,3 +130,17 @@ model Collection {
   updatedAt   DateTime @updatedAt
 }
 
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "LIKE", "COMMENT", "FOLLOW"
+  actorId   String
+  poemId    String?
+  read      Boolean  @default(false)
+  user      User     @relation("userNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  actor     User     @relation("actorNotifications", fields: [actorId], references: [id], onDelete: Cascade)
+  poem      Poem?    @relation("poemNotifications", fields: [poemId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}

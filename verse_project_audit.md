@@ -149,8 +149,8 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 - [ ] Add embed code generation for poems
 
 ### 8.3 Comments & Notifications
-- [ ] Build comment system UI on poem detail page
-- [ ] Build notification center in navbar
+- [x] Build comment system UI on poem detail page
+- [x] Build notification center in navbar
 
 ---
 
@@ -230,7 +230,7 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 | Collections Feature | ✅ Implemented |
 | Search | ✅ Implemented |
 | Backend Services | ⚠️ Partially Implemented |
-| Social Features | ⚠️ Partial (Likes/Follows done) |
+| Social Features | ✅ Implemented (Likes, Follows, Comments, Notifications) |
 | Accessibility | ⚠️ Partial |
 | SEO & Meta | ⚠️ SSR Implemented, Meta pending |
 | PWA & Offline | ❌ Not started |
@@ -242,7 +242,6 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 
 ## Recommended Priority Order (Updated)
 
-1. **Social Engagement:** Build Comments system and Notification center.
-2. **Author Identity:** Implement Image upload service and Profile editing for Authors.
-3. **Discoverability:** Add "Following" feed filter and Search autocomplete.
-4. **Production Readiness:** Set up Deployment (Vercel/Netlify), CI/CD, and custom domain configuration.
+1. **Author Identity:** Implement Image upload service and Profile editing for Authors.
+2. **Discoverability:** Add "Following" feed filter and Search autocomplete.
+3. **Production Readiness:** Set up Deployment (Vercel/Netlify), CI/CD, and custom domain configuration.
