@@ -235,10 +235,12 @@
 .feed-main {
   padding: 24px;
   border-right: 1px solid var(--border-tertiary);
+  min-width: 0;
 }
 
 .feed-sidebar {
   padding: 24px;
+  min-width: 0;
 }
 
 .poem-layout {
@@ -249,10 +251,12 @@
 .poem-main {
   padding: 48px 60px;
   border-right: 1px solid var(--border-tertiary);
+  min-width: 0;
 }
 
 .poem-side {
   padding: 32px 24px;
+  min-width: 0;
 }
 
 .profile-works-grid {
