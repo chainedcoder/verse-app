@@ -76,6 +76,13 @@ export function renderPoem(poemId) {
         <!-- Download formats -->
         <div class="section-title">Download as</div>
         <div class="download-options">
+          <a href="#/export/${poem.id}" class="download-option" data-template="siteview" id="dl-siteview">
+            <div>
+              <div class="download-option-title">Site view</div>
+              <div class="download-option-desc">As seen on Verse, with your theme</div>
+            </div>
+            <i class="ti ti-download" style="font-size:16px; color:var(--text-tertiary);" aria-hidden="true"></i>
+          </a>
           <a href="#/export/${poem.id}" class="download-option" data-template="minimal" id="dl-minimal">
             <div>
               <div class="download-option-title">Minimal poster</div>

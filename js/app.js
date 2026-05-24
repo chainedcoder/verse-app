@@ -8,7 +8,7 @@ import { renderNav, initNav } from './components/nav.js';
 import { renderThemePanel, initThemePanel } from './components/themePanel.js';
 import { renderHome, initHome } from './pages/home.js';
 import { renderPoem, initPoem } from './pages/poem.js';
-import { renderExport, initExport } from './pages/export.js?v=4';
+import { renderExport, initExport } from './pages/export.js?v=6';
 import { renderAuthor, initAuthor } from './pages/author.js';
 
 const app = document.getElementById('app');

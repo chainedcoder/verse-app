@@ -4,11 +4,38 @@
 
 import { getPoem, getAuthor } from '../data.js';
 import { showToast } from '../toast.js';
+import { getTheme, getAccent } from '../theme.js';
 
-let selectedTemplate = 'minimal';
+let selectedTemplate = 'siteview';
 let colorIndex = 0;
 
+// Accent color HSL definitions matching base.css
+const accentDefs = {
+  indigo: { h: 235, s: 45 },
+  rose: { h: 348, s: 60 },
+  emerald: { h: 160, s: 50 },
+  amber: { h: 32, s: 65 },
+  violet: { h: 270, s: 50 },
+  ocean: { h: 200, s: 60 },
+};
+
+function hsl(h, s, l) {
+  return `hsl(${h}, ${s}%, ${l}%)`;
+}
+
+function getSiteViewColors() {
+  const accent = getAccent() || 'indigo';
+  const def = accentDefs[accent] || accentDefs.indigo;
+  return [
+    // Light theme variant
+    { bg: '#faf8f4', text: '#1a1a2e', secondary: '#5a5a6e', tertiary: '#8a8a9a', accent: hsl(def.h, def.s, 22), accentSoft: hsl(def.h, def.s, 94), cardBg: '#ffffff', border: '#e8e4dc', label: 'Light' },
+    // Dark theme variant
+    { bg: '#0e0e1a', text: '#e8e4dc', secondary: '#9a96a6', tertiary: '#6a667a', accent: hsl(def.h, def.s, 72), accentSoft: hsl(def.h, 30, 18), cardBg: '#1a1a30', border: '#242038', label: 'Dark' },
+  ];
+}
+
 const templateColors = {
+  siteview: getSiteViewColors(),
   minimal: [
     { bg: '#ffffff', text: '#1a1a1a', accent: '#1a1a2e' },
     { bg: '#f9f6f0', text: '#2c2820', accent: '#4a3f35' },
@@ -46,7 +73,11 @@ export function renderExport(poemId) {
   const storyLines = poem.fullText.split('\n').slice(0, 2).join('<br>');
   const loveLines = poem.fullText.split('\n').slice(1, 3).join('<br>');
 
-  selectedTemplate = 'minimal';
+  // Refresh siteview colors in case accent changed
+  templateColors.siteview = getSiteViewColors();
+  const svC = templateColors.siteview[0];
+
+  selectedTemplate = 'siteview';
   colorIndex = 0;
 
   return `
@@ -64,8 +95,26 @@ export function renderExport(poemId) {
 
       <div class="template-grid" id="template-grid" style="margin-top:24px;">
 
+        <!-- Template: Site View -->
+        <div class="template-card selected" data-template="siteview" id="tpl-siteview">
+          <div class="template-preview template-preview-siteview" style="background:${svC.bg}; color:${svC.text};">
+            <div style="font-family:'Playfair Display',serif; font-size:14px; font-weight:bold; margin-bottom:4px;">${poem.title}</div>
+            <div class="siteview-border-line" style="font-family:'Playfair Display',serif; font-size:12px; line-height:1.6; font-style:italic; padding-left:8px; border-left:3px solid ${svC.accent};">
+              ${previewLines}
+            </div>
+            <div style="margin-top:12px; font-size:9px; color:currentColor; opacity:0.6;">— ${author.name}</div>
+          </div>
+          <div class="template-info">
+            <div>
+              <div class="template-info-name">Site view</div>
+              <div class="template-info-desc">As seen on Verse</div>
+            </div>
+            <span class="template-selected-badge" id="badge-siteview">Selected</span>
+          </div>
+        </div>
+
         <!-- Template A: Minimal -->
-        <div class="template-card selected" data-template="minimal" id="tpl-minimal">
+        <div class="template-card" data-template="minimal" id="tpl-minimal">
           <div class="template-preview template-preview-minimal" style="background:#ffffff; color:#1a1a1a;">
             <div style="font-family:'Playfair Display',serif; font-size:14px; font-weight:bold; margin-bottom:4px;">${poem.title}</div>
             <div class="minimal-border-line" style="font-family:'Playfair Display',serif; font-size:12px; line-height:1.6; font-style:italic; padding-left:8px; border-left:2px solid #1a1a2e;">
@@ -78,7 +127,7 @@ export function renderExport(poemId) {
               <div class="template-info-name">Minimal</div>
               <div class="template-info-desc">Clean borders</div>
             </div>
-            <span class="template-selected-badge" id="badge-minimal">Selected</span>
+            <i class="ti ti-download" style="font-size:14px; color:var(--text-tertiary);" aria-hidden="true"></i>
           </div>
         </div>
 
@@ -161,6 +210,10 @@ export function initExport(poemId) {
     preview.style.background = c.bg;
     preview.style.color = c.text;
 
+    if (selectedTemplate === 'siteview') {
+      const textDiv = preview.querySelector('.siteview-border-line');
+      if (textDiv) textDiv.style.borderLeftColor = c.accent;
+    }
     if (selectedTemplate === 'minimal') {
       const textDiv = preview.querySelector('.minimal-border-line');
       if (textDiv) textDiv.style.borderLeftColor = c.accent;
@@ -200,7 +253,7 @@ export function initExport(poemId) {
     const info = initialCard.querySelector('.template-info');
     if (info) {
       const lastChild = info.lastElementChild;
-      if (lastChild && lastChild.tagName === 'SPAN') lastChild.remove(); // Remove the hardcoded "Selected" badge
+      if (lastChild && (lastChild.tagName === 'SPAN' || lastChild.tagName === 'I')) lastChild.remove();
       info.insertAdjacentHTML('beforeend', getPaletteHTML(selectedTemplate));
     }
   }
@@ -378,7 +431,52 @@ function generateCanvas(poem, author, template, cIndex) {
     return currentY;
   }
 
-  // Title
+  // ---- Site View template: same layout as minimal/dark but with exact site theme colors ----
+  if (template === 'siteview') {
+    ctx.fillStyle = cfg.accent;
+    ctx.fillRect(padding - 20, y - 10, 4, 0); // placeholder, sized after text
+    const borderStartY = y - 10;
+
+    // Title
+    ctx.textAlign = 'left';
+    ctx.fillStyle = cfg.textColor;
+    ctx.font = 'bold 42px Playfair Display, serif';
+    const maxTitleWidth = cfg.w - (padding * 2);
+    y = wrapText(ctx, poem.title, padding, y, maxTitleWidth, 64);
+    y += 100;
+
+    // Poem text with accent left border
+    ctx.fillStyle = cfg.textColor;
+    ctx.font = 'italic 20px Playfair Display, serif';
+    ctx.lineHeight = 1.8;
+
+    const poemBorderStartY = y - 50;
+    const lines = poem.fullText.split('\n');
+    lines.forEach(line => {
+      if (line.trim() === '') {
+        y += 30;
+      } else {
+        ctx.fillText(line, padding + 30, y);
+        y += 50;
+      }
+    });
+
+    // Draw the 3px accent border (matching .poem-body border-left: 3px)
+    ctx.fillStyle = cfg.accent;
+    ctx.fillRect(padding - 20, poemBorderStartY, 5, y - poemBorderStartY - 20);
+
+    // Author
+    y += 40;
+    ctx.fillStyle = cfg.textColor;
+    ctx.globalAlpha = 0.6;
+    ctx.font = '24px Inter, sans-serif';
+    ctx.fillText(`— ${author.name}`, padding, y);
+    ctx.globalAlpha = 1.0;
+
+    return canvas;
+  }
+
+  // ---- Title ----
   ctx.textAlign = template === 'story' ? 'center' : 'left';
   const maxTitleWidth = cfg.w - (padding * 2);
   if (template === 'love') {
