@@ -53,6 +53,17 @@ export default function Nav() {
         </div>
 
         <div className="navbar-actions">
+          <form action="/search" style={{ display: "flex", alignItems: "center", marginRight: "16px", position: "relative" }}>
+            <i className="ti ti-search" style={{ position: "absolute", left: "10px", color: "var(--text-tertiary)" }}></i>
+            <input 
+              type="search" 
+              name="q" 
+              placeholder="Search..." 
+              className="input" 
+              style={{ paddingLeft: "32px", width: "160px", paddingRight: "10px" }} 
+            />
+          </form>
+
           <button className="btn btn-ghost btn-sm" id="theme-toggle" aria-label={`${themeLabel} mode`} onClick={togglePanel}>
             <i className={`ti ${themeIcon}`} style={{ fontSize: "15px" }} aria-hidden="true"></i> {themeLabel}
           </button>
@@ -80,6 +91,17 @@ export default function Nav() {
 
       <div className={`drawer-overlay ${drawerOpen ? "open" : ""}`} onClick={closeDrawer} style={{ display: drawerOpen ? 'block' : 'none' }}></div>
       <div className={`mobile-drawer ${drawerOpen ? "open" : ""}`} style={{ display: drawerOpen ? 'flex' : 'none' }}>
+        <form action="/search" style={{ marginBottom: "16px", position: "relative" }}>
+          <i className="ti ti-search" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--text-tertiary)" }}></i>
+          <input 
+            type="search" 
+            name="q" 
+            placeholder="Search poems, authors..." 
+            className="input" 
+            style={{ width: "100%", paddingLeft: "36px" }} 
+          />
+        </form>
+
         <Link className={`mobile-drawer-link ${pathname === "/" ? "active" : ""}`} href="/" onClick={closeDrawer}>
           <i className="ti ti-compass" aria-hidden="true"></i> Discover
         </Link>

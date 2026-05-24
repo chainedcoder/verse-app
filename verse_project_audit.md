@@ -80,16 +80,18 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 
 ---
 
-## 5. 📚 Collections Feature — ❌ Completely Missing
+## 5. 📚 Collections Feature — ✅ Implemented
 
-"Collections" route `/collections` exists but **no code/logic exists** for this feature.
-
-### Tasks:
-- [ ] Design collections Prisma schema (name, description, poem IDs, author, visibility)
-- [ ] Build create collection flow
-- [ ] Build collection detail page (listing poems in a collection)
-- [ ] Add "Save to collection" action on poem cards and poem detail page
-- [ ] Support public/private collections
+### 3. Collections Feature (Done)
+- **Status:** Done.
+- **Goal:** Allow users to curate poems into public or private collections.
+- **Implemented:**
+  - `Collection` Prisma schema and push to database.
+  - Server actions for creating collections and adding/removing poems.
+  - UI for viewing public collections (`/collections`).
+  - Detail page for viewing a collection (`/collections/[id]`).
+  - Added "Save to Collection" button on poem pages (`PoemPageClient.jsx`).
+  - E2E tests for collection creation and curation.
 
 ---
 
