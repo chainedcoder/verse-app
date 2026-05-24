@@ -105,7 +105,13 @@ Write clear, descriptive commit messages. We recommend the [Conventional Commits
 - `fix: resolve hydration error on export page`
 - `docs: update readme with deployment instructions`
 
-### 4. Open a Pull Request
+### 4. Write Tests (Required)
+**We require tests for all changes and implementations.** 
+- If you are building a new component or utility function, write a Jest unit test in the `__tests__` directory.
+- If you are building a new feature flow or page, write a Playwright end-to-end test in the `e2e` directory.
+- Pull requests submitted without corresponding tests will not be merged.
+
+### 5. Open a Pull Request
 1. Push your branch to GitHub.
 2. Open a Pull Request against the `main` branch.
 3. Clearly describe the problem you are solving and the changes you have made.
