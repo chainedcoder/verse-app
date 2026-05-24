@@ -1,6 +1,5 @@
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -24,6 +23,7 @@ model User {
   
   followers     Follow[] @relation("following")
   following     Follow[] @relation("follower")
+  collections   Collection[]
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -74,6 +74,7 @@ model Poem {
   authorId  String
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   likes     Like[]
+  collections Collection[] @relation("CollectionPoems")
   createdAt DateTime @default(now())
 }
 
@@ -98,3 +99,16 @@ model Follow {
 
   @@unique([followerId, followingId])
 }
+
+model Collection {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isPublic    Boolean  @default(true)
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  poems       Poem[]   @relation("CollectionPoems")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+

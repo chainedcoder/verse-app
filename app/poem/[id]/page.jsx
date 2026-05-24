@@ -43,21 +43,30 @@ export default async function PoemPage(props) {
 
   let isLiked = false
   let isFollowingAuthor = false
+  let userCollections = []
 
   if (session?.user?.id) {
     const userId = session.user.id
     
-    const [likeRecord, followRecord] = await Promise.all([
+    const [likeRecord, followRecord, collections] = await Promise.all([
       prisma.like.findUnique({
         where: { poemId_userId: { poemId, userId } }
       }),
       prisma.follow.findUnique({
         where: { followerId_followingId: { followerId: userId, followingId: poem.authorId } }
+      }),
+      prisma.collection.findMany({
+        where: { authorId: userId },
+        include: { poems: { select: { id: true } } }
       })
     ])
 
     isLiked = !!likeRecord
     isFollowingAuthor = !!followRecord
+    userCollections = collections.map(c => ({
+      ...c,
+      hasPoem: c.poems.some(p => p.id === poemId)
+    }))
   }
 
   return (
@@ -65,6 +74,7 @@ export default async function PoemPage(props) {
       poem={poem} 
       initialLiked={isLiked} 
       initialFollowingAuthor={isFollowingAuthor} 
+      userCollections={userCollections}
     />
   )
 }

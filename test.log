@@ -1,0 +1,41 @@
+(node:97983) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:97984) [DEP0205] DeprecationWarning: `module.register()` is deprecated. Use `module.registerHooks()` instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+  ✘  1 [chromium] › e2e/collections.spec.js:11:7 › Collections Flow › authenticated user can create a collection and add a poem to it (8.2s)
+
+
+  1) [chromium] › e2e/collections.spec.js:11:7 › Collections Flow › authenticated user can create a collection and add a poem to it 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('h1')
+    Expected substring: [32m"My E2E Collection 1779636142094"[39m
+    Received string:    [31m"This page couldn’t load"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for locator('h1')[22m
+    [2m    4 × locator resolved to <h1 class="serif">Create a Collection</h1>[22m
+    [2m      - unexpected value "Create a Collection"[22m
+    [2m    10 × locator resolved to <h1>This page couldn’t load</h1>[22m
+    [2m       - unexpected value "This page couldn’t load"[22m
+
+
+      41 |     ]);
+      42 |
+    > 43 |     await expect(page.locator('h1')).toContainText(collectionName);
+         |                                      ^
+      44 |     await expect(page.locator('body')).toContainText('This collection is empty.');
+      45 |
+      46 |     // Go to a poem and add it to the collection
+        at /Users/steve/Documents/projects/posts/e2e/collections.spec.js:43:38
+
+    Error Context: test-results/collections-Collections-Fl-2d036-ection-and-add-a-poem-to-it-chromium/error-context.md
+
+  1 failed
+    [chromium] › e2e/collections.spec.js:11:7 › Collections Flow › authenticated user can create a collection and add a poem to it 

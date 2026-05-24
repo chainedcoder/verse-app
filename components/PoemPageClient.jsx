@@ -4,15 +4,18 @@ import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { toggleLike } from "@/app/actions/interactions"
+import { togglePoemInCollection } from "@/app/actions/collections"
 import AuthorCard from "@/components/AuthorCard"
 
-export default function PoemPageClient({ poem, initialLiked = false, initialFollowingAuthor = false }) {
+export default function PoemPageClient({ poem, initialLiked = false, initialFollowingAuthor = false, userCollections = [] }) {
   const router = useRouter()
   const author = poem.author
   const [liked, setLiked] = useState(initialLiked)
   const [likeCount, setLikeCount] = useState(poem._count?.likes || 0)
   const [isPending, startTransition] = useTransition()
   const [toastMessage, setToastMessage] = useState("")
+  const [collectionsModalOpen, setCollectionsModalOpen] = useState(false)
+  const [localCollections, setLocalCollections] = useState(userCollections)
 
   const showToast = (msg) => {
     setToastMessage(msg)
@@ -28,6 +31,21 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
     
     startTransition(async () => {
       await toggleLike(poem.id)
+    })
+  }
+
+  const handleToggleCollection = (collectionId, currentlyHas) => {
+    setLocalCollections(prev => prev.map(c => 
+      c.id === collectionId ? { ...c, hasPoem: !currentlyHas } : c
+    ))
+    
+    startTransition(async () => {
+      try {
+        await togglePoemInCollection(collectionId, poem.id)
+        showToast(currentlyHas ? "Removed from collection" : "Saved to collection")
+      } catch (e) {
+        showToast("Error updating collection")
+      }
     })
   }
 
@@ -65,13 +83,46 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
             <i className={`ti ${liked ? "ti-heart-filled" : "ti-heart"}`} style={{ fontSize: "20px" }} aria-hidden="true"></i>
             <span className="like-count" style={{ marginLeft: "4px" }}>{likeCount}</span> likes
           </button>
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", position: "relative" }}>
+            <button className="btn btn-ghost btn-sm" onClick={() => setCollectionsModalOpen(!collectionsModalOpen)}>
+              <i className="ti ti-bookmark" style={{ fontSize: "14px" }} aria-hidden="true"></i> Save
+            </button>
             <button className="btn btn-ghost btn-sm" onClick={handleShare}>
               <i className="ti ti-share" style={{ fontSize: "14px" }} aria-hidden="true"></i> Share
             </button>
             <Link href={`/export/${poem.id}`} className="btn btn-primary btn-sm">
               <i className="ti ti-download" style={{ fontSize: "14px" }} aria-hidden="true"></i> Download
             </Link>
+
+            {collectionsModalOpen && (
+              <div style={{
+                position: "absolute", top: "100%", right: "0", marginTop: "8px",
+                backgroundColor: "var(--bg-card)", border: "1px solid var(--border-secondary)",
+                borderRadius: "8px", padding: "16px", minWidth: "250px",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.15)", zIndex: 100
+              }}>
+                <h4 style={{ marginBottom: "12px", fontSize: "14px", color: "var(--text-secondary)" }}>Save to Collection</h4>
+                {localCollections.length === 0 ? (
+                  <div style={{ fontSize: "14px", color: "var(--text-tertiary)" }}>
+                    You don't have any collections yet. <br />
+                    <Link href="/collections/create" style={{ color: "var(--primary)", textDecoration: "none" }}>Create one here</Link>.
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                    {localCollections.map(c => (
+                      <label key={c.id} style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "14px" }}>
+                        <input 
+                          type="checkbox" 
+                          checked={c.hasPoem} 
+                          onChange={() => handleToggleCollection(c.id, c.hasPoem)}
+                        />
+                        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
