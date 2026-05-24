@@ -1,10 +1,13 @@
 import { prisma } from "@/lib/prisma"
+import { auth } from "@/auth"
 import Link from "next/link"
 import AuthorPageClient from "@/components/AuthorPageClient"
 
 export default async function AuthorPage(props) {
   const params = await props.params
   const authorId = params.id
+
+  const session = await auth()
 
   const author = await prisma.user.findUnique({
     where: { id: authorId },
@@ -39,5 +42,35 @@ export default async function AuthorPage(props) {
   author.readersCount = author._count?.followers || 0
   author.initials = author.name ? author.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?'
 
-  return <AuthorPageClient author={author} poems={author.poems} />
+  let isFollowing = false
+  let likedPoemIds = []
+
+  if (session?.user?.id) {
+    const userId = session.user.id
+    
+    const [followRecord, userLikes] = await Promise.all([
+      prisma.follow.findUnique({
+        where: { followerId_followingId: { followerId: userId, followingId: authorId } }
+      }),
+      prisma.like.findMany({
+        where: { 
+          userId,
+          poem: { authorId }
+        },
+        select: { poemId: true }
+      })
+    ])
+
+    isFollowing = !!followRecord
+    likedPoemIds = userLikes.map(l => l.poemId)
+  }
+
+  return (
+    <AuthorPageClient 
+      author={author} 
+      poems={author.poems} 
+      initialFollowing={isFollowing} 
+      initialLikedPoemIds={likedPoemIds} 
+    />
+  )
 }

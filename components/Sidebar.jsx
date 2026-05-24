@@ -1,17 +1,28 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import Link from "next/link"
-import { isFollowing, toggleFollow } from "@/lib/data"
+import { toggleFollow } from "@/app/actions/interactions"
 
-export default function Sidebar({ activeTag, onTagSelect, trendingAuthors = [], allTags = [] }) {
+export default function Sidebar({ activeTag, onTagSelect, trendingAuthors = [], allTags = [], initialFollowedAuthorIds = [] }) {
+  const followedSet = new Set(initialFollowedAuthorIds)
+  
   // A local component for the Follow button to manage its own state
   const FollowButton = ({ authorId }) => {
-    const [following, setFollowing] = useState(isFollowing(authorId))
+    const [following, setFollowing] = useState(followedSet.has(authorId))
+    const [isPending, startTransition] = useTransition()
+
+    const handleFollow = () => {
+      setFollowing(!following)
+      startTransition(async () => {
+        await toggleFollow(authorId)
+      })
+    }
+
     return (
       <button 
         className={`btn ${following ? "btn-primary" : "btn-ghost"} btn-sm`}
-        onClick={() => setFollowing(toggleFollow(authorId))}
+        onClick={handleFollow}
       >
         {following ? "Following" : "Follow"}
       </button>

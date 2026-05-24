@@ -1,13 +1,17 @@
 "use client"
 
-import { useState } from "react"
-import { isFollowing, toggleFollow } from "@/lib/data"
+import { useState, useTransition } from "react"
+import { toggleFollow } from "@/app/actions/interactions"
 
-export default function AuthorCard({ author }) {
-  const [following, setFollowing] = useState(isFollowing(author.id))
+export default function AuthorCard({ author, initialFollowing = false }) {
+  const [following, setFollowing] = useState(initialFollowing)
+  const [isPending, startTransition] = useTransition()
 
   const handleFollow = () => {
-    setFollowing(toggleFollow(author.id))
+    setFollowing(!following)
+    startTransition(async () => {
+      await toggleFollow(author.id)
+    })
   }
 
   return (

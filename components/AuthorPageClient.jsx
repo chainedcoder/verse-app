@@ -1,12 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import Link from "next/link"
-import { isFollowing, toggleFollow, isLiked, getLikeCount, toggleLike } from "@/lib/data"
+import { toggleFollow, toggleLike } from "@/app/actions/interactions"
 
-export default function AuthorPageClient({ author, poems }) {
-  const [following, setFollowing] = useState(isFollowing(author.id))
+export default function AuthorPageClient({ author, poems, initialFollowing = false, initialLikedPoemIds = [] }) {
+  const [following, setFollowing] = useState(initialFollowing)
   const [activeTab, setActiveTab] = useState("all")
+  const [isPending, startTransition] = useTransition()
+
+  const likedSet = new Set(initialLikedPoemIds)
 
   const authorTags = [...new Set(poems.flatMap(p => p.tags ? p.tags.split(',') : []))]
 
@@ -15,19 +18,28 @@ export default function AuthorPageClient({ author, poems }) {
     : poems.filter(p => p.tags && p.tags.split(',').includes(activeTab))
 
   const handleFollow = () => {
-    setFollowing(toggleFollow(author.id))
+    setFollowing(!following)
+    startTransition(async () => {
+      await toggleFollow(author.id)
+    })
   }
 
   const WorkCard = ({ poem }) => {
-    const [liked, setLiked] = useState(isLiked(poem.id))
+    const [liked, setLiked] = useState(likedSet.has(poem.id))
     const [likeCount, setLikeCount] = useState(poem._count?.likes || 0)
+    const [isPendingLike, startTransitionLike] = useTransition()
 
     const handleLike = (e) => {
       e.preventDefault()
       e.stopPropagation()
-      const nowLiked = toggleLike(poem.id)
-      setLiked(nowLiked)
-      setLikeCount(prev => nowLiked ? prev + 1 : prev - 1)
+      
+      const newLiked = !liked
+      setLiked(newLiked)
+      setLikeCount(prev => newLiked ? prev + 1 : prev - 1)
+      
+      startTransitionLike(async () => {
+        await toggleLike(poem.id)
+      })
     }
 
     const tagsList = poem.tags ? poem.tags.split(',') : []

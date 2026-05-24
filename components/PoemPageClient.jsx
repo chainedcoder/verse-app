@@ -1,16 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { isLiked, toggleLike } from "@/lib/data"
+import { toggleLike } from "@/app/actions/interactions"
 import AuthorCard from "@/components/AuthorCard"
 
-export default function PoemPageClient({ poem }) {
+export default function PoemPageClient({ poem, initialLiked = false, initialFollowingAuthor = false }) {
   const router = useRouter()
   const author = poem.author
-  const [liked, setLiked] = useState(isLiked(poem.id))
+  const [liked, setLiked] = useState(initialLiked)
   const [likeCount, setLikeCount] = useState(poem._count?.likes || 0)
+  const [isPending, startTransition] = useTransition()
   const [toastMessage, setToastMessage] = useState("")
 
   const showToast = (msg) => {
@@ -21,9 +22,13 @@ export default function PoemPageClient({ poem }) {
   }
 
   const handleLike = () => {
-    const nowLiked = toggleLike(poem.id)
-    setLiked(nowLiked)
-    setLikeCount(prev => nowLiked ? prev + 1 : prev - 1)
+    const newLiked = !liked
+    setLiked(newLiked)
+    setLikeCount(prev => newLiked ? prev + 1 : prev - 1)
+    
+    startTransition(async () => {
+      await toggleLike(poem.id)
+    })
   }
 
   const handleShare = () => {
@@ -74,7 +79,7 @@ export default function PoemPageClient({ poem }) {
       {/* Side panel */}
       <div className="poem-side">
         {/* We reuse AuthorCard, but note that AuthorCard also expects author.poems and author.readers count if available */}
-        <AuthorCard author={author} />
+        <AuthorCard author={author} initialFollowing={initialFollowingAuthor} />
 
         <hr className="divider" style={{ marginBottom: "20px" }} />
 

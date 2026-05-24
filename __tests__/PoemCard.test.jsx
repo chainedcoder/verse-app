@@ -13,9 +13,8 @@ jest.mock('next/navigation', () => ({
   useRouter: () => ({ push: jest.fn() })
 }));
 
-// Mock the data library
-jest.mock('@/lib/data', () => ({
-  isLiked: jest.fn(() => false),
+// Mock the interactions actions
+jest.mock('@/app/actions/interactions', () => ({
   toggleLike: jest.fn()
 }));
 

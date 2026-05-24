@@ -1,9 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { isLiked, toggleLike } from "@/lib/data"
+import { toggleLike } from "@/app/actions/interactions"
 
 function estimateReadTime(text) {
   if (!text) return 1
@@ -12,22 +12,29 @@ function estimateReadTime(text) {
   return minutes < 1 ? 1 : minutes
 }
 
-export default function PoemCard({ poem }) {
+export default function PoemCard({ poem, initialLiked = false }) {
   const router = useRouter()
   // poem.author is included from Prisma query
   const author = poem.author
   
-  const [liked, setLiked] = useState(isLiked(poem.id))
+  const [liked, setLiked] = useState(initialLiked)
   const [likeCount, setLikeCount] = useState(poem._count?.likes || 0)
+  const [isPending, startTransition] = useTransition()
   
   const readTime = estimateReadTime(poem.fullText || poem.excerpt)
 
   const handleLike = (e) => {
     e.preventDefault()
     e.stopPropagation()
-    const nowLiked = toggleLike(poem.id)
-    setLiked(nowLiked)
-    setLikeCount(prev => nowLiked ? prev + 1 : prev - 1)
+    
+    // Optimistic UI update
+    const newLiked = !liked
+    setLiked(newLiked)
+    setLikeCount(prev => newLiked ? prev + 1 : prev - 1)
+    
+    startTransition(async () => {
+      await toggleLike(poem.id)
+    })
   }
 
   const handleShare = (e) => {

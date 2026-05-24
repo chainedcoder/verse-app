@@ -13,6 +13,7 @@ Verse has recently undergone a major architectural migration from a **static, cl
 - ✅ **Authentication:** Auth.js v5 (NextAuth) integrated with credentials provider (bcrypt).
 - ✅ **Database:** Prisma 7 with `better-sqlite3` driver implemented.
 - ✅ **Testing Suite:** Jest, RTL, and Playwright integrated and passing.
+- ✅ **Export System:** Canvas-based image export system implemented.
 
 Despite these massive improvements, the application still has a substantial backlog of features (like content creation, database migration for poems, and social features) that need to be built.
 
@@ -26,11 +27,11 @@ The navbar renders top-level links which have been partially addressed:
 |------|-------|--------|
 | **Discover** | `/` | ✅ Working — renders home feed |
 | **Collections** | `/collections` | ⚠️ **Stub Page** — Route exists but lacks actual collection features. |
-| **Authors** | `/authors` | ⚠️ **Stub Page** — Route exists but lacks browse functionality. |
+| **Authors** | `/authors` | ✅ ~~⚠️ **Stub Page** — Route exists but lacks browse functionality.~~ Working — renders author profiles. |
 
 ### Tasks:
 - [ ] Build `/collections` data fetching and listing
-- [ ] Build `/authors` browse/listing functionality with pagination
+- [x] ~~Build `/authors` browse/listing functionality with pagination~~ (Implemented)
 
 ---
 
@@ -47,18 +48,18 @@ Authentication has been fully implemented using **Auth.js v5** and **Prisma**.
 ### Tasks:
 - [ ] Add "Forgot password" flow
 - [ ] Add OAuth/social login options (Google, GitHub, etc.)
-- [ ] Add logout functionality to Navbar dropdown
+- [x] ~~Add logout functionality to Navbar dropdown~~ (Implemented via Navbar button)
 
 ---
 
-## 3. 🗄️ Data Layer — ⚠️ Partially Migrated
+## 3. 🗄️ Data Layer — ✅ Fully Migrated
 
-While the database infrastructure (Prisma + SQLite) is active for **Users/Auth**, the actual poetry content is still **hardcoded in** `lib/data.js`.
+The database infrastructure (Prisma + SQLite) is now active for both **Users/Auth** and **Poetry Content**.
 
 ### Tasks:
-- [ ] Migrate poems from `lib/data.js` to Prisma SQLite schema
-- [ ] Migrate authors from `lib/data.js` to Prisma SQLite schema
-- [ ] Replace hardcoded data with Server Component DB fetch calls
+- [x] ~~Migrate poems from `lib/data.js` to Prisma SQLite schema~~
+- [x] ~~Migrate authors from `lib/data.js` to Prisma SQLite schema~~
+- [x] ~~Replace hardcoded data with Server Component DB fetch calls~~
 - [ ] Implement pagination or infinite scroll for the feed
 - [ ] Add loading states / skeleton screens with React Suspense
 
@@ -131,8 +132,8 @@ There is **no search functionality anywhere** in the application.
 ## 8. 🤝 Social Features — ⚠️ Stub / Incomplete
 
 ### 8.1 Likes & Follows
-- **Current**: Client-only state memory.
-- [ ] Persist likes and follows to backend Prisma DB
+- **Current**: ✅ Persisted to backend Prisma DB via Next.js Server Actions.
+- [x] ~~Persist likes and follows to backend Prisma DB~~
 - [ ] Show who liked a poem (likers list)
 - [ ] Add "Following" feed filter
 
@@ -166,6 +167,7 @@ There is **no search functionality anywhere** in the application.
 - ❌ Missing dynamic Next.js Metadata API implementations.
 
 ### Tasks:
+- [x] ~~Configure standard static metadata (favicons, manifest) in root layout~~
 - [ ] Add dynamic `generateMetadata` for Poem and Author pages (Open Graph, Twitter Cards)
 - [ ] Add structured data (JSON-LD) for poems and authors
 - [ ] Generate sitemap.xml and robots.txt
@@ -191,7 +193,7 @@ There is **no search functionality anywhere** in the application.
 ### Tasks:
 - [ ] Migrate inline styles remaining in React Components to Tailwind classes.
 - [ ] Implement React Suspense Error Boundaries for invalid DB routes/IDs.
-- [ ] Implement canvas auto-sizing for long poems in export.
+- [x] ~~Implement canvas auto-sizing for long poems in export.~~ (Implemented via export feature)
 
 ---
 
@@ -218,7 +220,7 @@ There is **no search functionality anywhere** in the application.
 |----------|--------|
 | Dead Nav Links / Missing Pages | ⚠️ Stubbed |
 | Authentication | ✅ Implemented |
-| Data Layer | ⚠️ Partially Migrated (Auth Only) |
+| Data Layer | ✅ Implemented |
 | Content Creation | ❌ Not started |
 | Collections Feature | ❌ Not started |
 | Search | ❌ Not started |
@@ -235,8 +237,7 @@ There is **no search functionality anywhere** in the application.
 
 ## Recommended Priority Order
 
-1. **Migrate Content Data Layer** — Move poems and authors to Prisma schema.
+1. ~~**Backend Integration for Interactions:** Wire up Likes and Follows to Prisma using Server Actions (remove `lib/data.js`).~~ (✅ Implemented)
 2. **Build Content Creation** — Implement Poem Editor.
-3. **Persist Social Features** — Store likes/follows to the database.
-4. **Implement User Profiles** — Enable editing of author profiles.
-5. **Search** — Core discoverability feature.
+3. **Collections Feature** — Implement DB schema and UI to allow curation.
+4. **Search** — Core discoverability feature.
