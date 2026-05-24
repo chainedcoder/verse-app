@@ -70,6 +70,55 @@
   align-items: center;
 }
 
+/* Nav search — same height as btn-sm (6px + 14px + 1.4 line-height ≈ 32px) */
+.nav-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.nav-search-icon {
+  position: absolute;
+  left: 10px;
+  font-size: 13px;
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+.nav-search-input {
+  width: 160px;
+  padding: 6px 10px 6px 30px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.4;
+  transition: all 0.2s ease;
+}
+
+.nav-search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-glow);
+  background: var(--bg-card);
+  width: 200px;
+}
+
+.nav-search-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Username label */
+.navbar-username {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+
 /* Hamburger */
 .hamburger {
   display: none;

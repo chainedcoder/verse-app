@@ -53,31 +53,31 @@ export default function Nav() {
         </div>
 
         <div className="navbar-actions">
-          <form action="/search" style={{ display: "flex", alignItems: "center", marginRight: "16px", position: "relative" }}>
-            <i className="ti ti-search" style={{ position: "absolute", left: "10px", color: "var(--text-tertiary)" }}></i>
+          <form action="/search" className="nav-search">
+            <i className="ti ti-search nav-search-icon" aria-hidden="true"></i>
             <input 
               type="search" 
               name="q" 
               placeholder="Search..." 
-              className="input" 
-              style={{ paddingLeft: "32px", width: "160px", paddingRight: "10px" }} 
+              className="nav-search-input" 
+              aria-label="Search poems and authors"
             />
           </form>
 
           <button className="btn btn-ghost btn-sm" id="theme-toggle" aria-label={`${themeLabel} mode`} onClick={togglePanel}>
-            <i className={`ti ${themeIcon}`} style={{ fontSize: "15px" }} aria-hidden="true"></i> {themeLabel}
+            <i className={`ti ${themeIcon}`} aria-hidden="true"></i> {themeLabel}
           </button>
           
           {session ? (
             <>
-              <Link href="/write" className="btn btn-primary btn-sm ml-2">Write</Link>
-              <span className="text-sm font-medium ml-2">{session.user?.name}</span>
-              <button className="btn btn-ghost btn-sm ml-2" onClick={() => signOut()}>Sign out</button>
+              <Link href="/write" className="btn btn-primary btn-sm">Write</Link>
+              <span className="navbar-username">{session.user?.name}</span>
+              <button className="btn btn-ghost btn-sm" onClick={() => signOut()}>Sign out</button>
             </>
           ) : (
             <>
-              <Link href="/login" className="btn btn-ghost btn-sm">Log in</Link>
-              <Link href="/signup" className="btn btn-primary btn-sm">Sign up</Link>
+              <Link href="/login" className="btn btn-ghost btn-sm" id="nav-login">Log in</Link>
+              <Link href="/signup" className="btn btn-primary btn-sm" id="nav-signup">Sign up</Link>
             </>
           )}
 

@@ -17,7 +17,7 @@ test.describe('Search Flow', () => {
 
     // Verify search page loads and shows results
     await expect(page.locator('h1')).toContainText('Search');
-    await expect(page.locator('body')).toContainText('for "stars"');
+    await expect(page.locator('body')).toContainText('for \u201cstars\u201d');
 
     // Check that there is at least one poem card (or empty state if none exist)
     // We expect some results since 'stars' is in the dummy data, but we can just check if page renders correctly
@@ -37,6 +37,6 @@ test.describe('Search Flow', () => {
       pageSearchInput.press('Enter')
     ]);
 
-    await expect(page.locator('body')).toContainText('for "Frost"');
+    await expect(page.locator('body')).toContainText('for \u201cFrost\u201d');
   });
 });

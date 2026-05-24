@@ -28,7 +28,7 @@ describe('PoemEditor', () => {
     expect(screen.getByLabelText(/Excerpt/)).toBeInTheDocument()
     expect(screen.getByLabelText('Body')).toBeInTheDocument()
     expect(screen.getByLabelText(/Tags/)).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Publish' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /publish/i })).toBeInTheDocument()
   })
 
   it('displays error if action returns one', async () => {
@@ -39,7 +39,7 @@ describe('PoemEditor', () => {
     fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Test' } })
     fireEvent.change(screen.getByLabelText('Body'), { target: { value: 'Test body' } })
     
-    fireEvent.click(screen.getByRole('button', { name: 'Publish' }))
+    fireEvent.click(screen.getByRole('button', { name: /publish/i }))
     
     await waitFor(() => {
       expect(screen.getByText('Title and body are required.')).toBeInTheDocument()
@@ -54,7 +54,7 @@ describe('PoemEditor', () => {
     fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'A New Poem' } })
     fireEvent.change(screen.getByLabelText('Body'), { target: { value: 'This is the body of the poem.' } })
     
-    fireEvent.click(screen.getByRole('button', { name: 'Publish' }))
+    fireEvent.click(screen.getByRole('button', { name: /publish/i }))
     
     await waitFor(() => {
       expect(mockCreatePoem).toHaveBeenCalledTimes(1)
