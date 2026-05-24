@@ -59,6 +59,7 @@ export default function Nav() {
           
           {session ? (
             <>
+              <Link href="/write" className="btn btn-primary btn-sm ml-2">Write</Link>
               <span className="text-sm font-medium ml-2">{session.user?.name}</span>
               <button className="btn btn-ghost btn-sm ml-2" onClick={() => signOut()}>Sign out</button>
             </>
@@ -95,7 +96,10 @@ export default function Nav() {
         <hr className="mobile-drawer-divider" />
         
         {session ? (
-          <button className="btn btn-ghost btn-full" onClick={() => { signOut(); closeDrawer(); }}>Sign out</button>
+          <>
+            <Link href="/write" className="btn btn-primary btn-full" style={{ marginBottom: "8px" }} onClick={closeDrawer}>Write</Link>
+            <button className="btn btn-ghost btn-full" onClick={() => { signOut(); closeDrawer(); }}>Sign out</button>
+          </>
         ) : (
           <>
             <Link href="/login" className="btn btn-ghost btn-full" style={{ marginBottom: "8px" }} onClick={closeDrawer}>Log in</Link>
