@@ -35,10 +35,15 @@ test.describe('Authentication Flow', () => {
 
     // 7. Verify navbar shows authenticated state
     const navbar = page.locator('.navbar-actions');
-    await expect(navbar).toContainText('TU'); // Initials of 'Test User'
+    const avatar = page.locator('.navbar-desktop-actions .avatar');
+    
+    // Strict layout safeguards
+    await expect(avatar).toBeVisible();
+    await expect(avatar).toHaveCSS('height', '25px');
+    await expect(avatar).toHaveCSS('width', '25px');
 
     // 8. Click the avatar to open the dropdown and verify contents
-    await page.locator('.navbar-desktop-actions .avatar').click();
+    await avatar.click();
     await expect(page.locator('.navbar-desktop-actions')).toContainText('Test User');
     await expect(page.locator('.navbar-desktop-actions')).toContainText('Sign out');
   });

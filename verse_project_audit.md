@@ -195,10 +195,17 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 - ✅ ESLint + Next config added.
 - ✅ Full Testing Suite: Jest, RTL (Unit Tests), and Playwright (E2E).
 
+## 7. 🎨 UI/UX & Design System — ✅ Underway
+
+The design system requires standardization.
+
 ### Tasks:
-- [ ] Migrate inline styles remaining in React Components to Tailwind classes.
-- [ ] Implement React Suspense Error Boundaries for invalid DB routes/IDs.
-- [x] ~~Implement canvas auto-sizing for long poems in export.~~ (Implemented via export feature)
+- [x] Apply unified `.card`, `.btn` styles across all pages.
+- [x] Standardize responsive grids for feeds and profiles.
+- [ ] Implement robust loading skeletons (instead of generic "Loading..." text).
+- [ ] Add empty states for all views (empty collections, no followers, etc.).
+- [ ] **Implement Storybook** to isolate and document UI components, preventing unintended layout regressions.
+- [ ] **Migrate to CSS Modules** (e.g., `Nav.module.css`) to prevent global style bleed and strictly scope styles.
 
 ---
 
