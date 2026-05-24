@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { authors, trendingAuthors, allTags, isFollowing, toggleFollow } from "@/lib/data"
+import { isFollowing, toggleFollow } from "@/lib/data"
 
-export default function Sidebar({ activeTag, onTagSelect }) {
+export default function Sidebar({ activeTag, onTagSelect, trendingAuthors = [], allTags = [] }) {
   // A local component for the Follow button to manage its own state
   const FollowButton = ({ authorId }) => {
     const [following, setFollowing] = useState(isFollowing(authorId))
@@ -22,15 +22,15 @@ export default function Sidebar({ activeTag, onTagSelect }) {
     <div className="feed-sidebar">
       <div className="section-title">Trending authors</div>
       <div className="author-list">
-        {trendingAuthors.map((authorId, idx) => {
-          const author = authors.find(a => a.id === authorId)
+        {trendingAuthors.map((author, idx) => {
           if (!author) return null
+          const initials = author.name ? author.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?'
           return (
             <div key={author.id}>
               {idx > 0 && <hr className="divider" />}
               <div className="author-list-item" style={{ paddingTop: idx > 0 ? "12px" : "0" }}>
                 <div className="author-list-info">
-                  <div className={`avatar ${author.avatarClass}`}>{author.initials}</div>
+                  <div className={`avatar ${author.image}`}>{initials}</div>
                   <div>
                     <div style={{ fontSize: "13px", fontWeight: "500" }}>
                       <Link href={`/author/${author.id}`} style={{ textDecoration: "none", color: "inherit" }}>

@@ -6,11 +6,20 @@ import { Providers } from "@/components/Providers"
 export const metadata = {
   title: "Verse — Poetry & Lyrics",
   description: "Discover, share, and download beautiful poetry and lyrics.",
+  icons: {
+    icon: [
+      { url: '/favicon/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon/favicon-16x16.png', sizes: '16x16', type: 'image/png' }
+    ],
+    shortcut: '/favicon/favicon.ico',
+    apple: '/favicon/apple-touch-icon.png',
+  },
+  manifest: '/favicon/site.webmanifest'
 }
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" data-theme="light" data-accent="indigo">
+    <html lang="en" data-theme="light" data-accent="indigo" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

@@ -15,14 +15,7 @@ jest.mock('next/navigation', () => ({
 
 // Mock the data library
 jest.mock('@/lib/data', () => ({
-  getAuthor: jest.fn(() => ({
-    id: 'author1',
-    name: 'Emily Dickinson',
-    initials: 'ED',
-    avatarClass: 'bg-emerald'
-  })),
   isLiked: jest.fn(() => false),
-  getLikeCount: jest.fn(() => 42),
   toggleLike: jest.fn()
 }));
 
@@ -32,10 +25,17 @@ describe('PoemCard', () => {
     title: 'Hope is the thing with feathers',
     excerpt: 'Hope is the thing with feathers\nThat perches in the soul',
     fullText: 'Hope is the thing with feathers\nThat perches in the soul,\nAnd sings the tune without the words,\nAnd never stops at all,',
-    tags: ['classic', 'nature'],
+    tags: 'classic,nature',
     featured: true,
     authorId: 'author1',
-    date: '1891'
+    createdAt: new Date('1891-01-01T00:00:00.000Z').toISOString(),
+    author: {
+      name: 'Emily Dickinson',
+      image: 'bg-emerald'
+    },
+    _count: {
+      likes: 42
+    }
   };
 
   it('renders the poem title and excerpt correctly', () => {

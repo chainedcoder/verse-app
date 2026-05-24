@@ -3,9 +3,10 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { getAuthor, isLiked, getLikeCount, toggleLike } from "@/lib/data"
+import { isLiked, toggleLike } from "@/lib/data"
 
 function estimateReadTime(text) {
+  if (!text) return 1
   const words = text.trim().split(/\s+/).length
   const minutes = Math.ceil(words / 200)
   return minutes < 1 ? 1 : minutes
@@ -13,9 +14,11 @@ function estimateReadTime(text) {
 
 export default function PoemCard({ poem }) {
   const router = useRouter()
-  const author = getAuthor(poem.authorId)
+  // poem.author is included from Prisma query
+  const author = poem.author
+  
   const [liked, setLiked] = useState(isLiked(poem.id))
-  const [likeCount, setLikeCount] = useState(getLikeCount(poem.id))
+  const [likeCount, setLikeCount] = useState(poem._count?.likes || 0)
   
   const readTime = estimateReadTime(poem.fullText || poem.excerpt)
 
@@ -24,7 +27,7 @@ export default function PoemCard({ poem }) {
     e.stopPropagation()
     const nowLiked = toggleLike(poem.id)
     setLiked(nowLiked)
-    setLikeCount(getLikeCount(poem.id))
+    setLikeCount(prev => nowLiked ? prev + 1 : prev - 1)
   }
 
   const handleShare = (e) => {
@@ -32,28 +35,35 @@ export default function PoemCard({ poem }) {
     e.stopPropagation()
     const url = `${window.location.origin}/poem/${poem.id}`
     navigator.clipboard.writeText(url).then(() => {
-      // Could show toast here
       alert("Link copied!")
     })
   }
 
   if (!author) return null
 
+  // Tags are stored as a comma-separated string in the DB
+  const tagsList = poem.tags ? poem.tags.split(',') : []
+  
+  // compute initials
+  const initials = author.name ? author.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?'
+
   return (
     <div onClick={() => router.push(`/poem/${poem.id}`)} style={{ cursor: "pointer", display: "block" }}>
       <div className="card card-clickable poem-card-featured" style={{ marginBottom: "16px" }}>
         {poem.featured && <span className="badge badge-featured">featured</span>}
-        <div className="category-label" style={{ marginBottom: "6px" }}>{poem.tags.join(" · ")}</div>
+        <div className="category-label" style={{ marginBottom: "6px" }}>{tagsList.join(" · ")}</div>
         <h2 className="serif" style={{ fontSize: "22px", marginBottom: "12px", letterSpacing: "-0.3px" }}>{poem.title}</h2>
         <div className="poem-excerpt" style={{ fontSize: "15px" }} dangerouslySetInnerHTML={{ __html: poem.excerpt.replace(/\n/g, "<br>") }} />
         
         <div className="card-footer">
           <div className="author-info">
             <Link href={`/author/${poem.authorId}`} className="author-info" style={{ textDecoration: "none", color: "inherit" }} onClick={e => e.stopPropagation()}>
-              <div className={`avatar avatar-sm ${author.avatarClass}`}>{author.initials}</div>
+              <div className={`avatar avatar-sm ${author.image}`}>{initials}</div>
               <div>
                 <div className="author-name">{author.name}</div>
-                <div style={{ fontSize: "11px", color: "var(--text-tertiary)" }}>{poem.date} · {readTime} min read</div>
+                <div style={{ fontSize: "11px", color: "var(--text-tertiary)" }}>
+                  <span suppressHydrationWarning>{poem.createdAt ? new Date(poem.createdAt).toLocaleDateString('en-US', { timeZone: 'UTC' }) : 'Recently'}</span> · {readTime} min read
+                </div>
               </div>
             </Link>
           </div>
