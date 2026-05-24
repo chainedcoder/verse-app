@@ -70,6 +70,12 @@
   align-items: center;
 }
 
+.navbar-desktop-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 /* Nav search — same height as btn-sm (6px + 14px + 1.4 line-height ≈ 32px) */
 .nav-search {
   position: relative;
@@ -280,6 +286,34 @@
   gap: 10px;
 }
 
+/* Authors page responsive grid */
+.author-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* Collections page responsive grid */
+.collections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+/* Write page */
+.write-page {
+  padding: 48px 24px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Generic page wrapper — gives pages horizontal padding that collapses on mobile */
+.page-container {
+  padding: 32px 24px;
+  max-width: 1680px;
+  margin: 0 auto;
+}
+
 /* --- Profile Header --- */
 .profile-hero {
   padding: 32px;
@@ -334,7 +368,7 @@
   }
 }
 
-/* Tablets (mobile and small tablets < 768px) */
+/* Tablets + mobile (< 768px) */
 @media (max-width: 767px) {
   .feed-layout {
     grid-template-columns: 1fr;
@@ -367,12 +401,12 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
+  /* Hide all desktop nav actions — hamburger drawer takes over */
   .navbar-links {
     display: none;
   }
 
-  #nav-login,
-  #nav-signup {
+  .navbar-desktop-actions {
     display: none;
   }
 
@@ -386,6 +420,35 @@
 
   .drawer-overlay {
     display: block;
+  }
+
+  /* Prevent any child from causing horizontal overflow */
+  body, html {
+    overflow-x: hidden;
+  }
+
+  /* Container padding on mobile */
+  .container,
+  .page-container {
+    padding-left: 16px;
+    padding-right: 16px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Write page: full width, comfortable padding */
+  .write-page {
+    padding: 24px 16px;
+    max-width: 100% !important;
+  }
+
+  /* Authors / Collections grids: single column on small screens */
+  .author-list-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .collections-grid {
+    grid-template-columns: 1fr !important;
   }
 }
 

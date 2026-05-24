@@ -53,33 +53,35 @@ export default function Nav() {
         </div>
 
         <div className="navbar-actions">
-          <form action="/search" className="nav-search">
-            <i className="ti ti-search nav-search-icon" aria-hidden="true"></i>
-            <input 
-              type="search" 
-              name="q" 
-              placeholder="Search..." 
-              className="nav-search-input" 
-              aria-label="Search poems and authors"
-            />
-          </form>
+          <div className="navbar-desktop-actions">
+            <form action="/search" className="nav-search">
+              <i className="ti ti-search nav-search-icon" aria-hidden="true"></i>
+              <input 
+                type="search" 
+                name="q" 
+                placeholder="Search..." 
+                className="nav-search-input" 
+                aria-label="Search poems and authors"
+              />
+            </form>
 
-          <button className="btn btn-ghost btn-sm" id="theme-toggle" aria-label={`${themeLabel} mode`} onClick={togglePanel}>
-            <i className={`ti ${themeIcon}`} aria-hidden="true"></i> {themeLabel}
-          </button>
-          
-          {session ? (
-            <>
-              <Link href="/write" className="btn btn-primary btn-sm">Write</Link>
-              <span className="navbar-username">{session.user?.name}</span>
-              <button className="btn btn-ghost btn-sm" onClick={() => signOut()}>Sign out</button>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="btn btn-ghost btn-sm" id="nav-login">Log in</Link>
-              <Link href="/signup" className="btn btn-primary btn-sm" id="nav-signup">Sign up</Link>
-            </>
-          )}
+            <button className="btn btn-ghost btn-sm" id="theme-toggle" aria-label={`${themeLabel} mode`} onClick={togglePanel}>
+              <i className={`ti ${themeIcon}`} aria-hidden="true"></i> {themeLabel}
+            </button>
+            
+            {session ? (
+              <>
+                <Link href="/write" className="btn btn-primary btn-sm">Write</Link>
+                <span className="navbar-username">{session.user?.name}</span>
+                <button className="btn btn-ghost btn-sm" onClick={() => signOut()}>Sign out</button>
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="btn btn-ghost btn-sm" id="nav-login">Log in</Link>
+                <Link href="/signup" className="btn btn-primary btn-sm" id="nav-signup">Sign up</Link>
+              </>
+            )}
+          </div>
 
           <button className={`hamburger ${drawerOpen ? "open" : ""}`} aria-label="Menu" onClick={toggleDrawer}>
             <span className="hamburger-line"></span>

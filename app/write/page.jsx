@@ -15,7 +15,7 @@ export default async function WritePage() {
   }
 
   return (
-    <div className="container" style={{ padding: "48px 24px", maxWidth: "800px", margin: "0 auto" }}>
+    <div className="write-page container">
       <h1 className="poem-viewer-title serif" style={{ marginBottom: "32px" }}>Write</h1>
       <PoemEditor />
     </div>

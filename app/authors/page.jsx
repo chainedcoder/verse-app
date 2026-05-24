@@ -18,9 +18,9 @@ export default async function Authors() {
   }))
 
   return (
-    <div className="container" style={{ padding: "32px 0" }}>
+    <div className="page-container">
       <h1 className="serif" style={{ marginBottom: "24px" }}>Authors</h1>
-      <div className="author-list" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "20px" }}>
+      <div className="author-list-grid">
         {authorsList.map(author => (
           <Link key={author.id} href={`/author/${author.id}`} style={{ textDecoration: "none", color: "inherit" }}>
             <div className="card card-clickable" style={{ display: "flex", alignItems: "center", gap: "16px" }}>

@@ -17,7 +17,7 @@ export default async function Collections() {
   })
 
   return (
-    <div className="container" style={{ padding: "40px 0" }}>
+    <div className="page-container">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
         <h1 className="serif" style={{ fontSize: "36px" }}>Collections</h1>
         <Link href="/collections/create" className="btn btn-primary btn-sm">Create New</Link>
@@ -29,7 +29,7 @@ export default async function Collections() {
           <p style={{ color: "var(--text-secondary)" }}>No collections found. Be the first to create one!</p>
         </div>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "24px" }}>
+        <div className="collections-grid">
           {collections.map(collection => (
             <Link href={`/collections/${collection.id}`} key={collection.id} style={{ display: "block", textDecoration: "none", color: "inherit" }}>
               <div className="card" style={{ padding: "24px", height: "100%", display: "flex", flexDirection: "column" }}>
