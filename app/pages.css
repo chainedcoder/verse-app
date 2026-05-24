@@ -1,7 +1,77 @@
 /* ============================================
    VERSE — Page-Specific Styles
-   Feed · Viewer · Export · Profile
+   Feed · Viewer · Export · Profile · Write · Search
    ============================================ */
+
+/* --- Write Page / Poem Editor --- */
+.poem-editor-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--error-bg, hsl(350, 60%, 95%));
+  color: var(--error-text, hsl(350, 60%, 38%));
+  border: 1px solid hsl(350, 60%, 85%);
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+
+[data-theme="dark"] .form-error {
+  --error-bg: hsl(350, 30%, 16%);
+  --error-text: hsl(350, 70%, 72%);
+  border-color: hsl(350, 30%, 26%);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-tertiary);
+  margin-top: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- Search Page --- */
+.search-results-count {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+}
+
+.search-results-count strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.search-results-count em {
+  font-style: normal;
+  color: var(--text-primary);
+}
+
+.search-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 480px) {
+  .search-results-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 
 /* --- Home Feed --- */
 .poem-card-featured {

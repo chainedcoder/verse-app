@@ -97,13 +97,16 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 
 ## 6. 🔍 Search — ❌ Completely Missing
 
-There is **no search functionality anywhere** in the application.
+## 6. 🔍 Search — ✅ Implemented
 
-### Tasks:
-- [ ] Add search input to navbar (desktop + mobile)
-- [ ] Build search results page (`/search?q=...`)
-- [ ] Implement server-side search across poem titles, text, author names, and tags
-- [ ] Add search suggestions / autocomplete
+### 4. Search (Done)
+- **Status:** Done.
+- **Goal:** Core discoverability feature for finding poems, authors, and tags.
+- **Implemented:**
+  - Added search input to navbar (desktop + mobile drawer).
+  - Built search results page (`/search?q=...`).
+  - Implemented server-side search across poem titles, text, tags, and author names using Prisma `OR` filtering.
+  - E2E tests for search functionality.
 
 ---
 
@@ -115,14 +118,14 @@ There is **no search functionality anywhere** in the application.
 ### Backend Services Needed:
 
 #### 7.1 Content API (Server Actions)
-- [ ] Poems CRUD (create, read, update, delete)
-- [ ] Author profiles CRUD
-- [ ] Collections CRUD
+- [x] ~~Poems CRUD (create, read, update, delete)~~ (Create and Read done)
+- [ ] Author profiles CRUD (Edit profile)
+- [x] ~~Collections CRUD~~ (Done)
 - [ ] Tags management
 
 #### 7.2 Social Features API
-- [ ] Like/unlike poems (persist to database)
-- [ ] Follow/unfollow authors (persist to database)
+- [x] ~~Like/unlike poems (persist to database)~~ (Done)
+- [x] ~~Follow/unfollow authors (persist to database)~~ (Done)
 - [ ] Comments on poems
 
 #### 7.3 File Storage
@@ -220,14 +223,14 @@ There is **no search functionality anywhere** in the application.
 
 | Category | Status |
 |----------|--------|
-| Dead Nav Links / Missing Pages | ⚠️ Stubbed |
+| Dead Nav Links / Missing Pages | ✅ Implemented |
 | Authentication | ✅ Implemented |
 | Data Layer | ✅ Implemented |
-| Content Creation | ❌ Not started |
-| Collections Feature | ❌ Not started |
-| Search | ❌ Not started |
-| Backend Services | ⚠️ Infrastructure Built |
-| Social Features | ⚠️ Stub only |
+| Content Creation | ✅ Implemented |
+| Collections Feature | ✅ Implemented |
+| Search | ✅ Implemented |
+| Backend Services | ⚠️ Partially Implemented |
+| Social Features | ⚠️ Partial (Likes/Follows done) |
 | Accessibility | ⚠️ Partial |
 | SEO & Meta | ⚠️ SSR Implemented, Meta pending |
 | PWA & Offline | ❌ Not started |
@@ -237,9 +240,9 @@ There is **no search functionality anywhere** in the application.
 
 ---
 
-## Recommended Priority Order
+## Recommended Priority Order (Updated)
 
-1. ~~**Backend Integration for Interactions:** Wire up Likes and Follows to Prisma using Server Actions (remove `lib/data.js`).~~ (✅ Implemented)
-2. **Build Content Creation** — Implement Poem Editor.
-3. **Collections Feature** — Implement DB schema and UI to allow curation.
-4. **Search** — Core discoverability feature.
+1. **Social Engagement:** Build Comments system and Notification center.
+2. **Author Identity:** Implement Image upload service and Profile editing for Authors.
+3. **Discoverability:** Add "Following" feed filter and Search autocomplete.
+4. **Production Readiness:** Set up Deployment (Vercel/Netlify), CI/CD, and custom domain configuration.

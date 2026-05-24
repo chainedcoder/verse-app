@@ -89,6 +89,50 @@
 
 .btn-full { width: 100%; }
 
+/* --- Forms --- */
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-glow);
+  background: var(--bg-card);
+}
+
+.input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  letter-spacing: 0.01em;
+}
+
+.form-hint {
+  color: var(--text-tertiary);
+  font-weight: normal;
+  font-size: 11px;
+  margin-left: 6px;
+}
+
 /* --- Tags --- */
 .tag {
   display: inline-flex;

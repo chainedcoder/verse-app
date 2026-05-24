@@ -21,29 +21,29 @@ export default function PoemEditor() {
   }
 
   return (
-    <form className="poem-editor-form" onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+    <form className="poem-editor-form" onSubmit={handleSubmit}>
       {error && (
-        <div style={{ padding: "12px", backgroundColor: "#ffebee", color: "#c62828", borderRadius: "8px", fontSize: "14px" }}>
-          {error}
+        <div className="form-error">
+          <i className="ti ti-alert-circle"></i> {error}
         </div>
       )}
 
-      <div>
-        <label htmlFor="title" style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}>Title</label>
+      <div className="form-group">
+        <label htmlFor="title" className="form-label">Title</label>
         <input 
           type="text" 
           id="title" 
           name="title" 
-          className="input" 
+          className="input serif" 
           placeholder="A beautiful title"
           required 
-          style={{ fontSize: "20px", padding: "12px 16px" }}
+          style={{ fontSize: "24px", padding: "16px 20px" }}
         />
       </div>
 
-      <div>
-        <label htmlFor="excerpt" style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}>
-          Excerpt <span style={{ color: "var(--text-tertiary)", fontWeight: "normal" }}>(Optional - auto-generated from body)</span>
+      <div className="form-group">
+        <label htmlFor="excerpt" className="form-label">
+          Excerpt <span className="form-hint">(Optional - auto-generated from body)</span>
         </label>
         <textarea 
           id="excerpt" 
@@ -55,8 +55,8 @@ export default function PoemEditor() {
         />
       </div>
 
-      <div>
-        <label htmlFor="fullText" style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}>Body</label>
+      <div className="form-group">
+        <label htmlFor="fullText" className="form-label">Body</label>
         <textarea 
           id="fullText" 
           name="fullText" 
@@ -64,13 +64,13 @@ export default function PoemEditor() {
           placeholder="Write your poem here..."
           required 
           rows={15}
-          style={{ fontSize: "18px", lineHeight: "1.6", resize: "vertical" }}
+          style={{ fontSize: "18px", lineHeight: "1.8", resize: "vertical" }}
         />
       </div>
 
-      <div>
-        <label htmlFor="tags" style={{ display: "block", marginBottom: "8px", fontWeight: "500" }}>
-          Tags <span style={{ color: "var(--text-tertiary)", fontWeight: "normal" }}>(Comma-separated)</span>
+      <div className="form-group">
+        <label htmlFor="tags" className="form-label">
+          Tags <span className="form-hint">(Comma-separated)</span>
         </label>
         <input 
           type="text" 
@@ -81,13 +81,17 @@ export default function PoemEditor() {
         />
       </div>
 
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "12px" }}>
+      <div className="form-actions">
         <button 
           type="submit" 
-          className="btn btn-primary" 
+          className="btn btn-primary btn-lg" 
           disabled={isPending}
         >
-          {isPending ? "Publishing..." : "Publish"}
+          {isPending ? (
+            <><i className="ti ti-loader-2" style={{ animation: "spin 1s linear infinite" }}></i> Publishing...</>
+          ) : (
+            <><i className="ti ti-send"></i> Publish</>
+          )}
         </button>
       </div>
     </form>
