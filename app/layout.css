@@ -544,7 +544,7 @@
 
 /* Large desktops (1280px+): start columning the feed to avoid over-stretched cards */
 @media (min-width: 1280px) {
-  #poem-feed {
+  .regular-poem-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
@@ -562,8 +562,8 @@
     grid-template-columns: 1fr 400px;
   }
 
-  /* 3-column feed at this width */
-  #poem-feed {
+  /* 2-column regular grid at this width */
+  .regular-poem-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
   }
@@ -590,7 +590,7 @@
     grid-template-columns: 1fr 480px;
   }
 
-  #poem-feed {
+  .regular-poem-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 32px;
   }

@@ -12,7 +12,10 @@ export default async function Home() {
         select: { likes: true }
       }
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: [
+      { featured: 'desc' },
+      { createdAt: 'desc' }
+    ]
   })
 
   const trendingAuthors = await prisma.user.findMany({
@@ -49,9 +52,13 @@ export default async function Home() {
   })
   const tags = Array.from(tagsSet).filter(Boolean)
 
+  const featuredPoems = poems.filter(p => p.featured)
+  const regularPoems  = poems.filter(p => !p.featured)
+
   return (
     <FeedClient 
-      initialPoems={poems} 
+      initialPoems={regularPoems}
+      featuredPoems={featuredPoems}
       tags={tags} 
       trendingAuthors={trendingAuthors} 
       initialLikedPoemIds={likedPoemIds}

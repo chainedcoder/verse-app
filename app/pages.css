@@ -73,13 +73,153 @@
 
 
 
-/* --- Home Feed --- */
-.poem-card-featured {
-  position: relative;
-  margin-bottom: 12px;
+
+/* ============================================================
+   HOME FEED — Featured strip + regular grid
+   ============================================================ */
+
+/* Strip that holds all featured cards, full-width above the grid */
+.featured-strip {
   display: flex;
   flex-direction: column;
-  height: calc(100% - 12px);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+/* ── Featured poem card ────────────────────────────────────── */
+.featured-poem-card {
+  position: relative;
+  display: flex;
+  background: var(--bg-card);
+  border: 1px solid var(--border-secondary);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: box-shadow 0.25s ease, transform 0.2s ease, border-color 0.25s ease;
+}
+
+.featured-poem-card:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+/* Left accent bar */
+.featured-poem-card__accent {
+  flex-shrink: 0;
+  width: 5px;
+  background: linear-gradient(180deg, var(--accent) 0%, transparent 100%);
+  opacity: 0.65;
+}
+
+/* Card body */
+.featured-poem-card__body {
+  flex: 1;
+  padding: 28px 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+
+/* Header row: badge + tags left, read-time right */
+.featured-poem-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.featured-poem-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.featured-poem-card__read-time {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+/* Title */
+.featured-poem-card__title {
+  font-size: clamp(22px, 2.2vw, 30px);
+  line-height: 1.2;
+  letter-spacing: -0.4px;
+  margin-bottom: 14px;
+  color: var(--text-primary);
+}
+
+/* Excerpt */
+.featured-poem-card__excerpt {
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+/* Footer */
+.featured-poem-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-tertiary);
+  margin-top: auto;
+}
+
+.featured-poem-card__author {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.featured-poem-card__date {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+/* ── Badge tweaks for featured ─────────────────────────────── */
+.badge-featured {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: var(--featured-bg);
+  color: var(--featured-text);
+}
+
+.badge-featured .ti {
+  font-size: 9px;
+}
+
+/* ── Regular poem grid below featured ─────────────────────── */
+.regular-poem-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+/* Old class kept for backward-compat (search results etc.) */
+.poem-card-featured {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .poem-card-featured .badge {
@@ -119,10 +259,6 @@
   font-weight: 500;
 }
 
-.poem-card-featured .author-bio {
-  font-size: 11px;
-  color: var(--text-tertiary);
-}
 
 /* --- Poem Viewer --- */
 .poem-viewer-back {
@@ -404,6 +540,15 @@
   background: var(--bg-card);
   color: var(--text-primary);
   box-shadow: var(--shadow-sm);
+}
+
+/* Large desktops (1280px+): 2-column regular poem grid */
+@media (min-width: 1280px) {
+  .regular-poem-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    align-items: start;
+  }
 }
 
 /* Accent Swatches */
