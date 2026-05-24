@@ -87,15 +87,19 @@
 
 .nav-search-input {
   width: 160px;
-  padding: 6px 10px 6px 30px;
+  height: 25px;
+  padding: 0 10px 0 28px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-secondary);
   border-radius: 8px;
   color: var(--text-primary);
   font-family: inherit;
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: 11px;
+  line-height: 1;
+  -webkit-appearance: none;
+  appearance: none;
   transition: all 0.2s ease;
+  box-sizing: border-box;
 }
 
 .nav-search-input:focus {
