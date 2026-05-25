@@ -89,4 +89,28 @@ test.describe('Interactions Flow (Likes & Follows)', () => {
     await expect(reloadedFollowButton).toHaveText('Following');
     await expect(reloadedFollowButton).toHaveClass(/btn-primary/);
   });
+
+  test('user can view likers list modal on poem page', async ({ page }) => {
+    await page.goto('/');
+
+    // Get the first poem card link to its detail page
+    const firstPoemCard = page.locator('.poem-card-featured').first();
+    const poemLink = await firstPoemCard.locator('a.poem-card-title').getAttribute('href');
+    
+    // Navigate to poem detail page
+    await page.goto(poemLink);
+
+    // Find the like count button
+    const likeCountButton = page.locator('button:has-text("likes")');
+    await likeCountButton.click();
+
+    // Verify modal opens
+    const modal = page.locator('h3:has-text("Likes")');
+    await expect(modal).toBeVisible();
+
+    // Close modal
+    const closeBtn = page.locator('button:has(i.ti-x)');
+    await closeBtn.click();
+    await expect(modal).not.toBeVisible();
+  });
 });

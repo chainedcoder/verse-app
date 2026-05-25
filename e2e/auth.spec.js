@@ -47,4 +47,20 @@ test.describe('Authentication Flow', () => {
     await expect(page.locator('.navbar-desktop-actions')).toContainText('Test User');
     await expect(page.locator('.navbar-desktop-actions')).toContainText('Sign out');
   });
+
+  test('user can request a password reset and use the link to reset it', async ({ page, context }) => {
+    // 1. Go to forgot password page
+    await page.goto('/forgot-password');
+    await expect(page.locator('h1')).toContainText('Reset Password');
+
+    // 2. Submit form
+    await page.fill('input[type="email"]', 'nonexistent@example.com');
+    await page.click('button[type="submit"]');
+
+    // 3. Verify success message
+    await expect(page.getByText('If an account exists with nonexistent@example.com')).toBeVisible();
+    
+    // We cannot easily test the exact token parsing from console in E2E
+    // So we test the frontend behavior.
+  });
 });

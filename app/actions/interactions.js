@@ -121,3 +121,27 @@ export async function toggleFollow(authorId) {
   
   return { success: true, isFollowing }
 }
+
+export async function getLikers(poemId) {
+  try {
+    const likes = await prisma.like.findMany({
+      where: { poemId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+            bio: true
+          }
+        }
+      },
+      orderBy: { createdAt: "desc" }
+    })
+    
+    return { success: true, likers: likes.map(l => l.user) }
+  } catch (error) {
+    console.error("Error fetching likers:", error)
+    return { success: false, error: "Failed to fetch likers" }
+  }
+}

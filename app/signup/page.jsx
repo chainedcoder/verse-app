@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { signIn } from "next-auth/react"
 
 export default function Signup() {
   const [name, setName] = useState("")
@@ -84,6 +85,34 @@ export default function Signup() {
             Sign Up
           </button>
         </form>
+
+        <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <hr style={{ flex: 1, borderColor: "var(--border-secondary)" }} />
+            <span style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>OR</span>
+            <hr style={{ flex: 1, borderColor: "var(--border-secondary)" }} />
+          </div>
+          
+          <button 
+            type="button" 
+            onClick={() => signIn("github", { callbackUrl: "/" })}
+            className="btn btn-ghost btn-full" 
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", border: "1px solid var(--border-secondary)" }}
+          >
+            <i className="ti ti-brand-github" style={{ fontSize: "18px" }}></i>
+            Sign up with GitHub
+          </button>
+
+          <button 
+            type="button" 
+            onClick={() => signIn("google", { callbackUrl: "/" })}
+            className="btn btn-ghost btn-full" 
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", border: "1px solid var(--border-secondary)" }}
+          >
+            <i className="ti ti-brand-google" style={{ fontSize: "18px" }}></i>
+            Sign up with Google
+          </button>
+        </div>
 
         <div style={{ marginTop: "24px", textAlign: "center", fontSize: "13px", color: "var(--text-secondary)" }}>
           Already have an account? <Link href="/login" style={{ color: "var(--accent)", fontWeight: "500" }}>Log in</Link>

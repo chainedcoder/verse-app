@@ -46,8 +46,8 @@ Authentication has been fully implemented using **Auth.js v5** and **Prisma**.
 - ✅ Navbar dynamically displays user name when logged in
 
 ### Tasks:
-- [ ] Add "Forgot password" flow
-- [ ] Add OAuth/social login options (Google, GitHub, etc.)
+- [x] ~~Add "Forgot password" flow~~ (Implemented)
+- [x] ~~Add OAuth/social login options (Google, GitHub, etc.)~~ (Implemented)
 - [x] ~~Add logout functionality to Navbar dropdown~~ (Implemented via Navbar button)
 - [x] ~~**Admin & Moderation:** Robust and complete Admin and Moderator features and Accounts Management~~ (Done)
 
@@ -127,7 +127,7 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 #### 7.2 Social Features API
 - [x] ~~Like/unlike poems (persist to database)~~ (Done)
 - [x] ~~Follow/unfollow authors (persist to database)~~ (Done)
-- [ ] Comments on poems
+- [x] ~~Comments on poems~~ (Implemented)
 
 #### 7.3 File Storage
 - [x] Image upload service (avatars, exported poem images) - Implemented via local fs/promises
@@ -145,8 +145,8 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 ### 8.2 Likes & Follows
 - **Current**: ✅ Persisted to backend Prisma DB via Next.js Server Actions.
 - [x] ~~Persist likes and follows to backend Prisma DB~~
-- [ ] Show who liked a poem (likers list)
-- [ ] Add "Following" feed filter
+- [x] ~~Show who liked a poem (likers list)~~ (Implemented)
+- [x] ~~Add "Following" feed filter~~ (Implemented)
 
 ### 8.2 Sharing
 - **Current**: ✅ Copy link uses custom Toast UI. ✅ Export generates Canvas.
@@ -268,9 +268,7 @@ The design system requires standardization.
 
 ## Recommended Priority Order (Updated)
 
-1. **Core Account Management:** Implement "Forgot password" flow and OAuth/social login options (Google, GitHub).
-2. **Core Social Features:** Build Comments on poems, "Following" feed filter, and Likers list.
-3. **SEO & Discoverability:** Build dynamic `generateMetadata` (Open Graph, Twitter Cards), structured JSON-LD data, and Tags management.
-4. **Accessibility & Design Polish:** Implement semantic HTML, ARIA roles, loading skeletons, and empty states.
-5. **Infrastructure & Analytics:** Integrate Google Analytics, Sentry error tracking, Web Vitals, and Cloud Storage integration.
-6. **Advanced Features:** PWA & Offline Support, Web Share API, and Embed code generation.
+1. **SEO & Discoverability:** Build dynamic `generateMetadata` (Open Graph, Twitter Cards), structured JSON-LD data, and Tags management.
+2. **Accessibility & Design Polish:** Implement semantic HTML, ARIA roles, loading skeletons, and empty states.
+3. **Infrastructure & Analytics:** Integrate Google Analytics, Sentry error tracking, Web Vitals, and Cloud Storage integration.
+4. **Advanced Features:** PWA & Offline Support, Web Share API, and Embed code generation.

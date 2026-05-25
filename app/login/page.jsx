@@ -70,8 +70,41 @@ export default function Login() {
           </button>
         </form>
 
-        <div style={{ marginTop: "24px", textAlign: "center", fontSize: "13px", color: "var(--text-secondary)" }}>
-          Don't have an account? <Link href="/signup" style={{ color: "var(--accent)", fontWeight: "500" }}>Sign up</Link>
+        <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", gap: "12px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <hr style={{ flex: 1, borderColor: "var(--border-secondary)" }} />
+            <span style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>OR</span>
+            <hr style={{ flex: 1, borderColor: "var(--border-secondary)" }} />
+          </div>
+          
+          <button 
+            type="button" 
+            onClick={() => signIn("github", { callbackUrl: "/" })}
+            className="btn btn-ghost btn-full" 
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", border: "1px solid var(--border-secondary)" }}
+          >
+            <i className="ti ti-brand-github" style={{ fontSize: "18px" }}></i>
+            Sign in with GitHub
+          </button>
+
+          <button 
+            type="button" 
+            onClick={() => signIn("google", { callbackUrl: "/" })}
+            className="btn btn-ghost btn-full" 
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", border: "1px solid var(--border-secondary)" }}
+          >
+            <i className="ti ti-brand-google" style={{ fontSize: "18px" }}></i>
+            Sign in with Google
+          </button>
+        </div>
+
+        <div style={{ marginTop: "24px", textAlign: "center", fontSize: "13px", color: "var(--text-secondary)", display: "flex", flexDirection: "column", gap: "8px" }}>
+          <div>
+            Forgot your password? <Link href="/forgot-password" style={{ color: "var(--accent)", fontWeight: "500" }}>Reset it</Link>
+          </div>
+          <div>
+            Don't have an account? <Link href="/signup" style={{ color: "var(--accent)", fontWeight: "500" }}>Sign up</Link>
+          </div>
         </div>
       </div>
     </div>

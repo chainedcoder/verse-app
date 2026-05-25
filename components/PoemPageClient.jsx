@@ -3,7 +3,7 @@
 import { useState, useTransition, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { toggleLike } from "@/app/actions/interactions"
+import { toggleLike, getLikers } from "@/app/actions/interactions"
 import { togglePoemInCollection } from "@/app/actions/collections"
 import { createComment, getCommentsForPoem, deleteComment } from "@/app/actions/comments"
 import { toggleFeatured } from "@/app/actions/poems"
@@ -23,6 +23,9 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
   const [commentInput, setCommentInput] = useState("")
   const [commentPending, setCommentPending] = useState(false)
   const [deletingCommentId, setDeletingCommentId] = useState(null)
+  const [likersModalOpen, setLikersModalOpen] = useState(false)
+  const [likers, setLikers] = useState([])
+  const [likersLoading, setLikersLoading] = useState(false)
   const collectionsDropdownRef = useRef(null)
 
   useEffect(() => {
@@ -56,6 +59,18 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
     startTransition(async () => {
       await toggleLike(poem.id)
     })
+  }
+
+  const handleOpenLikers = async () => {
+    setLikersModalOpen(true)
+    setLikersLoading(true)
+    const result = await getLikers(poem.id)
+    if (result.success) {
+      setLikers(result.likers)
+    } else {
+      showToast("Failed to load likers")
+    }
+    setLikersLoading(false)
   }
 
   const handleToggleCollection = (collectionId, currentlyHas) => {
@@ -148,10 +163,14 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
 
         {/* Poem footer */}
         <div className="poem-footer" style={{ marginTop: "32px", paddingTop: "20px", borderTop: "1px solid var(--border-tertiary)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
-          <button className={`action-icon ${liked ? "liked" : ""}`} onClick={handleLike} style={{ fontSize: "14px" }}>
-            <i className={`ti ${liked ? "ti-heart-filled" : "ti-heart"}`} style={{ fontSize: "20px" }} aria-hidden="true"></i>
-            <span className="like-count" style={{ marginLeft: "4px" }}>{likeCount}</span> likes
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <button className={`action-icon ${liked ? "liked" : ""}`} onClick={handleLike} style={{ fontSize: "14px", display: "flex", alignItems: "center" }}>
+              <i className={`ti ${liked ? "ti-heart-filled" : "ti-heart"}`} style={{ fontSize: "20px" }} aria-hidden="true"></i>
+            </button>
+            <button onClick={handleOpenLikers} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "14px", color: "var(--text-secondary)", padding: 0 }}>
+              <span className="like-count" style={{ fontWeight: "500" }}>{likeCount}</span> likes
+            </button>
+          </div>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", position: "relative" }} ref={collectionsDropdownRef}>
             {userId === author.id && (
               <>
@@ -342,6 +361,52 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
           transition: "opacity 0.3s ease-in-out, transform 0.3s ease-in-out"
         }}>
           {toastMessage}
+        </div>
+      )}
+
+      {likersModalOpen && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center",
+          zIndex: 9999, padding: "20px"
+        }} onClick={(e) => {
+          if (e.target === e.currentTarget) setLikersModalOpen(false)
+        }}>
+          <div style={{
+            backgroundColor: "var(--bg-card)", borderRadius: "12px", width: "100%", maxWidth: "400px",
+            maxHeight: "80vh", display: "flex", flexDirection: "column", border: "1px solid var(--border-secondary)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.2)"
+          }}>
+            <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border-secondary)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "600" }}>Likes</h3>
+              <button onClick={() => setLikersModalOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-secondary)", fontSize: "20px" }}>
+                <i className="ti ti-x" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div style={{ padding: "0 20px", overflowY: "auto", flex: 1 }}>
+              {likersLoading ? (
+                <div style={{ padding: "20px", textAlign: "center", color: "var(--text-tertiary)" }}>Loading...</div>
+              ) : likers.length === 0 ? (
+                <div style={{ padding: "20px", textAlign: "center", color: "var(--text-tertiary)" }}>No likes yet.</div>
+              ) : (
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  {likers.map(user => (
+                    <Link key={user.id} href={`/author/${user.id}`} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px 0", borderBottom: "1px solid var(--border-secondary)", textDecoration: "none", color: "inherit" }}>
+                      {user.image ? (
+                        <img src={user.image} alt="" className="avatar avatar-md" style={{ objectFit: "cover" }} />
+                      ) : (
+                        <div className="avatar avatar-md avatar-warm">{user.name ? user.name.substring(0, 2).toUpperCase() : '?'}</div>
+                      )}
+                      <div>
+                        <div style={{ fontWeight: "500", fontSize: "14px" }}>{user.name}</div>
+                        {user.bio && <div style={{ fontSize: "12px", color: "var(--text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "250px" }}>{user.bio}</div>}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>
