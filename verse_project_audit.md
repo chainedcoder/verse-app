@@ -49,7 +49,7 @@ Authentication has been fully implemented using **Auth.js v5** and **Prisma**.
 - [ ] Add "Forgot password" flow
 - [ ] Add OAuth/social login options (Google, GitHub, etc.)
 - [x] ~~Add logout functionality to Navbar dropdown~~ (Implemented via Navbar button)
-- [ ] **Admin & Moderation:** Robust and complete Admin and Moderator features and Accounts Management
+- [x] ~~**Admin & Moderation:** Robust and complete Admin and Moderator features and Accounts Management~~ (Done)
 
 ---
 
@@ -138,7 +138,9 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 ## 8. 🤝 Social Features — ⚠️ Stub / Incomplete
 
 ### 8.1 Moderation & Reporting
-- [ ] Implement reporting system (Report a poem, user, or comment)
+- **Current**: ✅ Reporting infrastructure, Admin UI, and Role/Status management are complete.
+- [x] ~~Implement reporting system (Report a poem, user, or comment)~~
+- [x] ~~Implement Admin Dashboard (Reports Queue & User Management)~~
 
 ### 8.2 Likes & Follows
 - **Current**: ✅ Persisted to backend Prisma DB via Next.js Server Actions.
@@ -272,5 +274,5 @@ The design system requires standardization.
 4. **Production Readiness:** ✅ Set up Deployment (Vercel/Netlify), CI/CD, and custom domain configuration.
 5. **Settings:** ✅ Account privacy and settings such as personalization, MFA, and notification settings. 
 6. **Profile:** ✅ Complete Profile page to see followers and follows.
-7. **Moderation & Admin:** Implement robust Admin and Moderator features and Accounts Management.
-8. **Reporting System:** Build reporting feature (report a poem, user, or comment).
+7. **Moderation & Admin:** ✅ Implement robust Admin and Moderator features and Accounts Management.
+8. **Reporting System:** ✅ Build reporting feature (report a poem, user, or comment).
