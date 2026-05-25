@@ -8,6 +8,7 @@ import { togglePoemInCollection } from "@/app/actions/collections"
 import { createComment, getCommentsForPoem, deleteComment } from "@/app/actions/comments"
 import { toggleFeatured } from "@/app/actions/poems"
 import AuthorCard from "@/components/AuthorCard"
+import ReportButton from "@/components/ReportButton"
 
 export default function PoemPageClient({ poem, initialLiked = false, initialFollowingAuthor = false, userCollections = [], userId = null }) {
   const router = useRouter()
@@ -176,6 +177,7 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
             <Link href={`/export/${poem.id}`} className="btn btn-primary btn-sm">
               <i className="ti ti-download" style={{ fontSize: "14px" }} aria-hidden="true"></i> Download
             </Link>
+            <ReportButton type="POEM" targetId={poem.id} buttonStyle="ghost" />
 
             {collectionsModalOpen && (
               <div style={{

@@ -4,6 +4,7 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { toggleFollow, toggleLike } from "@/app/actions/interactions"
 import PoemCard from "@/components/PoemCard"
+import ReportButton from "@/components/ReportButton"
 
 export default function AuthorPageClient({ author, poems, initialFollowing = false, initialLikedPoemIds = [] }) {
   const [following, setFollowing] = useState(initialFollowing)
@@ -44,13 +45,16 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
             <span className="stat" style={{ cursor: "pointer" }} onClick={() => setActiveTab("followers")}><strong>{author.readersCount}</strong> followers</span>
             <span className="stat" style={{ cursor: "pointer" }} onClick={() => setActiveTab("following")}><strong>{author.followingCount}</strong> following</span>
           </div>
-          <button 
-            className={`btn ${following ? "btn-primary" : "btn-ghost"}`} 
-            onClick={handleFollow} 
-            style={{ fontSize: "12px", padding: "7px 20px" }}
-          >
-            {following ? "Following" : "Follow"}
-          </button>
+          <div style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "12px" }}>
+            <button 
+              className={`btn ${following ? "btn-primary" : "btn-ghost"}`} 
+              onClick={handleFollow} 
+              style={{ fontSize: "12px", padding: "7px 20px" }}
+            >
+              {following ? "Following" : "Follow"}
+            </button>
+            <ReportButton type="USER" targetId={author.id} buttonStyle="ghost" />
+          </div>
         </div>
       </div>
 
