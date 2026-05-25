@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { toggleFollow, toggleLike } from "@/app/actions/interactions"
+import PoemCard from "@/components/PoemCard"
 
 export default function AuthorPageClient({ author, poems, initialFollowing = false, initialLikedPoemIds = [] }) {
   const [following, setFollowing] = useState(initialFollowing)
@@ -24,43 +25,7 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
     })
   }
 
-  const WorkCard = ({ poem }) => {
-    const [liked, setLiked] = useState(likedSet.has(poem.id))
-    const [likeCount, setLikeCount] = useState(poem._count?.likes || 0)
-    const [isPendingLike, startTransitionLike] = useTransition()
 
-    const handleLike = (e) => {
-      e.preventDefault()
-      e.stopPropagation()
-      
-      const newLiked = !liked
-      setLiked(newLiked)
-      setLikeCount(prev => newLiked ? prev + 1 : prev - 1)
-      
-      startTransitionLike(async () => {
-        await toggleLike(poem.id)
-      })
-    }
-
-    const tagsList = poem.tags ? poem.tags.map(t => t.name) : []
-
-    return (
-      <Link href={`/poem/${poem.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
-        <div className="card card-clickable work-card">
-          <div className="work-card-category">{tagsList[0] || ""}</div>
-          <div className="work-card-title">{poem.title}</div>
-          <div className="work-card-excerpt" dangerouslySetInnerHTML={{ __html: poem.excerpt.replace(/\n/g, "<br>") }} />
-          <div className="work-card-meta">
-            <span suppressHydrationWarning>{poem.createdAt ? new Date(poem.createdAt).toLocaleDateString('en-US', { timeZone: 'UTC' }) : 'Recently'}</span> ·
-            <button className={`action-icon ${liked ? "liked" : ""}`} onClick={handleLike} style={{ fontSize: "11px", padding: "2px", marginLeft: "4px" }}>
-              <i className={`ti ${liked ? "ti-heart-filled" : "ti-heart"}`} style={{ fontSize: "13px" }} aria-hidden="true"></i>
-              <span className="like-count" style={{ marginLeft: "4px" }}>{likeCount}</span>
-            </button>
-          </div>
-        </div>
-      </Link>
-    )
-  }
 
   return (
     <div className="container" style={{ padding: "40px 24px", maxWidth: "900px", margin: "0 auto" }}>
@@ -162,7 +127,10 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
                 <p>No {activeTab !== "all" ? activeTab : ""} poems yet</p>
               </div>
             ) : (
-              filteredPoems.map(poem => <WorkCard key={poem.id} poem={poem} />)
+              filteredPoems.map(poem => {
+                const p = { ...poem, author }
+                return <PoemCard key={p.id} poem={p} initialLiked={likedSet.has(p.id)} />
+              })
             )}
           </div>
         )}
