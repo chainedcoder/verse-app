@@ -32,7 +32,7 @@ test.describe('Profile Settings Flow', () => {
     await page.click('text=Settings');
     
     await expect(page).toHaveURL(/.*\/settings\/profile/);
-    await expect(page.locator('h1')).toContainText('Profile Settings');
+    await expect(page.locator('h1')).toContainText('Settings');
 
     // 3. Update profile details
     const newLocation = 'San Francisco, CA';

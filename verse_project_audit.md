@@ -122,7 +122,7 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 - [x] ~~Poems CRUD (create, read, update, delete)~~ (Create and Read done)
 - [x] ~~Author profiles CRUD (Edit profile)~~ (Done)
 - [x] ~~Collections CRUD~~ (Done)
-- [ ] Tags management
+- [x] ~~Tags management~~ (Done)
 
 #### 7.2 Social Features API
 - [x] ~~Like/unlike poems (persist to database)~~ (Done)
@@ -247,7 +247,7 @@ The design system requires standardization.
 | Backend Services | ⚠️ Partially Implemented |
 | Social Features | ✅ Implemented (Likes, Follows, Comments, Notifications) |
 | Accessibility | ⚠️ Partial |
-| SEO & Meta | ⚠️ SSR Implemented, Meta pending |
+| SEO & Meta | ✅ Implemented (Dynamic OG/Twitter, JSON-LD) |
 | PWA & Offline | ❌ Not started |
 | Code Quality | ✅ Complete |
 | Analytics | ❌ Not started |
@@ -268,7 +268,6 @@ The design system requires standardization.
 
 ## Recommended Priority Order (Updated)
 
-1. **SEO & Discoverability:** Build dynamic `generateMetadata` (Open Graph, Twitter Cards), structured JSON-LD data, and Tags management.
-2. **Accessibility & Design Polish:** Implement semantic HTML, ARIA roles, loading skeletons, and empty states.
-3. **Infrastructure & Analytics:** Integrate Google Analytics, Sentry error tracking, Web Vitals, and Cloud Storage integration.
-4. **Advanced Features:** PWA & Offline Support, Web Share API, and Embed code generation.
+1. **Accessibility & Design Polish:** Implement semantic HTML, ARIA roles, loading skeletons, and empty states.
+2. **Infrastructure & Analytics:** Integrate Google Analytics, Sentry error tracking, Web Vitals, and Cloud Storage integration.
+3. **Advanced Features:** PWA & Offline Support, Web Share API, and Embed code generation.

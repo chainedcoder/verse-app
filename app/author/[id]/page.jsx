@@ -3,6 +3,32 @@ import { auth } from "@/auth"
 import Link from "next/link"
 import AuthorPageClient from "@/components/AuthorPageClient"
 
+export async function generateMetadata(props) {
+  const params = await props.params
+  const author = await prisma.user.findUnique({
+    where: { id: params.id }
+  })
+
+  if (!author) return { title: "Author not found" }
+
+  const description = author.bio || `View poems and collections by ${author.name} on Verse.`
+
+  return {
+    title: `${author.name} | Verse Author`,
+    description,
+    openGraph: {
+      title: author.name,
+      description,
+      type: "profile",
+    },
+    twitter: {
+      card: "summary",
+      title: author.name,
+      description,
+    }
+  }
+}
+
 export default async function AuthorPage(props) {
   const params = await props.params
   const authorId = params.id
@@ -71,12 +97,26 @@ export default async function AuthorPage(props) {
     likedPoemIds = userLikes.map(l => l.poemId)
   }
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: author.name,
+    description: author.bio,
+    url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/author/${author.id}`
+  }
+
   return (
-    <AuthorPageClient 
-      author={author} 
-      poems={author.poems} 
-      initialFollowing={isFollowing} 
-      initialLikedPoemIds={likedPoemIds} 
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <AuthorPageClient 
+        author={author} 
+        poems={author.poems} 
+        initialFollowing={isFollowing} 
+        initialLikedPoemIds={likedPoemIds} 
+      />
+    </>
   )
 }

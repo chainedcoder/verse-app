@@ -3,6 +3,34 @@ import { auth } from "@/auth"
 import Link from "next/link"
 import PoemPageClient from "@/components/PoemPageClient"
 
+export async function generateMetadata(props) {
+  const params = await props.params
+  const poem = await prisma.poem.findUnique({
+    where: { id: params.id },
+    include: { author: true }
+  })
+
+  if (!poem) return { title: "Poem not found" }
+
+  const plainExcerpt = poem.excerpt.replace(/<[^>]+>/g, '')
+
+  return {
+    title: `${poem.title} by ${poem.author.name} | Verse`,
+    description: plainExcerpt,
+    openGraph: {
+      title: poem.title,
+      description: plainExcerpt,
+      type: "article",
+      authors: [poem.author.name],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: poem.title,
+      description: plainExcerpt,
+    }
+  }
+}
+
 export default async function PoemPage(props) {
   const params = await props.params
   const poemId = params.id
@@ -71,13 +99,31 @@ export default async function PoemPage(props) {
     }))
   }
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    headline: poem.title,
+    author: {
+      '@type': 'Person',
+      name: poem.author.name
+    },
+    text: poem.excerpt.replace(/<[^>]+>/g, ''),
+    dateCreated: poem.createdAt.toISOString()
+  }
+
   return (
-    <PoemPageClient 
-      poem={poem} 
-      initialLiked={isLiked} 
-      initialFollowingAuthor={isFollowingAuthor} 
-      userCollections={userCollections}
-      userId={userId}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <PoemPageClient 
+        poem={poem} 
+        initialLiked={isLiked} 
+        initialFollowingAuthor={isFollowingAuthor} 
+        userCollections={userCollections}
+        userId={userId}
+      />
+    </>
   )
 }
