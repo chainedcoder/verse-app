@@ -268,9 +268,9 @@ The design system requires standardization.
 
 ## Recommended Priority Order (Updated)
 
-1. **Accessibility (A11y):** Implement semantic HTML, ARIA roles, toast alerts, and keyboard support for inclusive design.
-2. **SEO & Metadata:** Build dynamic `generateMetadata` (Open Graph, Twitter Cards), structured JSON-LD data, and a sitemap.
-3. **PWA & Offline Support:** Generate `manifest.json`, PWA icons, and a service worker for offline caching.
-4. **Design System & Polish:** Implement loading skeletons, empty states, CSS Modules, and potentially Storybook for component isolation.
-5. **Social Sharing API:** Implement Web Share API for native mobile sharing and embed code generation.
-6. **Analytics & Monitoring:** Integrate Google Analytics, Sentry error tracking, and Web Vitals reporting.
+1. **Core Account Management:** Implement "Forgot password" flow and OAuth/social login options (Google, GitHub).
+2. **Core Social Features:** Build Comments on poems, "Following" feed filter, and Likers list.
+3. **SEO & Discoverability:** Build dynamic `generateMetadata` (Open Graph, Twitter Cards), structured JSON-LD data, and Tags management.
+4. **Accessibility & Design Polish:** Implement semantic HTML, ARIA roles, loading skeletons, and empty states.
+5. **Infrastructure & Analytics:** Integrate Google Analytics, Sentry error tracking, Web Vitals, and Cloud Storage integration.
+6. **Advanced Features:** PWA & Offline Support, Web Share API, and Embed code generation.
