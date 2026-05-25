@@ -63,7 +63,7 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
   }
 
   return (
-    <>
+    <div className="container" style={{ padding: "40px 24px", maxWidth: "900px", margin: "0 auto" }}>
       {/* Profile hero */}
       <div className="profile-hero">
         {author.image ? (
@@ -167,6 +167,6 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
           </div>
         )}
       </div>
-    </>
+    </div>
   )
 }
