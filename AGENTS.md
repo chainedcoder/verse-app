@@ -10,4 +10,5 @@ You MUST write tests for ALL changes and implementations you perform on this cod
 - Component/Function logic: Write Jest tests in `__tests__`
 - Page/Flow logic: Write Playwright tests in `e2e`
 Do not consider a task complete until it is fully covered by automated tests and verified to pass.
+- Ensure elements match the existing styles and aesthetic, if they do not match, apply the correct styles to the elements.
 <!-- END:testing-rules -->

@@ -1,7 +1,10 @@
 import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import PoemCard from "@/components/PoemCard"
+import RemovablePoemCard from "@/components/RemovablePoemCard"
 import Link from "next/link"
+import { auth } from "@/auth"
+import CollectionManager from "@/components/CollectionManager"
 
 export async function generateMetadata(props) {
   const params = await props.params;
@@ -24,16 +27,29 @@ export default async function CollectionDetailPage(props) {
     include: {
       author: { select: { id: true, name: true } },
       poems: {
+        where: { status: { not: "DELETED" } },
         include: {
-          author: { select: { name: true, image: true } },
+          author: { select: { name: true, image: true, id: true } },
           _count: { select: { likes: true } }
         }
       }
     }
   })
 
-  if (!collection) {
+  if (!collection || collection.status === "DELETED") {
     notFound()
+  }
+
+  const session = await auth()
+  const isAuthor = session?.user?.id === collection.authorId
+
+  let allUserPoems = []
+  if (isAuthor) {
+    allUserPoems = await prisma.poem.findMany({
+      where: { authorId: session.user.id },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, title: true, status: true }
+    })
   }
 
   return (
@@ -50,6 +66,10 @@ export default async function CollectionDetailPage(props) {
         </div>
       </div>
 
+      {isAuthor && (
+        <CollectionManager collection={collection} allUserPoems={allUserPoems} />
+      )}
+
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px" }}>
         {collection.poems.length === 0 ? (
           <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "40px", backgroundColor: "var(--bg-secondary)", borderRadius: "12px" }}>
@@ -57,7 +77,11 @@ export default async function CollectionDetailPage(props) {
           </div>
         ) : (
           collection.poems.map(poem => (
-            <PoemCard key={poem.id} poem={poem} />
+            isAuthor ? (
+              <RemovablePoemCard key={poem.id} poem={poem} collectionId={collection.id} isMine={poem.authorId === session?.user?.id} />
+            ) : (
+              <PoemCard key={poem.id} poem={poem} isMine={poem.authorId === session?.user?.id} />
+            )
           ))
         )}
       </div>

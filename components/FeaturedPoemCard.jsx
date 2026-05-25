@@ -11,8 +11,9 @@ function estimateReadTime(text) {
   return Math.max(1, Math.ceil(words / 200))
 }
 
-export default function FeaturedPoemCard({ poem, initialLiked = false }) {
+export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = false }) {
   const router = useRouter()
+  // poem.author is included from Prisma query
   const author = poem.author
 
   const [liked, setLiked] = useState(initialLiked)
@@ -38,14 +39,14 @@ export default function FeaturedPoemCard({ poem, initialLiked = false }) {
 
   if (!author) return null
 
-  const tagsList = poem.tags ? poem.tags.split(',') : []
+  const tagsList = poem.tags ? poem.tags.map(t => t.name) : []
   const initials = author.name
     ? author.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
     : '?'
 
   return (
     <div
-      className="featured-poem-card"
+      className={`featured-poem-card${isMine ? " poem-card--mine" : ""}`}
       onClick={() => router.push(`/poem/${poem.id}`)}
       role="article"
       aria-label={`Featured poem: ${poem.title}`}
@@ -57,11 +58,13 @@ export default function FeaturedPoemCard({ poem, initialLiked = false }) {
         {/* Header row */}
         <div className="featured-poem-card__header">
           <div className="featured-poem-card__meta">
-            <span className="badge badge-featured">
-              <i className="ti ti-star-filled" aria-hidden="true" /> Featured
-            </span>
+            {poem.featured && (
+              <span className="badge badge-featured">
+                <i className="ti ti-star-filled" aria-hidden="true" /> Featured
+              </span>
+            )}
             {tagsList.length > 0 && (
-              <span className="category-label">{tagsList.join(" · ")}</span>
+              <span className="category-label" style={{ margin: 0 }}>{tagsList.join(" · ")}</span>
             )}
           </div>
           <div className="featured-poem-card__read-time">
@@ -85,9 +88,15 @@ export default function FeaturedPoemCard({ poem, initialLiked = false }) {
             className="featured-poem-card__author"
             onClick={e => e.stopPropagation()}
           >
-            <div className={`avatar avatar-sm ${author.image}`}>{initials}</div>
+            {author.image ? (
+              <img src={author.image} alt={author.name} className="avatar avatar-sm" style={{ objectFit: "cover" }} />
+            ) : (
+              <div className="avatar avatar-sm avatar-warm">{initials}</div>
+            )}
             <div>
-              <div className="author-name">{author.name}</div>
+              <div className="author-name">
+                {isMine ? (<><i className="ti ti-pencil" style={{ fontSize: "11px", marginRight: "4px", opacity: 0.7 }} aria-hidden="true" />You</>) : author.name}
+              </div>
               <div className="featured-poem-card__date">
                 <span suppressHydrationWarning>
                   {poem.createdAt

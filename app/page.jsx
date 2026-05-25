@@ -6,6 +6,7 @@ export default async function Home() {
   const session = await auth()
   
   const poems = await prisma.poem.findMany({
+    where: { status: { not: "DELETED" } },
     include: {
       author: true,
       _count: {
@@ -18,8 +19,8 @@ export default async function Home() {
     ]
   })
 
-  const trendingAuthors = await prisma.user.findMany({
-    take: 3,
+  const trendingAuthorsRaw = await prisma.user.findMany({
+    take: 4,
   })
 
   let likedPoemIds = []
@@ -55,6 +56,10 @@ export default async function Home() {
   const featuredPoems = poems.filter(p => p.featured)
   const regularPoems  = poems.filter(p => !p.featured)
 
+  const trendingAuthors = trendingAuthorsRaw
+    .filter(a => a.id !== session?.user?.id)
+    .slice(0, 3)
+
   return (
     <FeedClient 
       initialPoems={regularPoems}
@@ -63,6 +68,7 @@ export default async function Home() {
       trendingAuthors={trendingAuthors} 
       initialLikedPoemIds={likedPoemIds}
       initialFollowedAuthorIds={followedAuthorIds}
+      currentUserId={session?.user?.id}
     />
   )
 }

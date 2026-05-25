@@ -72,15 +72,24 @@ model Poem {
   title     String
   excerpt   String
   fullText  String
-  tags      String
   featured  Boolean  @default(false)
+  status    String   @default("PUBLISHED")
+  isPrivate Boolean  @default(false)
   authorId  String
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   likes     Like[]
-  comments      Comment[]
-  collections   Collection[] @relation("CollectionPoems")
+  comments  Comment[]
+  tags      Tag[]    @relation("PoemTags")
+  collections Collection[] @relation("CollectionPoems")
   notifications Notification[] @relation("poemNotifications")
-  createdAt     DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  poems     Poem[]   @relation("PoemTags")
+  createdAt DateTime @default(now())
 }
 
 model Like {
@@ -126,6 +135,7 @@ model Collection {
   authorId    String
   author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   poems       Poem[]   @relation("CollectionPoems")
+  status      String   @default("ACTIVE")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

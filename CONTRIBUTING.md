@@ -93,6 +93,9 @@ Before submitting any code, you must ensure your contributions adhere to our hig
 ### 1. Style & UI/UX Conformance
 - **Strict adherence** to the existing design system is required. 
 - You must use the pre-defined CSS variables (e.g., `var(--bg-card)`, `var(--text-primary)`), component classes (`.card`, `.btn`, `.avatar`), and layout spacing.
+- Ensure elements match the existing styles and aesthetic, if they do not match, apply the correct styles to the elements.
+- Avoid the browser's alert as shortcut to good feedback.
+- Keep in mind the element's padding when calculating the element's sizes such as button sizes.
 - Do not introduce arbitrary inline styles or unapproved Tailwind utilities unless absolutely necessary.
 - Ensure animations, transitions, and hover states match the site's existing aesthetic.
 
@@ -105,6 +108,7 @@ Before submitting any code, you must ensure your contributions adhere to our hig
 - Features must be **100% thorough and complete** before pushing to `main`. 
 - No "half-finished" UI states, broken flows, or missing empty states.
 - If a feature includes an action (e.g., commenting), you must handle loading states, success toasts, and error boundaries robustly.
+- No shortcuts or quick fixes.
 
 ## 🤝 How to Contribute
 

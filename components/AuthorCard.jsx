@@ -16,9 +16,13 @@ export default function AuthorCard({ author, initialFollowing = false }) {
 
   return (
     <div className="author-side-panel">
-      <div className={`avatar avatar-lg ${author.avatarClass}`} style={{ marginBottom: "12px" }}>
-        {author.initials}
-      </div>
+      {author.image ? (
+        <img src={author.image} alt={author.name} className="avatar avatar-lg" style={{ marginBottom: "12px", objectFit: "cover" }} />
+      ) : (
+        <div className="avatar avatar-lg avatar-warm" style={{ marginBottom: "12px" }}>
+          {author.initials}
+        </div>
+      )}
       <div className="author-name">{author.name}</div>
       <div className="author-bio">{author.bio}</div>
       <div className="author-stats">

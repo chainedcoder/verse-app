@@ -45,7 +45,7 @@ test.describe('Content Creation Flow', () => {
     // Submit form
     await Promise.all([
       page.waitForURL('**/poem/*'),
-      page.click('button[type="submit"]')
+      page.click('button[name="publish"]')
     ]);
 
     // Verify redirection and content

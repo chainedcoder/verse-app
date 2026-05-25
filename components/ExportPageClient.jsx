@@ -250,7 +250,7 @@ export default function ExportPageClient({ poem, author }) {
   }
 
   return (
-    <div className="container" style={{ padding: "32px 0" }}>
+    <div className="page-container" style={{ padding: "32px 24px" }}>
       <div className="export-header">
         <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "20px" }}>
           <button className="poem-viewer-back" onClick={() => router.back()}>
@@ -266,7 +266,15 @@ export default function ExportPageClient({ poem, author }) {
         </p>
       </div>
 
-      <div className="template-grid" style={{ marginTop: "24px" }}>
+      <div className="template-carousel" style={{ 
+        display: "flex", 
+        overflowX: "auto", 
+        gap: "16px", 
+        paddingBottom: "16px", 
+        scrollSnapType: "x mandatory", 
+        scrollbarWidth: "none",
+        WebkitOverflowScrolling: "touch"
+      }}>
         
         {/* Template List */}
         {[
@@ -320,7 +328,7 @@ export default function ExportPageClient({ poem, author }) {
           const previewColors = isSelected ? currentColors : templateColors[tmpl.id][0]
           
           return (
-            <div key={tmpl.id} className={`template-card ${isSelected ? "selected" : ""}`} onClick={() => handleTemplateSelect(tmpl.id)}>
+            <div key={tmpl.id} className={`template-card ${isSelected ? "selected" : ""}`} onClick={() => handleTemplateSelect(tmpl.id)} style={{ flex: "0 0 280px", scrollSnapAlign: "start" }}>
               {tmpl.content(previewColors)}
               <div className="template-info">
                 <div>

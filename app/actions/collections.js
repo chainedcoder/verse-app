@@ -32,6 +32,35 @@ export async function createCollection(formData) {
   redirect(`/collections/${collection.id}`)
 }
 
+export async function updateCollection(collectionId, formData) {
+  const session = await auth()
+  if (!session?.user) {
+    return { error: "Unauthorized" }
+  }
+
+  const name = formData.get("name")?.toString().trim()
+  const description = formData.get("description")?.toString().trim()
+  const isPublic = formData.get("isPublic") === "true"
+
+  if (!name) {
+    return { error: "Collection name is required." }
+  }
+
+  const collection = await prisma.collection.findUnique({ where: { id: collectionId } })
+  if (!collection || collection.authorId !== session.user.id) {
+    return { error: "Unauthorized" }
+  }
+
+  await prisma.collection.update({
+    where: { id: collectionId },
+    data: { name, description, isPublic }
+  })
+
+  revalidatePath(`/collections/${collectionId}`)
+  revalidatePath("/collections")
+  return { success: true }
+}
+
 export async function togglePoemInCollection(collectionId, poemId) {
   const session = await auth()
   if (!session?.user) {
@@ -72,4 +101,44 @@ export async function togglePoemInCollection(collectionId, poemId) {
 
   revalidatePath(`/collections/${collectionId}`)
   revalidatePath(`/poem/${poemId}`)
+}
+
+export async function deleteCollection(collectionId) {
+  const session = await auth()
+  if (!session?.user) {
+    throw new Error("Unauthorized")
+  }
+
+  const collection = await prisma.collection.findUnique({ where: { id: collectionId } })
+  if (!collection || collection.authorId !== session.user.id) {
+    throw new Error("Unauthorized")
+  }
+
+  await prisma.collection.update({
+    where: { id: collectionId },
+    data: { status: "DELETED" }
+  })
+  
+  revalidatePath("/collections")
+  return { success: true }
+}
+
+export async function restoreCollection(collectionId) {
+  const session = await auth()
+  if (!session?.user) {
+    return { error: "Unauthorized" }
+  }
+
+  const collection = await prisma.collection.findUnique({ where: { id: collectionId } })
+  if (!collection || collection.authorId !== session.user.id) {
+    return { error: "Unauthorized" }
+  }
+
+  await prisma.collection.update({
+    where: { id: collectionId },
+    data: { status: "ACTIVE" }
+  })
+  
+  revalidatePath("/collections")
+  return { success: true }
 }

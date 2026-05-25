@@ -6,9 +6,12 @@ export const metadata = {
   description: "Curated collections of poetry."
 }
 
+import { auth } from "@/auth"
+
 export default async function Collections() {
+  const session = await auth()
   const collections = await prisma.collection.findMany({
-    where: { isPublic: true },
+    where: { isPublic: true, status: { not: "DELETED" } },
     include: {
       author: { select: { name: true, id: true } },
       _count: { select: { poems: true } }
@@ -32,13 +35,18 @@ export default async function Collections() {
         <div className="collections-grid">
           {collections.map(collection => (
             <Link href={`/collections/${collection.id}`} key={collection.id} style={{ display: "block", textDecoration: "none", color: "inherit" }}>
-              <div className="card" style={{ padding: "24px", height: "100%", display: "flex", flexDirection: "column" }}>
+              <div className={`card${session?.user?.id === collection.authorId ? " poem-card--mine" : ""}`} style={{ padding: "24px", height: "100%", display: "flex", flexDirection: "column", position: "relative" }}>
                 <h3 className="serif" style={{ fontSize: "22px", marginBottom: "8px" }}>{collection.name}</h3>
                 <p style={{ color: "var(--text-secondary)", marginBottom: "16px", flexGrow: 1, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}>
                   {collection.description || "No description provided."}
                 </p>
                 <div style={{ display: "flex", justifyContent: "space-between", color: "var(--text-tertiary)", fontSize: "14px" }}>
-                  <span>By {collection.author?.name || "Unknown"}</span>
+                  <span>
+                    {session?.user?.id === collection.authorId 
+                      ? (<><i className="ti ti-pencil" style={{ fontSize: "11px", marginRight: "4px", opacity: 0.7 }} aria-hidden="true" />You</>)
+                      : `By ${collection.author?.name || "Unknown"}`
+                    }
+                  </span>
                   <span>{collection._count.poems} {collection._count.poems === 1 ? "poem" : "poems"}</span>
                 </div>
               </div>

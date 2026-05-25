@@ -11,11 +11,11 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
 
   const likedSet = new Set(initialLikedPoemIds)
 
-  const authorTags = [...new Set(poems.flatMap(p => p.tags ? p.tags.split(',') : []))]
+  const authorTags = [...new Set(poems.flatMap(p => p.tags ? p.tags.map(t => t.name) : []))]
 
   const filteredPoems = activeTab === "all" 
     ? poems 
-    : poems.filter(p => p.tags && p.tags.split(',').includes(activeTab))
+    : poems.filter(p => p.tags && p.tags.map(t => t.name).includes(activeTab))
 
   const handleFollow = () => {
     setFollowing(!following)
@@ -42,7 +42,7 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
       })
     }
 
-    const tagsList = poem.tags ? poem.tags.split(',') : []
+    const tagsList = poem.tags ? poem.tags.map(t => t.name) : []
 
     return (
       <Link href={`/poem/${poem.id}`} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
@@ -66,7 +66,11 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
     <>
       {/* Profile hero */}
       <div className="profile-hero">
-        <div className={`avatar avatar-xl ${author.image}`}>{author.initials}</div>
+        {author.image ? (
+          <img src={author.image} alt={author.name} className="avatar avatar-xl" style={{ objectFit: "cover" }} />
+        ) : (
+          <div className="avatar avatar-xl avatar-warm">{author.initials}</div>
+        )}
         <div style={{ flex: 1 }}>
           <h1 className="profile-name">{author.name}</h1>
           <p className="profile-bio">{author.bio} · {author.location}</p>

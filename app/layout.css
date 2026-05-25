@@ -81,6 +81,8 @@
   position: relative;
   display: flex;
   align-items: center;
+  width: 200px;
+  justify-content: flex-end;
 }
 
 .nav-search-icon {

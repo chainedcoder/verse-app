@@ -19,7 +19,7 @@ export default async function SearchPage(props) {
         OR: [
           { title: { contains: query } },
           { fullText: { contains: query } },
-          { tags: { contains: query } },
+          { tags: { some: { name: { contains: query } } } },
           { author: { name: { contains: query } } }
         ]
       },

@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useTransition, useEffect } from "react"
+import { useState, useTransition, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { toggleLike } from "@/app/actions/interactions"
 import { togglePoemInCollection } from "@/app/actions/collections"
 import { createComment, getCommentsForPoem, deleteComment } from "@/app/actions/comments"
+import { toggleFeatured } from "@/app/actions/poems"
 import AuthorCard from "@/components/AuthorCard"
 
 export default function PoemPageClient({ poem, initialLiked = false, initialFollowingAuthor = false, userCollections = [], userId = null }) {
@@ -21,6 +22,23 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
   const [commentInput, setCommentInput] = useState("")
   const [commentPending, setCommentPending] = useState(false)
   const [deletingCommentId, setDeletingCommentId] = useState(null)
+  const collectionsDropdownRef = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (collectionsDropdownRef.current && !collectionsDropdownRef.current.contains(event.target)) {
+        setCollectionsModalOpen(false)
+      }
+    }
+    
+    if (collectionsModalOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+    
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [collectionsModalOpen])
 
   const showToast = (msg) => {
     setToastMessage(msg)
@@ -100,7 +118,7 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
     fetchComments()
   }, [poem.id])
 
-  const tagsList = poem.tags ? poem.tags.split(',') : []
+  const tagsList = poem.tags ? poem.tags.map(t => t.name) : []
 
   return (
     <div className="poem-layout">
@@ -129,7 +147,22 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
             <i className={`ti ${liked ? "ti-heart-filled" : "ti-heart"}`} style={{ fontSize: "20px" }} aria-hidden="true"></i>
             <span className="like-count" style={{ marginLeft: "4px" }}>{likeCount}</span> likes
           </button>
-          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", position: "relative" }}>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", position: "relative" }} ref={collectionsDropdownRef}>
+            {userId === author.id && (
+              <>
+                <Link href={`/edit/${poem.id}`} className="btn btn-ghost btn-sm">
+                  <i className="ti ti-edit" style={{ fontSize: "14px" }} aria-hidden="true"></i> Edit
+                </Link>
+                <button className={`btn btn-ghost btn-sm ${poem.featured ? "text-primary" : ""}`} onClick={() => {
+                  startTransition(async () => {
+                    await toggleFeatured(poem.id)
+                    showToast(poem.featured ? "Unfeatured poem" : "Featured poem")
+                  })
+                }}>
+                  <i className={`ti ${poem.featured ? "ti-star-filled" : "ti-star"}`} style={{ fontSize: "14px", color: poem.featured ? "var(--primary)" : "inherit" }} aria-hidden="true"></i> Feature
+                </button>
+              </>
+            )}
             <button className="btn btn-ghost btn-sm" onClick={() => setCollectionsModalOpen(!collectionsModalOpen)}>
               <i className="ti ti-bookmark" style={{ fontSize: "14px" }} aria-hidden="true"></i> Save
             </button>

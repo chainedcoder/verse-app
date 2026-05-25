@@ -1,24 +1,63 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { createPoem } from "@/app/actions/poems"
+import { createPoem, updatePoem, deletePoem, restorePoem } from "@/app/actions/poems"
+import { useToast } from "@/components/ToastProvider"
+import { useRouter } from "next/navigation"
 
-export default function PoemEditor() {
+export default function PoemEditor({ initialPoem = null }) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
+  const [isDeleting, setIsDeleting] = useState(false)
+  const { showUndoToast } = useToast()
   const [error, setError] = useState(null)
+  const [submitAction, setSubmitAction] = useState(null)
+
+  const isEditMode = !!initialPoem
 
   const handleSubmit = (e) => {
     e.preventDefault()
     setError(null)
     const formData = new FormData(e.target)
 
+    // Use state-based action tracking for cross-browser & test compatibility
+    const actionType = submitAction || e.nativeEvent.submitter?.name
+    if (actionType === "save_draft") {
+      formData.set("status", "DRAFT")
+    } else {
+      formData.set("status", "PUBLISHED")
+    }
+
     startTransition(async () => {
-      const result = await createPoem(formData)
+      let result
+      if (isEditMode) {
+        result = await updatePoem(initialPoem.id, formData)
+      } else {
+        result = await createPoem(formData)
+      }
+      
       if (result?.error) {
         setError(result.error)
       }
     })
   }
+
+  const handleDelete = () => {
+    startTransition(async () => {
+      const result = await deletePoem(initialPoem.id)
+      if (result?.error) {
+        setError(result.error)
+      } else {
+        showUndoToast("Poem deleted", async () => {
+          await restorePoem(initialPoem.id)
+        })
+        router.push('/')
+      }
+    })
+  }
+
+  // Tags need to be a comma-separated string if initialPoem has tags relation
+  const initialTagsStr = initialPoem?.tags ? initialPoem.tags.map(t => t.name).join(", ") : ""
 
   return (
     <form className="poem-editor-form" onSubmit={handleSubmit}>
@@ -36,6 +75,7 @@ export default function PoemEditor() {
           name="title" 
           className="input serif" 
           placeholder="A beautiful title"
+          defaultValue={initialPoem?.title || ""}
           required 
           style={{ fontSize: "24px", padding: "16px 20px" }}
         />
@@ -50,6 +90,7 @@ export default function PoemEditor() {
           name="excerpt" 
           className="input" 
           placeholder="A short preview of the poem..."
+          defaultValue={initialPoem?.excerpt || ""}
           rows={2}
           style={{ resize: "vertical" }}
         />
@@ -62,6 +103,7 @@ export default function PoemEditor() {
           name="fullText" 
           className="input serif" 
           placeholder="Write your poem here..."
+          defaultValue={initialPoem?.fullText || ""}
           required 
           rows={15}
           style={{ fontSize: "18px", lineHeight: "1.8", resize: "vertical" }}
@@ -78,22 +120,62 @@ export default function PoemEditor() {
           name="tags" 
           className="input" 
           placeholder="nature, classic, love"
+          defaultValue={initialTagsStr}
         />
       </div>
 
-      <div className="form-actions">
-        <button 
-          type="submit" 
-          className="btn btn-primary btn-lg" 
-          disabled={isPending}
-        >
-          {isPending ? (
-            <><i className="ti ti-loader-2" style={{ animation: "spin 1s linear infinite" }}></i> Publishing...</>
-          ) : (
-            <><i className="ti ti-send"></i> Publish</>
-          )}
-        </button>
+      <div className="form-group" style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
+        <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+          <input 
+            type="checkbox" 
+            name="isPrivate" 
+            value="true" 
+            defaultChecked={initialPoem?.isPrivate || false} 
+          />
+          <span style={{ fontSize: "14px" }}>Keep Private (Only you can see this)</span>
+        </label>
       </div>
+
+      <div className="form-actions" style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+        {isEditMode && (
+          <button 
+            type="button"
+            className="btn btn-ghost" 
+            onClick={handleDelete}
+            disabled={isPending || isDeleting}
+            style={{ color: "var(--danger)" }}
+          >
+            <i className="ti ti-trash"></i> {isDeleting ? "Deleting..." : "Delete"}
+          </button>
+        )}
+        
+        <div style={{ display: "flex", gap: "12px", marginLeft: isEditMode ? "auto" : "0" }}>
+          <button 
+            type="submit" 
+            name="save_draft"
+            onClick={() => setSubmitAction("save_draft")}
+            className="btn btn-ghost" 
+            disabled={isPending}
+          >
+            <i className="ti ti-device-floppy"></i> Save Draft
+          </button>
+          
+          <button 
+            type="submit" 
+            name="publish"
+            onClick={() => setSubmitAction("publish")}
+            className="btn btn-primary" 
+            disabled={isPending}
+          >
+            {isPending && !isDeleting ? (
+              <><i className="ti ti-loader-2" style={{ animation: "spin 1s linear infinite" }}></i> Saving...</>
+            ) : (
+              <><i className="ti ti-send"></i> {isEditMode ? "Update Poem" : "Publish"}</>
+            )}
+          </button>
+        </div>
+      </div>
+
     </form>
   )
 }

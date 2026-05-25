@@ -72,11 +72,11 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 ### Tasks:
 - [ ] Build poem creation/editor page (`/create` or `/write`)
 - [ ] Add "Write" or "Create" CTA button to navbar
-- [ ] Build a rich poem editor with title, body (multiline), tags selection
-- [ ] Add draft saving (autosave to DB)
-- [ ] Add poem editing for own poems
-- [ ] Add poem deletion with confirmation
-- [ ] Build author profile editing (bio, location, avatar)
+- [x] Build a rich poem editor with title, body (multiline), tags selection
+- [x] Add draft saving (autosave to DB)
+- [x] Add poem editing for own poems
+- [x] Add poem deletion with confirmation
+- [x] Build author profile editing (bio, location, avatar)
 
 ---
 
@@ -119,7 +119,7 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 
 #### 7.1 Content API (Server Actions)
 - [x] ~~Poems CRUD (create, read, update, delete)~~ (Create and Read done)
-- [ ] Author profiles CRUD (Edit profile)
+- [x] ~~Author profiles CRUD (Edit profile)~~ (Done)
 - [x] ~~Collections CRUD~~ (Done)
 - [ ] Tags management
 
@@ -129,7 +129,7 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 - [ ] Comments on poems
 
 #### 7.3 File Storage
-- [ ] Image upload service (avatars, exported poem images)
+- [x] Image upload service (avatars, exported poem images) - Implemented via local fs/promises
 - [ ] Cloud storage integration (S3, GCS, Cloudinary)
 
 ---
@@ -206,6 +206,7 @@ The design system requires standardization.
 - [ ] Add empty states for all views (empty collections, no followers, etc.).
 - [ ] **Implement Storybook** to isolate and document UI components, preventing unintended layout regressions.
 - [ ] **Migrate to CSS Modules** (e.g., `Nav.module.css`) to prevent global style bleed and strictly scope styles.
+- [x] add an undo for destructive actions (delete poem, delete collection, remove poem from collection)
 
 ---
 
@@ -223,6 +224,7 @@ The design system requires standardization.
 - [ ] Configure production deployment (Vercel, Netlify)
 - [ ] Add environment variable management for production
 - [ ] Configure custom domain and SSL
+- [x] cant easily tell my poems or collections apart
 
 ---
 
@@ -247,8 +249,20 @@ The design system requires standardization.
 
 ---
 
+---
+
+## 15. Bugs, Defects and Issues
+- [x] ~~The menu pop up for the save poem does not dismis on click away~~
+- [x] ~~some author avatars just show letter and dont appear as avatars (missing the background color)~~
+- [x] ~~menu items are pushed when search bar is expanded~~
+- [x] ~~padding missing in export page content~~
+- [x] ~~consider having a the export layouts as a carousel of layouts to pick from insteads of listed cards this ensures that the download and preview buttons are always visible (especially on mobile)~~
+- [x] ~~no way to feature poem (i guess no admin accounts and moderation feature)~~
+
+
 ## Recommended Priority Order (Updated)
 
-1. **Author Identity:** Implement Image upload service and Profile editing for Authors.
-2. **Discoverability:** Add "Following" feed filter and Search autocomplete.
-3. **Production Readiness:** Set up Deployment (Vercel/Netlify), CI/CD, and custom domain configuration.
+1. **Author Identity:** ✅ Implement Image upload service and Profile editing for Authors.
+2. **Poem Editor:** ✅ Implement editing, drafts and deletion of poems. (Ensure that a user can delete their poems, they can edit their poems, and they can save drafts of their poems). Public and private poem setting (to allow authors to make their poems private) as well as the ability to delete a collection and add tags to poems (the tags should be real tags and not just keywords, use the real tags in the search results, on the poem pages and in the suggested tags on the create poem page). 
+3. **Discoverability:** Add "Following" feed filter and Search autocomplete.
+4. **Production Readiness:** Set up Deployment (Vercel/Netlify), CI/CD, and custom domain configuration.

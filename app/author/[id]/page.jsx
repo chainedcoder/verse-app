@@ -13,6 +13,7 @@ export default async function AuthorPage(props) {
     where: { id: authorId },
     include: {
       poems: {
+        where: { status: { not: "DELETED" } },
         include: {
           _count: {
             select: { likes: true }
