@@ -268,11 +268,9 @@ The design system requires standardization.
 
 ## Recommended Priority Order (Updated)
 
-1. **Author Identity:** ✅ Implement Image upload service and Profile editing for Authors.
-2. **Poem Editor:** ✅ Implement editing, drafts and deletion of poems. ✅ Public and private poem setting (to allow authors to make their poems private) as well as the ability to delete a collection and add tags to poems (the tags should be real tags and not just keywords, use the real tags in the search results, on the poem pages and in the suggested tags on the create poem page). 
-3. **Discoverability:** ✅ Add "Following" feed filter and Search autocomplete.
-4. **Production Readiness:** ✅ Set up Deployment (Vercel/Netlify), CI/CD, and custom domain configuration.
-5. **Settings:** ✅ Account privacy and settings such as personalization, MFA, and notification settings. 
-6. **Profile:** ✅ Complete Profile page to see followers and follows.
-7. **Moderation & Admin:** ✅ Implement robust Admin and Moderator features and Accounts Management.
-8. **Reporting System:** ✅ Build reporting feature (report a poem, user, or comment).
+1. **Accessibility (A11y):** Implement semantic HTML, ARIA roles, toast alerts, and keyboard support for inclusive design.
+2. **SEO & Metadata:** Build dynamic `generateMetadata` (Open Graph, Twitter Cards), structured JSON-LD data, and a sitemap.
+3. **PWA & Offline Support:** Generate `manifest.json`, PWA icons, and a service worker for offline caching.
+4. **Design System & Polish:** Implement loading skeletons, empty states, CSS Modules, and potentially Storybook for component isolation.
+5. **Social Sharing API:** Implement Web Share API for native mobile sharing and embed code generation.
+6. **Analytics & Monitoring:** Integrate Google Analytics, Sentry error tracking, and Web Vitals reporting.
