@@ -1,4 +1,5 @@
 import { auth } from "@/auth"
+import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import PoemEditor from "@/components/PoemEditor"
 
@@ -14,10 +15,12 @@ export default async function WritePage() {
     redirect("/login")
   }
 
+  const allTags = await prisma.tag.findMany({ select: { name: true } })
+
   return (
     <div className="write-page container">
       <h1 className="poem-viewer-title serif" style={{ marginBottom: "32px" }}>Write</h1>
-      <PoemEditor />
+      <PoemEditor allTags={allTags.map(t => t.name)} />
     </div>
   )
 }

@@ -155,10 +155,6 @@ export async function restorePoem(poemId) {
 }
 
 export async function searchPoems(query) {
-  const session = await auth()
-  if (!session?.user) {
-    return { error: "Unauthorized" }
-  }
 
   const q = query.trim()
   if (!q) return { poems: [] }

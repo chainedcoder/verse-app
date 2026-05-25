@@ -23,10 +23,12 @@ export default async function EditPoemPage(props) {
     redirect("/")
   }
 
+  const allTags = await prisma.tag.findMany({ select: { name: true } })
+
   return (
     <div className="container" style={{ padding: "40px 0", maxWidth: "700px" }}>
       <h1 className="serif" style={{ fontSize: "36px", marginBottom: "32px", letterSpacing: "-0.5px" }}>Edit Poem</h1>
-      <PoemEditor initialPoem={poem} />
+      <PoemEditor initialPoem={poem} allTags={allTags.map(t => t.name)} />
     </div>
   )
 }

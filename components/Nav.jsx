@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
 import { getNotifications, markNotificationsAsRead } from "@/app/actions/notifications"
+import { searchPoems } from "@/app/actions/poems"
 
 export default function Nav() {
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -20,21 +21,47 @@ export default function Nav() {
   const [theme, setTheme] = useState("light")
   const themeIcon = theme === "dark" ? "ti-sun" : "ti-moon"
 
+  // Search autocomplete state
+  const [searchQuery, setSearchQuery] = useState("")
+  const [searchResults, setSearchResults] = useState([])
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false)
+  const [isSearching, setIsSearching] = useState(false)
+  const searchRef = useRef(null)
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false)
       }
+      if (searchRef.current && !searchRef.current.contains(event.target)) {
+        setShowSearchDropdown(false)
+      }
     }
     
-    if (showDropdown) {
+    if (showDropdown || showSearchDropdown) {
       document.addEventListener("mousedown", handleClickOutside)
     }
     
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [showDropdown])
+  }, [showDropdown, showSearchDropdown])
+
+  useEffect(() => {
+    if (searchQuery.trim().length > 2) {
+      const delayFn = setTimeout(async () => {
+        setIsSearching(true)
+        const res = await searchPoems(searchQuery)
+        setSearchResults(res.poems || [])
+        setIsSearching(false)
+        setShowSearchDropdown(true)
+      }, 300)
+      return () => clearTimeout(delayFn)
+    } else {
+      setSearchResults([])
+      setShowSearchDropdown(false)
+    }
+  }, [searchQuery])
 
   useEffect(() => {
     const observer = new MutationObserver(() => {
@@ -87,16 +114,59 @@ export default function Nav() {
 
         <div className="navbar-actions">
           <div className="navbar-desktop-actions">
-            <form action="/search" className="nav-search">
-              <i className="ti ti-search nav-search-icon" aria-hidden="true"></i>
-              <input 
-                type="search" 
-                name="q" 
-                placeholder="Search..." 
-                className="nav-search-input" 
-                aria-label="Search poems and authors"
-              />
-            </form>
+            <div style={{ position: "relative" }} ref={searchRef}>
+              <form action="/search" className="nav-search">
+                <i className="ti ti-search nav-search-icon" aria-hidden="true"></i>
+                <input 
+                  type="search" 
+                  name="q" 
+                  placeholder="Search..." 
+                  className="nav-search-input" 
+                  aria-label="Search poems and authors"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => { if (searchResults.length > 0) setShowSearchDropdown(true); }}
+                  autoComplete="off"
+                />
+              </form>
+              
+              {showSearchDropdown && (
+                <div style={{
+                  position: "absolute", top: "100%", left: 0, right: 0, marginTop: "8px",
+                  backgroundColor: "var(--bg-card)", border: "1px solid var(--border-secondary)",
+                  borderRadius: "8px", maxHeight: "300px", overflowY: "auto",
+                  boxShadow: "0 10px 30px rgba(0,0,0,0.15)", zIndex: 100
+                }}>
+                  {isSearching ? (
+                    <div style={{ padding: "12px", textAlign: "center", color: "var(--text-tertiary)" }}>
+                      <i className="ti ti-loader-2" style={{ animation: "spin 1s linear infinite" }}></i>
+                    </div>
+                  ) : searchResults.length > 0 ? (
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      {searchResults.map(poem => (
+                        <Link key={poem.id} href={`/poem/${poem.id}`} 
+                          style={{ padding: "10px 12px", borderBottom: "1px solid var(--border-tertiary)", textDecoration: "none", color: "var(--text-primary)", display: "flex", flexDirection: "column", gap: "4px" }}
+                          onClick={() => { setShowSearchDropdown(false); setSearchQuery(""); }}
+                        >
+                          <span style={{ fontSize: "14px", fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{poem.title}</span>
+                          <span style={{ fontSize: "12px", color: "var(--text-tertiary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>by {poem.author?.name}</span>
+                        </Link>
+                      ))}
+                      <Link href={`/search?q=${encodeURIComponent(searchQuery)}`} 
+                        style={{ padding: "10px 12px", textAlign: "center", fontSize: "13px", color: "var(--primary)", textDecoration: "none" }}
+                        onClick={() => { setShowSearchDropdown(false); setSearchQuery(""); }}
+                      >
+                        View all results
+                      </Link>
+                    </div>
+                  ) : (
+                    <div style={{ padding: "12px", textAlign: "center", color: "var(--text-tertiary)", fontSize: "13px" }}>
+                      No poems found
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
 
             <button className="btn btn-ghost btn-sm" id="theme-toggle" aria-label="Toggle theme" onClick={togglePanel}>
               <i className={`ti ${themeIcon}`} aria-hidden="true"></i>

@@ -5,7 +5,7 @@ import { createPoem, updatePoem, deletePoem, restorePoem } from "@/app/actions/p
 import { useToast } from "@/components/ToastProvider"
 import { useRouter } from "next/navigation"
 
-export default function PoemEditor({ initialPoem = null }) {
+export default function PoemEditor({ initialPoem = null, allTags = [] }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [isDeleting, setIsDeleting] = useState(false)
@@ -14,6 +14,17 @@ export default function PoemEditor({ initialPoem = null }) {
   const [submitAction, setSubmitAction] = useState(null)
 
   const isEditMode = !!initialPoem
+
+  // Tags need to be a comma-separated string if initialPoem has tags relation
+  const initialTagsStr = initialPoem?.tags ? initialPoem.tags.map(t => t.name).join(", ") : ""
+  const [currentTags, setCurrentTags] = useState(initialTagsStr)
+
+  const handleTagClick = (tag) => {
+    const tagsArray = currentTags.split(',').map(t => t.trim()).filter(Boolean)
+    if (!tagsArray.includes(tag)) {
+      setCurrentTags(currentTags ? `${currentTags}, ${tag}` : tag)
+    }
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -56,8 +67,6 @@ export default function PoemEditor({ initialPoem = null }) {
     })
   }
 
-  // Tags need to be a comma-separated string if initialPoem has tags relation
-  const initialTagsStr = initialPoem?.tags ? initialPoem.tags.map(t => t.name).join(", ") : ""
 
   return (
     <form className="poem-editor-form" onSubmit={handleSubmit}>
@@ -120,8 +129,24 @@ export default function PoemEditor({ initialPoem = null }) {
           name="tags" 
           className="input" 
           placeholder="nature, classic, love"
-          defaultValue={initialTagsStr}
+          value={currentTags}
+          onChange={(e) => setCurrentTags(e.target.value)}
         />
+        {allTags.length > 0 && (
+          <div style={{ marginTop: "8px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
+            <span style={{ fontSize: "12px", color: "var(--text-tertiary)", marginTop: "4px" }}>Suggestions:</span>
+            {allTags.map(tag => (
+              <span 
+                key={tag} 
+                className="tag" 
+                style={{ cursor: "pointer", fontSize: "12px", padding: "2px 8px" }}
+                onClick={() => handleTagClick(tag)}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="form-group" style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>

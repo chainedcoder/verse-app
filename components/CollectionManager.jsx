@@ -41,6 +41,7 @@ export default function CollectionManager({ collection, allUserPoems }) {
       showUndoToast("Collection deleted", async () => {
         await restoreCollection(collection.id)
       })
+      router.push('/collections')
     })
   }
   

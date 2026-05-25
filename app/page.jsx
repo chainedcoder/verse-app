@@ -5,10 +5,23 @@ import FeedClient from "@/components/FeedClient"
 export default async function Home() {
   const session = await auth()
   
+  const whereClause = {
+    status: { not: "DELETED" },
+    ...(session?.user?.id
+      ? {
+          OR: [
+            { isPrivate: false },
+            { authorId: session.user.id }
+          ]
+        }
+      : { isPrivate: false })
+  }
+
   const poems = await prisma.poem.findMany({
-    where: { status: { not: "DELETED" } },
+    where: whereClause,
     include: {
       author: true,
+      tags: true,
       _count: {
         select: { likes: true }
       }
@@ -47,8 +60,8 @@ export default async function Home() {
   // Extract all unique tags
   const tagsSet = new Set()
   poems.forEach(p => {
-    if (p.tags) {
-      p.tags.split(',').forEach(t => tagsSet.add(t.trim()))
+    if (Array.isArray(p.tags)) {
+      p.tags.forEach(t => tagsSet.add(t.name))
     }
   })
   const tags = Array.from(tagsSet).filter(Boolean)

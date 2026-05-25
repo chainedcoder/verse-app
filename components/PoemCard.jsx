@@ -61,7 +61,16 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
       {customRemoveButton}
       <div className={`card card-clickable poem-card-featured${isMine ? " poem-card--mine" : ""}`} style={{ marginBottom: "16px" }}>
         {poem.featured && <span className="badge badge-featured">featured</span>}
-        <div className="category-label" style={{ marginBottom: "6px" }}>{tagsList.join(" · ")}</div>
+        <div className="category-label" style={{ marginBottom: "6px", display: "flex", gap: "6px", flexWrap: "wrap" }}>
+          {tagsList.map((t, i) => (
+            <span key={t}>
+              <Link href={`/search?q=${encodeURIComponent(t)}`} onClick={e => e.stopPropagation()} style={{ color: "inherit", textDecoration: "none" }}>
+                #{t}
+              </Link>
+              {i < tagsList.length - 1 && " · "}
+            </span>
+          ))}
+        </div>
         <h2 className="serif" style={{ fontSize: "22px", marginBottom: "12px", letterSpacing: "-0.3px" }}>{poem.title}</h2>
         <div className="poem-excerpt" style={{ fontSize: "15px" }} dangerouslySetInnerHTML={{ __html: poem.excerpt.replace(/\n/g, "<br>") }} />
         

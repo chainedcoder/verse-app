@@ -132,7 +132,11 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
         </div>
 
         <div className="tag-row" style={{ marginBottom: "16px" }}>
-          {tagsList.map(t => <span key={t} className="tag">{t.trim()}</span>)}
+          {tagsList.map(t => (
+            <Link key={t} href={`/search?q=${encodeURIComponent(t.trim())}`} style={{ textDecoration: "none" }}>
+              <span className="tag">{t.trim()}</span>
+            </Link>
+          ))}
         </div>
         <h1 className="poem-viewer-title serif">{poem.title}</h1>
         <div className="poem-viewer-meta">{author.name} · published <span suppressHydrationWarning>{poem.createdAt ? new Date(poem.createdAt).toLocaleDateString('en-US', { timeZone: 'UTC' }) : 'Recently'}</span></div>

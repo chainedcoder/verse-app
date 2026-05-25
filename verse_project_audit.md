@@ -263,6 +263,6 @@ The design system requires standardization.
 ## Recommended Priority Order (Updated)
 
 1. **Author Identity:** ✅ Implement Image upload service and Profile editing for Authors.
-2. **Poem Editor:** ✅ Implement editing, drafts and deletion of poems. (Ensure that a user can delete their poems, they can edit their poems, and they can save drafts of their poems). Public and private poem setting (to allow authors to make their poems private) as well as the ability to delete a collection and add tags to poems (the tags should be real tags and not just keywords, use the real tags in the search results, on the poem pages and in the suggested tags on the create poem page). 
-3. **Discoverability:** Add "Following" feed filter and Search autocomplete.
+2. **Poem Editor:** ✅ Implement editing, drafts and deletion of poems. ✅ Public and private poem setting (to allow authors to make their poems private) as well as the ability to delete a collection and add tags to poems (the tags should be real tags and not just keywords, use the real tags in the search results, on the poem pages and in the suggested tags on the create poem page). 
+3. **Discoverability:** ✅ Add "Following" feed filter and Search autocomplete.
 4. **Production Readiness:** Set up Deployment (Vercel/Netlify), CI/CD, and custom domain configuration.

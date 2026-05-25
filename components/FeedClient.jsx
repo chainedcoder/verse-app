@@ -22,12 +22,16 @@ export default function FeedClient({
   // Filter regular poems by tag
   const filteredPoems = activeTag === "all"
     ? initialPoems
-    : initialPoems.filter(p => p.tags?.map(t => t.name).includes(activeTag))
+    : activeTag === "following"
+      ? initialPoems.filter(p => followedSet.has(p.authorId))
+      : initialPoems.filter(p => p.tags?.map(t => t.name).includes(activeTag))
 
   // Filter featured poems by tag too
   const filteredFeatured = activeTag === "all"
     ? featuredPoems
-    : featuredPoems.filter(p => p.tags?.map(t => t.name).includes(activeTag))
+    : activeTag === "following"
+      ? featuredPoems.filter(p => followedSet.has(p.authorId))
+      : featuredPoems.filter(p => p.tags?.map(t => t.name).includes(activeTag))
 
   const allEmpty = filteredPoems.length === 0 && filteredFeatured.length === 0
 
@@ -43,6 +47,14 @@ export default function FeedClient({
           >
             All
           </span>
+          {currentUserId && (
+            <span
+              className={`tag ${activeTag === "following" ? "active" : ""}`}
+              onClick={() => setActiveTag("following")}
+            >
+              Following
+            </span>
+          )}
           {tags.map(tag => (
             <span
               key={tag}

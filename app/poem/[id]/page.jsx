@@ -12,6 +12,7 @@ export default async function PoemPage(props) {
   const poem = await prisma.poem.findUnique({
     where: { id: poemId },
     include: {
+      tags: true,
       author: {
         include: {
           _count: {
@@ -25,12 +26,12 @@ export default async function PoemPage(props) {
     }
   })
 
-  if (!poem) {
+  if (!poem || poem.status === "DELETED" || (poem.isPrivate && poem.authorId !== session?.user?.id)) {
     return (
       <div className="container" style={{ padding: "60px 0", textAlign: "center" }}>
-        <i className="ti ti-mood-sad" style={{ fontSize: "48px", color: "var(--text-tertiary)", marginBottom: "16px", display: "block" }}></i>
-        <h2 style={{ marginBottom: "8px" }}>Poem not found</h2>
-        <p style={{ color: "var(--text-secondary)", marginBottom: "24px" }}>The poem you're looking for doesn't exist.</p>
+        <i className="ti ti-lock" style={{ fontSize: "48px", color: "var(--text-tertiary)", marginBottom: "16px", display: "block" }}></i>
+        <h2 style={{ marginBottom: "8px" }}>Poem unavailable</h2>
+        <p style={{ color: "var(--text-secondary)", marginBottom: "24px" }}>The poem you're looking for doesn't exist or is private.</p>
         <Link href="/" className="btn btn-primary">Back to feed</Link>
       </div>
     )

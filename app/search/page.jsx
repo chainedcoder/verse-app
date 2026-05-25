@@ -16,6 +16,8 @@ export default async function SearchPage(props) {
   if (query) {
     poems = await prisma.poem.findMany({
       where: {
+        status: { not: "DELETED" },
+        isPrivate: false,
         OR: [
           { title: { contains: query } },
           { fullText: { contains: query } },
@@ -24,6 +26,7 @@ export default async function SearchPage(props) {
         ]
       },
       include: {
+        tags: true,
         author: { select: { id: true, name: true, image: true } },
         _count: { select: { likes: true } }
       },
