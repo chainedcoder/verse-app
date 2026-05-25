@@ -247,7 +247,11 @@ export default function Nav() {
                         ))
                       )}
                       
-                      <Link href="/settings/profile" onClick={() => setShowDropdown(false)} style={{ padding: "12px 16px", textDecoration: "none", color: "var(--text-primary)", fontSize: "14px", display: "flex", alignItems: "center", gap: "8px", borderTop: "1px solid var(--border-secondary)" }}>
+                      <Link href="/profile" onClick={() => setShowDropdown(false)} style={{ padding: "12px 16px", textDecoration: "none", color: "var(--text-primary)", fontSize: "14px", display: "flex", alignItems: "center", gap: "8px", borderTop: "1px solid var(--border-secondary)" }}>
+                        <i className="ti ti-user" style={{ fontSize: "16px" }}></i> Profile
+                      </Link>
+                      
+                      <Link href="/settings/profile" onClick={() => setShowDropdown(false)} style={{ padding: "12px 16px", textDecoration: "none", color: "var(--text-primary)", fontSize: "14px", display: "flex", alignItems: "center", gap: "8px" }}>
                         <i className="ti ti-settings" style={{ fontSize: "16px" }}></i> Settings
                       </Link>
                       
@@ -308,6 +312,7 @@ export default function Nav() {
         {session ? (
           <>
             <Link href="/write" className="btn btn-primary btn-full" style={{ marginBottom: "8px" }} onClick={closeDrawer}>Write</Link>
+            <Link href="/profile" className="btn btn-ghost btn-full" style={{ marginBottom: "8px" }} onClick={closeDrawer}>Profile</Link>
             <Link href="/settings/profile" className="btn btn-ghost btn-full" style={{ marginBottom: "8px" }} onClick={closeDrawer}>Settings</Link>
             <button className="btn btn-ghost btn-full" onClick={() => { signOut(); closeDrawer(); }}>Sign out</button>
           </>
