@@ -1,9 +1,12 @@
+import "dotenv/config"
 import { PrismaClient } from "@prisma/client"
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3"
-import { authors, poems } from "../lib/data.js"
+import { PrismaPg } from "@prisma/adapter-pg"
+import { Pool } from "pg"
+import { authors, poems } from "../legacy/js/data.js"
 
 async function main() {
-  const adapter = new PrismaBetterSqlite3({ url: "file:./dev.db" })
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL })
+  const adapter = new PrismaPg(pool)
   const prisma = new PrismaClient({ adapter })
 
   console.log('Seeding data...')
@@ -52,20 +55,15 @@ async function main() {
       },
     })
     
-    // Create initial likes count if we wanted (or just rely on the DB)
-    // The previous likes was a number, but in Prisma it's relation.
-    // For now we just create the poems.
     console.log(`Upserted poem ${poem.id}`)
   }
 
   console.log('Seeding finished.')
+  await prisma.$disconnect()
 }
 
 main()
   .catch((e) => {
     console.error(e)
     process.exit(1)
-  })
-  .finally(async () => {
-    // Prisma disconnected automatically but we can ensure process exits
   })
