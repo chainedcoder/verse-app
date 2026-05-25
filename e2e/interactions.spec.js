@@ -69,7 +69,7 @@ test.describe('Interactions Flow (Likes & Follows)', () => {
     ]);
 
     // Get follow button
-    const followButton = page.locator('button', { hasText: 'Follow' }).first();
+    const followButton = page.getByTestId('follow-button');
     
     // Check initial text
     await expect(followButton).toHaveText('Follow');
@@ -82,10 +82,11 @@ test.describe('Interactions Flow (Likes & Follows)', () => {
     await expect(followButton).toHaveClass(/btn-primary/);
 
     // Refresh page to ensure persistence
-    await page.waitForTimeout(500);
+    // Wait longer to ensure server action completes
+    await page.waitForTimeout(2000);
     await page.reload();
 
-    const reloadedFollowButton = page.locator('button', { hasText: 'Following' }).first();
+    const reloadedFollowButton = page.getByTestId('follow-button');
     await expect(reloadedFollowButton).toHaveText('Following');
     await expect(reloadedFollowButton).toHaveClass(/btn-primary/);
   });
@@ -93,12 +94,14 @@ test.describe('Interactions Flow (Likes & Follows)', () => {
   test('user can view likers list modal on poem page', async ({ page }) => {
     await page.goto('/');
 
-    // Get the first poem card link to its detail page
+    // Get the first poem card
     const firstPoemCard = page.locator('.poem-card-featured').first();
-    const poemLink = await firstPoemCard.locator('a.poem-card-title').getAttribute('href');
     
-    // Navigate to poem detail page
-    await page.goto(poemLink);
+    // Navigate to poem detail page by clicking the card
+    await Promise.all([
+      page.waitForNavigation(),
+      firstPoemCard.click()
+    ]);
 
     // Find the like count button
     const likeCountButton = page.locator('button:has-text("likes")');

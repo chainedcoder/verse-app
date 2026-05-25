@@ -47,6 +47,7 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
           </div>
           <div style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "12px" }}>
             <button 
+              data-testid="follow-button"
               className={`btn ${following ? "btn-primary" : "btn-ghost"}`} 
               onClick={handleFollow} 
               style={{ fontSize: "12px", padding: "7px 20px" }}
