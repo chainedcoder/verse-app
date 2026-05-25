@@ -122,7 +122,7 @@ export default function Nav() {
                   name="q" 
                   placeholder="Search..." 
                   className="input" 
-                  style={{ width: "200px", paddingLeft: "36px", height: "36px" }}
+                  style={{ width: "200px", paddingLeft: "36px", height: "26px" }}
                   aria-label="Search poems and authors"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -195,7 +195,7 @@ export default function Nav() {
                     <div style={{
                       position: "absolute", top: "100%", right: "0", marginTop: "8px",
                       backgroundColor: "var(--bg-card)", border: "1px solid var(--border-secondary)",
-                      borderRadius: "8px", width: "300px", maxHeight: "400px", overflowY: "auto",
+                      borderRadius: "8px", width: "300px", maxHeight: "500px", overflowY: "auto",
                       boxShadow: "0 10px 30px rgba(0,0,0,0.15)", zIndex: 100,
                       display: "flex", flexDirection: "column"
                     }}>
