@@ -67,3 +67,31 @@ export async function updateProfile(formData) {
     return { error: "Failed to update profile details" }
   }
 }
+
+export async function updateAccountSettings(formData) {
+  const session = await auth()
+  if (!session?.user) {
+    return { error: "You must be logged in to update account settings" }
+  }
+
+  const isPrivateAccount = formData.get("isPrivateAccount") === "true"
+  const mfaEnabled = formData.get("mfaEnabled") === "true"
+  const emailNotifications = formData.get("emailNotifications") === "true"
+
+  try {
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        isPrivateAccount,
+        mfaEnabled,
+        emailNotifications,
+      }
+    })
+
+    revalidatePath("/settings/account")
+    return { success: true }
+  } catch (error) {
+    console.error("Error updating account settings:", error)
+    return { error: "Failed to update account settings" }
+  }
+}

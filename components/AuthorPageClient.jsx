@@ -75,9 +75,9 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
           <h1 className="profile-name">{author.name}</h1>
           <p className="profile-bio">{author.bio} · {author.location}</p>
           <div className="profile-stats">
-            <span className="stat"><strong>{author.poemsCount}</strong> poems</span>
-            <span className="stat"><strong>{author.readersCount}</strong> readers</span>
-            <span className="stat"><strong>0</strong> reading</span>
+            <span className="stat" style={{ cursor: "pointer" }} onClick={() => setActiveTab("all")}><strong>{author.poemsCount}</strong> poems</span>
+            <span className="stat" style={{ cursor: "pointer" }} onClick={() => setActiveTab("followers")}><strong>{author.readersCount}</strong> followers</span>
+            <span className="stat" style={{ cursor: "pointer" }} onClick={() => setActiveTab("following")}><strong>{author.followingCount}</strong> following</span>
           </div>
           <button 
             className={`btn ${following ? "btn-primary" : "btn-ghost"}`} 
@@ -106,20 +106,66 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
             {tag}
           </button>
         ))}
+        <button 
+          className={`tab-item ${activeTab === "followers" ? "active" : ""}`} 
+          onClick={() => setActiveTab("followers")}
+        >
+          Followers
+        </button>
+        <button 
+          className={`tab-item ${activeTab === "following" ? "active" : ""}`} 
+          onClick={() => setActiveTab("following")}
+        >
+          Following
+        </button>
       </div>
 
-      {/* Work grid */}
+      {/* Content area */}
       <div style={{ padding: "24px" }}>
-        <div className="profile-works-grid" style={{ transition: "opacity 0.3s ease" }}>
-          {filteredPoems.length === 0 ? (
-            <div className="empty-state" style={{ gridColumn: "1/-1" }}>
-              <i className="ti ti-feather" aria-hidden="true"></i>
-              <p>No {activeTab !== "all" ? activeTab : ""} poems yet</p>
-            </div>
-          ) : (
-            filteredPoems.map(poem => <WorkCard key={poem.id} poem={poem} />)
-          )}
-        </div>
+        {activeTab === "followers" || activeTab === "following" ? (
+          <div className="user-list" style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            {(() => {
+              const list = activeTab === "followers" ? author.followersList : author.followingList
+              if (!list || list.length === 0) {
+                return (
+                  <div className="empty-state">
+                    <i className="ti ti-users" aria-hidden="true"></i>
+                    <p>No {activeTab} yet</p>
+                  </div>
+                )
+              }
+              return list.map(user => (
+                <Link key={user.id} href={`/author/${user.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                  <div className="card card-compact" style={{ padding: "16px", display: "flex", alignItems: "center", gap: "16px" }}>
+                    {user.image ? (
+                      <img src={user.image} alt={user.name} className="avatar avatar-md" style={{ objectFit: "cover" }} />
+                    ) : (
+                      <div className="avatar avatar-md avatar-warm">
+                        {user.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?'}
+                      </div>
+                    )}
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 600, fontSize: "15px" }}>{user.name}</div>
+                      {user.bio && <div style={{ fontSize: "13px", color: "var(--text-secondary)", marginTop: "4px", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{user.bio}</div>}
+                    </div>
+                    <i className="ti ti-chevron-right" style={{ color: "var(--text-tertiary)" }}></i>
+                  </div>
+                </Link>
+              ))
+            })()}
+          </div>
+        ) : (
+          <div className="profile-works-grid" style={{ transition: "opacity 0.3s ease" }}>
+            {filteredPoems.length === 0 ? (
+              <div className="empty-state" style={{ gridColumn: "1/-1" }}>
+                <i className="ti ti-feather" aria-hidden="true"></i>
+                <p>No {activeTab !== "all" ? activeTab : ""} poems yet</p>
+              </div>
+            ) : (
+              filteredPoems.map(poem => <WorkCard key={poem.id} poem={poem} />)
+            )}
+          </div>
+        )}
       </div>
     </>
   )

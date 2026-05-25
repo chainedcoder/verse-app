@@ -13,8 +13,11 @@ model User {
   emailVerified DateTime?
   password      String?
   image         String?
-  bio           String?
-  location      String?
+  bio                String?
+  location           String?
+  isPrivateAccount   Boolean @default(false)
+  mfaEnabled         Boolean @default(false)
+  emailNotifications Boolean @default(true)
    
   accounts      Account[]
   sessions      Session[]

@@ -1,13 +1,13 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
-import ProfileEditor from "@/components/ProfileEditor"
+import AccountSettingsClient from "@/components/AccountSettingsClient"
 
 export const metadata = {
-  title: "Edit Profile | Verse"
+  title: "Account Settings | Verse"
 }
 
-export default async function SettingsProfilePage() {
+export default async function AccountSettingsPage() {
   const session = await auth()
   
   if (!session?.user) {
@@ -24,8 +24,8 @@ export default async function SettingsProfilePage() {
 
   return (
     <div className="card" style={{ padding: "32px" }}>
-      <h2 style={{ fontSize: "20px", marginBottom: "24px", borderBottom: "1px solid var(--border-secondary)", paddingBottom: "12px" }}>Public Profile</h2>
-      <ProfileEditor user={user} />
+      <h2 style={{ fontSize: "20px", marginBottom: "24px", borderBottom: "1px solid var(--border-secondary)", paddingBottom: "12px" }}>Account & Privacy</h2>
+      <AccountSettingsClient user={user} />
     </div>
   )
 }

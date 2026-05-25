@@ -266,3 +266,5 @@ The design system requires standardization.
 2. **Poem Editor:** ✅ Implement editing, drafts and deletion of poems. ✅ Public and private poem setting (to allow authors to make their poems private) as well as the ability to delete a collection and add tags to poems (the tags should be real tags and not just keywords, use the real tags in the search results, on the poem pages and in the suggested tags on the create poem page). 
 3. **Discoverability:** ✅ Add "Following" feed filter and Search autocomplete.
 4. **Production Readiness:** Set up Deployment (Vercel/Netlify), CI/CD, and custom domain configuration.
+5. **Settings:** Account privacy and settings such as personalization, MFA,  and notification settings. 
+6. Complete Profile page to see followers and follows.

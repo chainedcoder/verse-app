@@ -12,6 +12,8 @@ export default async function AuthorPage(props) {
   const author = await prisma.user.findUnique({
     where: { id: authorId },
     include: {
+      followers: { include: { follower: { select: { id: true, name: true, image: true, bio: true } } } },
+      following: { include: { following: { select: { id: true, name: true, image: true, bio: true } } } },
       poems: {
         where: { status: { not: "DELETED" } },
         include: {
@@ -22,7 +24,7 @@ export default async function AuthorPage(props) {
         orderBy: { createdAt: 'desc' }
       },
       _count: {
-        select: { poems: true, followers: true }
+        select: { poems: true, followers: true, following: true }
       }
     }
   })
@@ -41,6 +43,9 @@ export default async function AuthorPage(props) {
   // Map author counts and initials
   author.poemsCount = author._count?.poems || 0
   author.readersCount = author._count?.followers || 0
+  author.followingCount = author._count?.following || 0
+  author.followersList = author.followers?.map(f => f.follower) || []
+  author.followingList = author.following?.map(f => f.following) || []
   author.initials = author.name ? author.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?'
 
   let isFollowing = false

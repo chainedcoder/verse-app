@@ -66,6 +66,20 @@ npm run test
 npx playwright test
 ```
 
+## 🚀 Deployment
+
+Verse is built on Next.js, making it easy to deploy to Vercel or Netlify.
+
+### Deploying to Vercel
+1. Push your code to a GitHub repository.
+2. Log in to [Vercel](https://vercel.com) and click **Add New Project**.
+3. Import your GitHub repository.
+4. Set any required Environment Variables (e.g. `AUTH_SECRET`).
+5. Click **Deploy**. Vercel will automatically detect the Next.js framework and build the project.
+
+### Custom Domains
+Once deployed on Vercel, navigate to your project's **Settings > Domains**. Enter your custom domain and follow the instructions to configure your DNS records (A/CNAME).
+
 ## 🤝 Contributing
 
 We welcome contributions! Verse is actively being developed and there are many features on our roadmap.
