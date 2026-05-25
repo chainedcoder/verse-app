@@ -115,13 +115,14 @@ export default function Nav() {
         <div className="navbar-actions">
           <div className="navbar-desktop-actions">
             <div style={{ position: "relative" }} ref={searchRef}>
-              <form action="/search" className="nav-search">
-                <i className="ti ti-search nav-search-icon" aria-hidden="true"></i>
+              <form action="/search" style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                <i className="ti ti-search" aria-hidden="true" style={{ position: "absolute", left: "12px", color: "var(--text-tertiary)", pointerEvents: "none" }}></i>
                 <input 
                   type="search" 
                   name="q" 
                   placeholder="Search..." 
-                  className="nav-search-input" 
+                  className="input" 
+                  style={{ width: "200px", paddingLeft: "36px", height: "36px" }}
                   aria-label="Search poems and authors"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
