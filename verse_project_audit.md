@@ -49,6 +49,7 @@ Authentication has been fully implemented using **Auth.js v5** and **Prisma**.
 - [ ] Add "Forgot password" flow
 - [ ] Add OAuth/social login options (Google, GitHub, etc.)
 - [x] ~~Add logout functionality to Navbar dropdown~~ (Implemented via Navbar button)
+- [ ] **Admin & Moderation:** Robust and complete Admin and Moderator features and Accounts Management
 
 ---
 
@@ -136,7 +137,10 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 
 ## 8. 🤝 Social Features — ⚠️ Stub / Incomplete
 
-### 8.1 Likes & Follows
+### 8.1 Moderation & Reporting
+- [ ] Implement reporting system (Report a poem, user, or comment)
+
+### 8.2 Likes & Follows
 - **Current**: ✅ Persisted to backend Prisma DB via Next.js Server Actions.
 - [x] ~~Persist likes and follows to backend Prisma DB~~
 - [ ] Show who liked a poem (likers list)
@@ -218,12 +222,12 @@ The design system requires standardization.
 
 ---
 
-## 14. 🚀 Deployment & DevOps — ❌ Missing
+## 14. 🚀 Deployment & DevOps — ✅ Implemented
 
-- [ ] Set up CI/CD pipeline (GitHub Actions)
-- [ ] Configure production deployment (Vercel, Netlify)
+- [x] ~~Set up CI/CD pipeline (GitHub Actions)~~ (Done)
+- [x] ~~Configure production deployment (Vercel, Netlify)~~ (Done)
 - [ ] Add environment variable management for production
-- [ ] Configure custom domain and SSL
+- [x] ~~Configure custom domain and SSL~~ (Instructions added)
 - [x] cant easily tell my poems or collections apart
 
 ---
@@ -265,6 +269,8 @@ The design system requires standardization.
 1. **Author Identity:** ✅ Implement Image upload service and Profile editing for Authors.
 2. **Poem Editor:** ✅ Implement editing, drafts and deletion of poems. ✅ Public and private poem setting (to allow authors to make their poems private) as well as the ability to delete a collection and add tags to poems (the tags should be real tags and not just keywords, use the real tags in the search results, on the poem pages and in the suggested tags on the create poem page). 
 3. **Discoverability:** ✅ Add "Following" feed filter and Search autocomplete.
-4. **Production Readiness:** Set up Deployment (Vercel/Netlify), CI/CD, and custom domain configuration.
-5. **Settings:** Account privacy and settings such as personalization, MFA,  and notification settings. 
-6. Complete Profile page to see followers and follows.
+4. **Production Readiness:** ✅ Set up Deployment (Vercel/Netlify), CI/CD, and custom domain configuration.
+5. **Settings:** ✅ Account privacy and settings such as personalization, MFA, and notification settings. 
+6. **Profile:** ✅ Complete Profile page to see followers and follows.
+7. **Moderation & Admin:** Implement robust Admin and Moderator features and Accounts Management.
+8. **Reporting System:** Build reporting feature (report a poem, user, or comment).
