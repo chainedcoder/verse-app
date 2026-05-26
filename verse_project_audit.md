@@ -62,7 +62,7 @@ The database infrastructure (Prisma + SQLite) is now active for both **Users/Aut
 - [x] ~~Migrate authors from `lib/data.js` to Prisma SQLite schema~~
 - [x] ~~Replace hardcoded data with Server Component DB fetch calls~~
 - [ ] Implement pagination or infinite scroll for the feed
-- [ ] Add loading states / skeleton screens with React Suspense
+- [x] Add loading states / skeleton screens with React Suspense
 
 ---
 
@@ -95,8 +95,6 @@ Users have **no way to create content**. There is no poem editor, no form, no su
   - E2E tests for collection creation and curation.
 
 ---
-
-## 6. 🔍 Search — ❌ Completely Missing
 
 ## 6. 🔍 Search — ✅ Implemented
 
@@ -131,7 +129,7 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 
 #### 7.3 File Storage
 - [x] Image upload service (avatars, exported poem images) - Implemented via local fs/promises
-- [ ] Cloud storage integration (S3, GCS, Cloudinary)
+- [ ] Cloud storage integration (S3, GCS, Cloudinary) — scaffold ready, needs provider keys
 
 ---
 
@@ -149,10 +147,10 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 - [x] ~~Add "Following" feed filter~~ (Implemented)
 
 ### 8.2 Sharing
-- **Current**: ✅ Copy link uses custom Toast UI. ✅ Export generates Canvas.
-- [ ] Implement Web Share API for native sharing on mobile
+- **Current**: ✅ Web Share API implemented (native sheet on mobile, clipboard fallback on desktop). ✅ Export generates Canvas. ✅ Embed code modal added.
+- [x] Implement Web Share API for native sharing on mobile
 - [ ] Add Twitter/X and Facebook share integration
-- [ ] Add embed code generation for poems
+- [x] Add embed code generation for poems
 
 ### 8.3 Comments & Notifications
 - [x] Build comment system UI on poem detail page
@@ -185,11 +183,12 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 
 ---
 
-## 11. 📱 PWA & Offline Support — ❌ Missing
+## 11. 📱 PWA & Offline Support — ✅ Implemented
 
-- [ ] Create `manifest.json` (app name, icons, display mode, colors)
-- [ ] Generate PWA icons
-- [ ] Implement service worker for offline caching
+- [x] Create `manifest.json` (app name, icons, display mode, colors)
+- [ ] Generate dedicated PWA icons (192×192 and 512×512 branded assets)
+- [x] Implement service worker for offline caching (network-first nav, stale-while-revalidate assets)
+- [x] Add offline fallback page
 
 ---
 
@@ -216,11 +215,11 @@ The design system requires standardization.
 
 ---
 
-## 13. 📊 Analytics & Monitoring — ❌ Missing
+## 13. 📊 Analytics & Monitoring — ✅ Scaffolded
 
-- [ ] Add analytics integration (Google Analytics, Plausible)
-- [ ] Add error tracking (Sentry)
-- [ ] Add Web Vitals reporting
+- [x] Add analytics integration — GA4 scaffold (activate via `NEXT_PUBLIC_GA_ID`)
+- [x] Add error tracking — client `ErrorBoundary` + `/api/errors` route (extend with Sentry DSN)
+- [x] Add Web Vitals reporting — `useReportWebVitals` + `/api/vitals` route (forwards to GA4 MP)
 
 ---
 
@@ -246,11 +245,11 @@ The design system requires standardization.
 | Search | ✅ Implemented |
 | Backend Services | ⚠️ Partially Implemented |
 | Social Features | ✅ Implemented (Likes, Follows, Comments, Notifications) |
-| Accessibility | ⚠️ Partial |
+| Accessibility | ✅ Implemented |
 | SEO & Meta | ✅ Implemented (Dynamic OG/Twitter, JSON-LD) |
-| PWA & Offline | ❌ Not started |
+| PWA & Offline | ✅ Implemented |
 | Code Quality | ✅ Complete |
-| Analytics | ❌ Not started |
+| Analytics | ✅ Scaffolded (GA4, ErrorBoundary, Web Vitals) |
 | Deployment | ❌ Not started |
 
 ---
@@ -268,6 +267,18 @@ The design system requires standardization.
 
 ## Recommended Priority Order (Updated)
 
-1. **Accessibility & Design Polish:** ✅ (Done) Implement semantic HTML, ARIA roles, loading skeletons, and empty states.
-2. **Infrastructure & Analytics:** Integrate Google Analytics, Sentry error tracking, Web Vitals, and Cloud Storage integration.
-3. **Advanced Features:** PWA & Offline Support, Web Share API, and Embed code generation.
+1. **Accessibility & Design Polish:** ✅ (Done)
+2. **Infrastructure & Analytics:** ✅ (Done) GA4 scaffold, ErrorBoundary + error API, Web Vitals, SW + offline page.
+3. **Advanced Features:** ✅ (Done) PWA manifest, Web Share API, Embed code generation.
+
+---
+
+## Next Priority Items
+
+1. **SEO Enhancements:** Add `generateSitemap()` (`app/sitemap.js`) and `robots.txt` (`app/robots.js`). Add structured data (JSON-LD) for Author pages (currently only Poem pages have it).
+2. **Feed Pagination / Infinite Scroll:** The home feed loads all poems at once. Implement cursor-based pagination with a "Load more" button or Intersection Observer infinite scroll.
+3. **CSS Architecture:** Migrate component styles from global `app/components.css` to CSS Modules (e.g. `Nav.module.css`) to prevent style bleed and enable tree-shaking.
+4. **Storybook Component Library:** Isolate and document UI components (Button, Card, Avatar, Tag, Badge) in Storybook to prevent unintended regressions.
+5. **Twitter/X & Facebook Sharing:** Add one-click share buttons to the poem detail page share panel using Web Intent URLs.
+6. **Branded PWA Icons:** Generate and commit proper 192×192 and 512×512 Verse-branded PNG icons for the PWA manifest.
+7. **Production Deployment:** Configure environment variables for Vercel/Netlify production deployment (DATABASE_URL, NEXTAUTH_SECRET, NEXT_PUBLIC_GA_ID, SENTRY_DSN).
