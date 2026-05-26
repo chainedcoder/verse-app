@@ -266,6 +266,7 @@
   background: var(--accent);
 }
 
+.featured-poem-card .author-name,
 .poem-card-featured .author-name {
   font-size: 13px;
   font-weight: 500;
@@ -780,5 +781,87 @@
     right: 8px;
     left: 8px;
     width: auto;
+  }
+}
+
+@media (max-width: 320px) {
+  .featured-poem-card__meta .category-label {
+    display: none !important;
+  }
+}
+
+/* ── Poem card: share popup menu ───────────────────────────── */
+
+/* Container — always positioned so the dropdown can anchor to it */
+.poem-card-share-menu-wrap {
+  position: relative;
+  display: none; /* hidden by default; shown only at ≤320px */
+}
+
+/* Dropdown panel */
+.poem-card-share-dropdown {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  min-width: 148px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-secondary);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  z-index: 200;
+  overflow: hidden;
+  animation: shareMenuIn 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes shareMenuIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)  scale(1); }
+}
+
+/* Each menu item */
+.poem-card-share-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border-tertiary);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease;
+  text-align: left;
+  line-height: 1;
+}
+
+.poem-card-share-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.poem-card-share-dropdown-item:hover {
+  background: var(--bg-secondary);
+}
+
+.poem-card-share-dropdown-item i {
+  font-size: 14px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+/* ── 320px breakpoint: collapse download + share into one menu ─ */
+@media (max-width: 320px) {
+  /* Hide individual download and share buttons */
+  .poem-card-download-btn,
+  .poem-card-share-btn {
+    display: none;
+  }
+
+  /* Show the combined share menu trigger */
+  .poem-card-share-menu-wrap {
+    display: block;
   }
 }
