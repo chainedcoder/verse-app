@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
 import { getNotifications, markNotificationsAsRead } from "@/app/actions/notifications"
 import { searchPoems } from "@/app/actions/poems"
+import Avatar from "./Avatar"
 
 export default function Nav() {
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -178,11 +179,15 @@ export default function Nav() {
                 <Link href="/write" className="btn btn-primary btn-sm">Write</Link>
                 <div style={{ position: "relative" }} ref={dropdownRef}>
                   <div 
-                    className="avatar avatar-warm" 
                     onClick={(e) => { e.stopPropagation(); setShowDropdown(!showDropdown); }} 
-                    style={{ width: "25px", height: "25px", fontSize: "10px", cursor: "pointer", position: "relative", userSelect: "none" }}
+                    style={{ width: "25px", height: "25px", cursor: "pointer", position: "relative", userSelect: "none" }}
                   >
-                    {session.user?.name ? session.user.name.match(/\b\w/g)?.join('').substring(0, 2).toUpperCase() : '?'}
+                    <Avatar 
+                      image={session.user?.image} 
+                      name={session.user?.name} 
+                      size="" 
+                      style={{ width: "25px", height: "25px", fontSize: "10px" }} 
+                    />
                     {unreadCount > 0 && (
                       <span style={{
                         position: "absolute", top: "-2px", right: "-2px",
@@ -200,9 +205,7 @@ export default function Nav() {
                       display: "flex", flexDirection: "column"
                     }}>
                       <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border-secondary)", fontWeight: "bold", display: "flex", alignItems: "center", gap: "8px" }}>
-                        <div className="avatar avatar-sm avatar-warm">
-                          {session.user?.name ? session.user.name.match(/\b\w/g)?.join('').substring(0, 2).toUpperCase() : '?'}
-                        </div>
+                        <Avatar image={session.user?.image} name={session.user?.name} size="sm" />
                         <span style={{ fontSize: "14px" }}>{session.user?.name}</span>
                       </div>
                       
@@ -227,14 +230,7 @@ export default function Nav() {
                             }}
                             onClick={() => { setShowDropdown(false); if (!notif.read) handleMarkAllRead(); }}
                           >
-                            <div style={{
-                              width: "28px", height: "28px", borderRadius: "50%",
-                              backgroundColor: "var(--primary)", color: "white",
-                              display: "flex", alignItems: "center", justifyContent: "center",
-                              fontSize: "10px", flexShrink: 0, overflow: "hidden"
-                            }}>
-                              {notif.actor?.image ? <img src={notif.actor.image} alt="" style={{width: "100%", height: "100%", objectFit: "cover"}} /> : (notif.actor?.name?.charAt(0).toUpperCase() || "?")}
-                            </div>
+                              <Avatar image={notif.actor?.image} name={notif.actor?.name} size="sm" />
                             <div style={{ fontSize: "13px", color: "var(--text-primary)" }}>
                               <strong>{notif.actor?.name}</strong>{" "}
                               {notif.type === "LIKE" ? "liked your poem" : 

@@ -9,6 +9,7 @@ import { createComment, getCommentsForPoem, deleteComment } from "@/app/actions/
 import { toggleFeatured } from "@/app/actions/poems"
 import AuthorCard from "@/components/AuthorCard"
 import ReportButton from "@/components/ReportButton"
+import Avatar from "@/components/Avatar"
 
 export default function PoemPageClient({ poem, initialLiked = false, initialFollowingAuthor = false, userCollections = [], userId = null }) {
   const router = useRouter()
@@ -308,18 +309,7 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
             comments.map(comment => (
               <div key={comment.id} className="comment-card card card-compact" style={{ marginBottom: "12px", padding: "16px" }}>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: "12px" }}>
-                  {comment.author.image ? (
-                    <img 
-                      src={comment.author.image} 
-                      alt="" 
-                      className="avatar avatar-md"
-                      style={{ objectFit: "cover" }}
-                    />
-                  ) : (
-                    <div className="avatar avatar-md avatar-warm">
-                      {comment.author.name ? comment.author.name.match(/\b\w/g)?.join('').substring(0, 2).toUpperCase() : '?'}
-                    </div>
-                  )}
+                  <Avatar image={comment.author.image} name={comment.author.name} size="md" />
                   <div style={{ flex: 1 }}>
                     <div style={{ display: "flex", alignItems: "baseline", marginBottom: "6px" }}>
                       <span style={{ fontSize: "14px", fontWeight: "600", color: "var(--text-primary)", marginRight: "8px" }}>{comment.author.name}</span>
@@ -392,11 +382,7 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
                 <div style={{ display: "flex", flexDirection: "column" }}>
                   {likers.map(user => (
                     <Link key={user.id} href={`/author/${user.id}`} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "16px 0", borderBottom: "1px solid var(--border-secondary)", textDecoration: "none", color: "inherit" }}>
-                      {user.image ? (
-                        <img src={user.image} alt="" className="avatar avatar-md" style={{ objectFit: "cover" }} />
-                      ) : (
-                        <div className="avatar avatar-md avatar-warm">{user.name ? user.name.substring(0, 2).toUpperCase() : '?'}</div>
-                      )}
+                      <Avatar image={user.image} name={user.name} size="md" />
                       <div>
                         <div style={{ fontWeight: "500", fontSize: "14px" }}>{user.name}</div>
                         {user.bio && <div style={{ fontSize: "12px", color: "var(--text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "250px" }}>{user.bio}</div>}

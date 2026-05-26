@@ -4,6 +4,7 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toggleLike } from "@/app/actions/interactions"
+import Avatar from "./Avatar"
 
 function estimateReadTime(text) {
   if (!text) return 1
@@ -77,11 +78,7 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
         <div className="card-footer">
           <div className="author-info">
             <Link href={`/author/${poem.authorId}`} className="author-info" style={{ textDecoration: "none", color: "inherit" }} onClick={e => e.stopPropagation()}>
-              {author.image ? (
-                <img src={author.image} alt={author.name} className="avatar avatar-sm" style={{ objectFit: "cover" }} />
-              ) : (
-                <div className="avatar avatar-sm avatar-warm">{initials}</div>
-              )}
+              <Avatar image={author.image} name={author.name} size="sm" />
               <div>
                 <div className="author-name">
                   {isMine ? (<><i className="ti ti-pencil" style={{ fontSize: "11px", marginRight: "4px", opacity: 0.7 }} aria-hidden="true" />You</>) : author.name}

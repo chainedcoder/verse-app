@@ -58,7 +58,7 @@ export default function ProfileEditor({ user }) {
 
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "16px" }}>
         <div 
-          className="avatar avatar-xl avatar-warm" 
+          className={`avatar avatar-xl ${previewImage && (previewImage.startsWith("avatar-") || previewImage.startsWith("bg-") || (!previewImage.includes("/") && !previewImage.includes(":") && !previewImage.includes("."))) ? previewImage : "avatar-warm"}`}
           style={{ 
             width: "120px", height: "120px", fontSize: "36px", 
             marginBottom: "16px", cursor: "pointer", position: "relative",
@@ -66,7 +66,7 @@ export default function ProfileEditor({ user }) {
           }}
           onClick={() => fileInputRef.current?.click()}
         >
-          {previewImage ? (
+          {previewImage && !(previewImage.startsWith("avatar-") || previewImage.startsWith("bg-") || (!previewImage.includes("/") && !previewImage.includes(":") && !previewImage.includes("."))) ? (
             <img src={previewImage} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           ) : (
             user.name ? user.name.match(/\b\w/g)?.join('').substring(0, 2).toUpperCase() : '?'

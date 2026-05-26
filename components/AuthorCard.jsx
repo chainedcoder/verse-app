@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react"
 import { toggleFollow } from "@/app/actions/interactions"
+import Avatar from "./Avatar"
 
 export default function AuthorCard({ author, initialFollowing = false }) {
   const [following, setFollowing] = useState(initialFollowing)
@@ -16,13 +17,7 @@ export default function AuthorCard({ author, initialFollowing = false }) {
 
   return (
     <div className="author-side-panel">
-      {author.image ? (
-        <img src={author.image} alt={author.name} className="avatar avatar-lg" style={{ marginBottom: "12px", objectFit: "cover" }} />
-      ) : (
-        <div className="avatar avatar-lg avatar-warm" style={{ marginBottom: "12px" }}>
-          {author.initials}
-        </div>
-      )}
+      <Avatar image={author.image} name={author.name} size="lg" style={{ marginBottom: "12px" }} />
       <div className="author-name">{author.name}</div>
       <div className="author-bio">{author.bio}</div>
       <div className="author-stats">

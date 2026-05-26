@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import Link from "next/link"
 import { toggleFollow } from "@/app/actions/interactions"
+import Avatar from "./Avatar"
 
 export default function Sidebar({ activeTag, onTagSelect, trendingAuthors = [], allTags = [], initialFollowedAuthorIds = [] }) {
   const followedSet = new Set(initialFollowedAuthorIds)
@@ -41,7 +42,7 @@ export default function Sidebar({ activeTag, onTagSelect, trendingAuthors = [], 
               {idx > 0 && <hr className="divider" />}
               <div className="author-list-item" style={{ paddingTop: idx > 0 ? "12px" : "0" }}>
                 <div className="author-list-info">
-                  <div className={`avatar ${author.image}`}>{initials}</div>
+                  <Avatar image={author.image} name={author.name} size="sm" />
                   <div>
                     <div style={{ fontSize: "13px", fontWeight: "500" }}>
                       <Link href={`/author/${author.id}`} style={{ textDecoration: "none", color: "inherit" }}>

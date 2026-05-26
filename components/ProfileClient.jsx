@@ -4,6 +4,7 @@ import { useState, useTransition } from "react"
 import Link from "next/link"
 import { toggleLike } from "@/app/actions/interactions"
 import PoemCard from "@/components/PoemCard"
+import Avatar from "@/components/Avatar"
 
 export default function ProfileClient({ user, poems, likedPoems, collections, initialLikedPoemIds = [] }) {
   const [activeTab, setActiveTab] = useState("poems")
@@ -17,11 +18,7 @@ export default function ProfileClient({ user, poems, likedPoems, collections, in
     <div className="container" style={{ padding: "40px 24px", maxWidth: "900px", margin: "0 auto" }}>
       {/* Profile hero */}
       <div className="profile-hero">
-        {user.image ? (
-          <img src={user.image} alt={user.name} className="avatar avatar-xl" style={{ objectFit: "cover" }} />
-        ) : (
-          <div className="avatar avatar-xl avatar-warm">{user.initials}</div>
-        )}
+        <Avatar image={user.image} name={user.name} size="xl" />
         <div style={{ flex: 1 }}>
           <h1 className="profile-name">{user.name}</h1>
           {user.bio && <p className="profile-bio">{user.bio} {user.location ? `· ${user.location}` : ""}</p>}
@@ -161,13 +158,7 @@ export default function ProfileClient({ user, poems, likedPoems, collections, in
               return list.map(u => (
                 <Link key={u.id} href={`/author/${u.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                   <div className="card card-compact" style={{ padding: "16px", display: "flex", alignItems: "center", gap: "16px" }}>
-                    {u.image ? (
-                      <img src={u.image} alt={u.name} className="avatar avatar-md" style={{ objectFit: "cover" }} />
-                    ) : (
-                      <div className="avatar avatar-md avatar-warm">
-                        {u.name ? u.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?'}
-                      </div>
-                    )}
+                    <Avatar image={u.image} name={u.name} size="md" />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 600, fontSize: "15px" }}>{u.name}</div>
                       {u.bio && <div style={{ fontSize: "13px", color: "var(--text-secondary)", marginTop: "4px", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{u.bio}</div>}

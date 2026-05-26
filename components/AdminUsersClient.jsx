@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react"
 import { updateUserStatus, updateUserRole } from "@/app/actions/admin"
 import Link from "next/link"
+import Avatar from "./Avatar"
 
 export default function AdminUsersClient({ initialUsers, currentUserRole }) {
   const [users, setUsers] = useState(initialUsers)
@@ -70,13 +71,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole }) {
               <tr key={user.id} style={{ borderBottom: "1px solid var(--border-tertiary)" }}>
                 <td style={{ padding: "12px 8px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    {user.image ? (
-                      <img src={user.image} alt="" className="avatar avatar-sm" style={{ objectFit: "cover" }} />
-                    ) : (
-                      <div className="avatar avatar-sm avatar-warm">
-                        {user.name ? user.name.match(/\b\w/g)?.join('').substring(0, 2).toUpperCase() : '?'}
-                      </div>
-                    )}
+                    <Avatar image={user.image} name={user.name} size="sm" />
                     <div>
                       <Link href={`/author/${user.id}`} style={{ fontWeight: "600", color: "var(--primary)", textDecoration: "none" }}>{user.name}</Link>
                       <div style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>{user.email || "No email"}</div>

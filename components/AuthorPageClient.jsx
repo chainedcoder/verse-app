@@ -5,6 +5,7 @@ import Link from "next/link"
 import { toggleFollow, toggleLike } from "@/app/actions/interactions"
 import PoemCard from "@/components/PoemCard"
 import ReportButton from "@/components/ReportButton"
+import Avatar from "@/components/Avatar"
 
 export default function AuthorPageClient({ author, poems, initialFollowing = false, initialLikedPoemIds = [] }) {
   const [following, setFollowing] = useState(initialFollowing)
@@ -32,11 +33,7 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
     <div className="container" style={{ padding: "40px 24px", maxWidth: "900px", margin: "0 auto" }}>
       {/* Profile hero */}
       <div className="profile-hero">
-        {author.image ? (
-          <img src={author.image} alt={author.name} className="avatar avatar-xl" style={{ objectFit: "cover" }} />
-        ) : (
-          <div className="avatar avatar-xl avatar-warm">{author.initials}</div>
-        )}
+        <Avatar image={author.image} name={author.name} size="xl" />
         <div style={{ flex: 1 }}>
           <h1 className="profile-name">{author.name}</h1>
           <p className="profile-bio">{author.bio} · {author.location}</p>
@@ -107,13 +104,7 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
               return list.map(user => (
                 <Link key={user.id} href={`/author/${user.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                   <div className="card card-compact" style={{ padding: "16px", display: "flex", alignItems: "center", gap: "16px" }}>
-                    {user.image ? (
-                      <img src={user.image} alt={user.name} className="avatar avatar-md" style={{ objectFit: "cover" }} />
-                    ) : (
-                      <div className="avatar avatar-md avatar-warm">
-                        {user.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?'}
-                      </div>
-                    )}
+                    <Avatar image={user.image} name={user.name} size="md" />
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 600, fontSize: "15px" }}>{user.name}</div>
                       {user.bio && <div style={{ fontSize: "13px", color: "var(--text-secondary)", marginTop: "4px", display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{user.bio}</div>}
