@@ -1,6 +1,16 @@
 import { prisma } from "@/lib/prisma"
 import Link from "next/link"
 
+export const metadata = {
+  title: "Authors | Verse",
+  description: "Browse poets and writers on Verse. Discover their collections and read their poems.",
+  openGraph: {
+    title: "Authors | Verse",
+    description: "Browse poets and writers on Verse. Discover their collections and read their poems.",
+    type: "website"
+  }
+}
+
 export default async function Authors() {
   const authors = await prisma.user.findMany({
     include: {

@@ -174,3 +174,74 @@ export async function searchPoems(query) {
 
   return { poems }
 }
+
+export async function getPaginatedPoems({ cursor, limit = 6, activeTag = "all" } = {}) {
+  const session = await auth()
+  const userId = session?.user?.id
+
+  const where = {
+    status: { not: "DELETED" },
+    featured: false,
+    ...(userId
+      ? {
+          OR: [
+            { isPrivate: false },
+            { authorId: userId }
+          ]
+        }
+      : { isPrivate: false })
+  }
+
+  if (activeTag === "following") {
+    if (!userId) {
+      return { poems: [], nextCursor: null }
+    }
+    where.author = {
+      followers: {
+        some: {
+          followerId: userId
+        }
+      }
+    }
+  } else if (activeTag !== "all") {
+    where.tags = {
+      some: {
+        name: activeTag
+      }
+    }
+  }
+
+  const queryOptions = {
+    where,
+    take: limit + 1,
+    orderBy: {
+      createdAt: 'desc'
+    },
+    include: {
+      author: true,
+      tags: true,
+      _count: {
+        select: { likes: true }
+      }
+    }
+  }
+
+  if (cursor) {
+    queryOptions.cursor = { id: cursor }
+    queryOptions.skip = 1
+  }
+
+  const poems = await prisma.poem.findMany(queryOptions)
+
+  let nextCursor = null
+  if (poems.length > limit) {
+    const nextItem = poems.pop()
+    nextCursor = nextItem.id
+  }
+
+  return {
+    poems: JSON.parse(JSON.stringify(poems)),
+    nextCursor
+  }
+}
+

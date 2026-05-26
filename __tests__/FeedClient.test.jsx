@@ -15,6 +15,26 @@ jest.mock('@/app/actions/interactions', () => ({
   toggleFollow: jest.fn(),
 }))
 
+jest.mock('@/app/actions/poems', () => ({
+  getPaginatedPoems: jest.fn(),
+}))
+
+// Mock IntersectionObserver
+const observeMock = jest.fn()
+const unobserveMock = jest.fn()
+const disconnectMock = jest.fn()
+
+global.IntersectionObserver = jest.fn().mockImplementation((callback) => {
+  global.triggerIntersection = (isIntersecting) => {
+    callback([{ isIntersecting }])
+  }
+  return {
+    observe: observeMock,
+    unobserve: unobserveMock,
+    disconnect: disconnectMock,
+  }
+})
+
 Object.assign(navigator, {
   clipboard: { writeText: jest.fn().mockResolvedValue(undefined) },
 })
@@ -68,11 +88,20 @@ describe('FeedClient', () => {
     expect(screen.getByText(/No poems found for this tag/)).toBeInTheDocument()
   })
 
-  it('filters poems when a tag is clicked', () => {
+  it('filters poems when a tag is clicked', async () => {
+    const { getPaginatedPoems } = require('@/app/actions/poems')
+    getPaginatedPoems.mockResolvedValue({
+      poems: [makePoem('p1', ['nature'])],
+      nextCursor: null
+    })
+
     render(<FeedClient {...defaultProps} />)
     // Click "nature" tag in the top strip
+    const { act } = require('react')
     const natureTags = screen.getAllByText('nature')
-    fireEvent.click(natureTags[0])
+    await act(async () => {
+      fireEvent.click(natureTags[0])
+    })
     // p1 has "nature" tag, p2 has "love"
     expect(screen.getByText('Poem p1')).toBeInTheDocument()
     expect(screen.queryByText('Poem p2')).not.toBeInTheDocument()
@@ -115,5 +144,64 @@ describe('FeedClient', () => {
     // Multiple "Following" may appear (mobile + sidebar); at least one should exist
     const followingBtns = screen.getAllByText('Following')
     expect(followingBtns.length).toBeGreaterThan(0)
+  })
+
+  it('renders the infinite scroll trigger when nextCursor is provided', () => {
+    const props = {
+      ...defaultProps,
+      initialNextCursor: 'p2-next'
+    }
+    render(<FeedClient {...props} />)
+    expect(screen.getByTestId('infinite-scroll-trigger')).toBeInTheDocument()
+  })
+
+  it('triggers getPaginatedPoems when target intersects', async () => {
+    const { getPaginatedPoems } = require('@/app/actions/poems')
+    getPaginatedPoems.mockResolvedValue({
+      poems: [makePoem('p3', ['nature'])],
+      nextCursor: 'p3-next'
+    })
+
+    const props = {
+      ...defaultProps,
+      initialNextCursor: 'p2-next'
+    }
+    render(<FeedClient {...props} />)
+
+    // Trigger intersection
+    const { act } = require('react')
+    await act(async () => {
+      global.triggerIntersection(true)
+    })
+
+    expect(getPaginatedPoems).toHaveBeenCalledWith({
+      cursor: 'p2-next',
+      activeTag: 'all',
+      limit: 6
+    })
+    expect(screen.getByText('Poem p3')).toBeInTheDocument()
+  })
+
+  it('resets pagination and fetches first page when a tag is clicked', async () => {
+    const { getPaginatedPoems } = require('@/app/actions/poems')
+    getPaginatedPoems.mockResolvedValue({
+      poems: [makePoem('p4', ['love'])],
+      nextCursor: 'p4-next'
+    })
+
+    render(<FeedClient {...defaultProps} />)
+
+    // Click "love" tag
+    const { act } = require('react')
+    const loveTags = screen.getAllByText('love')
+    await act(async () => {
+      fireEvent.click(loveTags[0])
+    })
+
+    expect(getPaginatedPoems).toHaveBeenCalledWith({
+      activeTag: 'love',
+      limit: 6
+    })
+    expect(screen.getByText('Poem p4')).toBeInTheDocument()
   })
 })

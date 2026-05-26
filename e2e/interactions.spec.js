@@ -47,7 +47,7 @@ test.describe('Interactions Flow (Likes & Follows)', () => {
 
     // Refresh page to ensure persistence
     // Wait longer to ensure server action completes
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(4000);
     await page.reload();
     
     const reloadedFirstPoemCard = page.locator('.poem-card-featured').first();
@@ -78,13 +78,13 @@ test.describe('Interactions Flow (Likes & Follows)', () => {
     // Click follow
     await followButton.click();
 
-    // Verify UI updates optimistically
+    // Verify Verify UI updates optimistically
     await expect(followButton).toHaveText('Following');
     await expect(followButton).toHaveClass(/btn-primary/);
 
     // Refresh page to ensure persistence
     // Wait longer to ensure server action completes
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(4000);
     await page.reload();
 
     const reloadedFollowButton = page.getByTestId('follow-button');

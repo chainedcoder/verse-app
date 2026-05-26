@@ -262,4 +262,22 @@ test.describe('Feed and Navigation', () => {
       await expect(titleEl).toBeAttached();
     }
   });
+
+  test('infinite scroll loads more poems as user scrolls down', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+
+    // Count initial regular poem cards
+    const initialCount = await page.locator('.poem-card-featured').count();
+    expect(initialCount).toBeGreaterThan(0);
+
+    // Scroll to the bottom to trigger the Intersection Observer
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+
+    // Assert that the number of poem cards increases
+    await expect(async () => {
+      const currentCount = await page.locator('.poem-card-featured').count();
+      expect(currentCount).toBeGreaterThan(initialCount);
+    }).toPass({ timeout: 5000 });
+  });
 });

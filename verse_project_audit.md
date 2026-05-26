@@ -270,15 +270,12 @@ The design system requires standardization.
 1. **Accessibility & Design Polish:** ✅ (Done)
 2. **Infrastructure & Analytics:** ✅ (Done) GA4 scaffold, ErrorBoundary + error API, Web Vitals, SW + offline page.
 3. **Advanced Features:** ✅ (Done) PWA manifest, Web Share API, Embed code generation.
+4. **SEO, Pagination, Social & PWA Branding:** ✅ (Done) sitemap.xml, robots.txt, infinite scroll, intent sharing, branded PWA logo.
 
 ---
 
 ## Next Priority Items
 
-1. **SEO Enhancements:** Add `generateSitemap()` (`app/sitemap.js`) and `robots.txt` (`app/robots.js`). Add structured data (JSON-LD) for Author pages (currently only Poem pages have it).
-2. **Feed Pagination / Infinite Scroll:** The home feed loads all poems at once. Implement cursor-based pagination with a "Load more" button or Intersection Observer infinite scroll.
-3. **CSS Architecture:** Migrate component styles from global `app/components.css` to CSS Modules (e.g. `Nav.module.css`) to prevent style bleed and enable tree-shaking.
-4. **Storybook Component Library:** Isolate and document UI components (Button, Card, Avatar, Tag, Badge) in Storybook to prevent unintended regressions.
-5. **Twitter/X & Facebook Sharing:** Add one-click share buttons to the poem detail page share panel using Web Intent URLs.
-6. **Branded PWA Icons:** Generate and commit proper 192×192 and 512×512 Verse-branded PNG icons for the PWA manifest.
-7. **Production Deployment:** Configure environment variables for Vercel/Netlify production deployment (DATABASE_URL, NEXTAUTH_SECRET, NEXT_PUBLIC_GA_ID, SENTRY_DSN).
+1. **CSS Architecture:** Migrate component styles from global `app/components.css` to CSS Modules (e.g. `Nav.module.css`) to prevent style bleed and enable tree-shaking.
+2. **Storybook Component Library:** Isolate and document UI components (Button, Card, Avatar, Tag, Badge) in Storybook to prevent unintended regressions.
+3. **Production Deployment:** Configure environment variables for Vercel/Netlify production deployment (DATABASE_URL, NEXTAUTH_SECRET, NEXT_PUBLIC_GA_ID, SENTRY_DSN).

@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect, useRef } from "react"
 import Link from "next/link"
 import PoemCard from "@/components/PoemCard"
 import FeaturedPoemCard from "@/components/FeaturedPoemCard"
 import Sidebar from "@/components/Sidebar"
 import Avatar from "@/components/Avatar"
 import { toggleFollow } from "@/app/actions/interactions"
+import { getPaginatedPoems } from "@/app/actions/poems"
 
 /**
  * A self-contained follow button for an author in the mobile trending strip.
@@ -41,28 +42,80 @@ export default function FeedClient({
   trendingAuthors,
   initialLikedPoemIds = [],
   initialFollowedAuthorIds = [],
-  currentUserId = null
+  currentUserId = null,
+  initialNextCursor = null
 }) {
   const [activeTag, setActiveTag] = useState("all")
+  const [poems, setPoems] = useState(initialPoems)
+  const [nextCursor, setNextCursor] = useState(initialNextCursor)
+  const [loading, setLoading] = useState(false)
+  const [loadingTag, setLoadingTag] = useState(false)
+  const observerTarget = useRef(null)
 
   const likedSet    = new Set(initialLikedPoemIds)
   const followedSet = new Set(initialFollowedAuthorIds)
 
-  // Filter regular poems by tag
-  const filteredPoems = activeTag === "all"
-    ? initialPoems
-    : activeTag === "following"
-      ? initialPoems.filter(p => followedSet.has(p.authorId))
-      : initialPoems.filter(p => p.tags?.map(t => t.name).includes(activeTag))
-
-  // Filter featured poems by tag too
+  // Filter featured poems by tag locally
   const filteredFeatured = activeTag === "all"
     ? featuredPoems
     : activeTag === "following"
       ? featuredPoems.filter(p => followedSet.has(p.authorId))
       : featuredPoems.filter(p => p.tags?.map(t => t.name).includes(activeTag))
 
-  const allEmpty = filteredPoems.length === 0 && filteredFeatured.length === 0
+  const handleTagClick = async (tag) => {
+    if (tag === activeTag) return
+    setActiveTag(tag)
+    setLoadingTag(true)
+    try {
+      const res = await getPaginatedPoems({ activeTag: tag, limit: 6 })
+      setPoems(res.poems)
+      setNextCursor(res.nextCursor)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setLoadingTag(false)
+    }
+  }
+
+  // Intersection Observer for Infinite Scroll
+  useEffect(() => {
+    if (!nextCursor || loading || loadingTag) return
+
+    const observer = new IntersectionObserver(
+      async (entries) => {
+        if (entries[0].isIntersecting) {
+          setLoading(true)
+          try {
+            const res = await getPaginatedPoems({
+              cursor: nextCursor,
+              activeTag,
+              limit: 6
+            })
+            setPoems(prev => [...prev, ...res.poems])
+            setNextCursor(res.nextCursor)
+          } catch (e) {
+            console.error(e)
+          } finally {
+            setLoading(false)
+          }
+        }
+      },
+      { threshold: 0.1, rootMargin: "100px" }
+    )
+
+    const target = observerTarget.current
+    if (target) {
+      observer.observe(target)
+    }
+
+    return () => {
+      if (target) {
+        observer.unobserve(target)
+      }
+    }
+  }, [nextCursor, activeTag, loading, loadingTag])
+
+  const allEmpty = poems.length === 0 && filteredFeatured.length === 0
 
   return (
     <div className="feed-layout">
@@ -72,14 +125,14 @@ export default function FeedClient({
         <div className="tag-row-scroll" style={{ marginBottom: "20px" }}>
           <span
             className={`tag ${activeTag === "all" ? "active" : ""}`}
-            onClick={() => setActiveTag("all")}
+            onClick={() => handleTagClick("all")}
           >
             All
           </span>
           {currentUserId && (
             <span
               className={`tag ${activeTag === "following" ? "active" : ""}`}
-              onClick={() => setActiveTag("following")}
+              onClick={() => handleTagClick("following")}
             >
               Following
             </span>
@@ -88,7 +141,7 @@ export default function FeedClient({
             <span
               key={tag}
               className={`tag ${activeTag === tag ? "active" : ""}`}
-              onClick={() => setActiveTag(tag)}
+              onClick={() => handleTagClick(tag)}
             >
               {tag}
             </span>
@@ -96,7 +149,7 @@ export default function FeedClient({
         </div>
 
         {/* Feed content */}
-        <div id="poem-feed" style={{ transition: "opacity 0.3s ease" }}>
+        <div id="poem-feed" style={{ transition: "opacity 0.3s ease", opacity: loadingTag ? 0.6 : 1 }}>
 
           {allEmpty ? (
             <div className="empty-state">
@@ -159,7 +212,7 @@ export default function FeedClient({
                       <span
                         key={tag}
                         className={`tag ${activeTag === tag ? "active" : ""}`}
-                        onClick={() => setActiveTag(tag)}
+                        onClick={() => handleTagClick(tag)}
                       >
                         {tag}
                       </span>
@@ -169,9 +222,9 @@ export default function FeedClient({
               )}
 
               {/* ── Regular poem grid ──────────────────────── */}
-              {filteredPoems.length > 0 && (
+              {poems.length > 0 && (
                 <div className="regular-poem-grid">
-                  {filteredPoems.map(poem => (
+                  {poems.map(poem => (
                     <PoemCard
                       key={poem.id}
                       poem={poem}
@@ -179,6 +232,26 @@ export default function FeedClient({
                       isMine={currentUserId && poem.authorId === currentUserId}
                     />
                   ))}
+                </div>
+              )}
+
+              {/* Infinite Scroll target & loading spinner */}
+              {nextCursor && (
+                <div 
+                  ref={observerTarget}
+                  data-testid="infinite-scroll-trigger"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    padding: "32px 0",
+                    width: "100%"
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--text-secondary)" }}>
+                    <i className="ti ti-loader-2" style={{ animation: "spin 1s linear infinite", fontSize: "20px" }} aria-hidden="true"></i>
+                    <span style={{ fontSize: "14px", fontWeight: "500" }}>Loading more poems...</span>
+                  </div>
                 </div>
               )}
             </>
@@ -189,7 +262,7 @@ export default function FeedClient({
 
       <Sidebar
         activeTag={activeTag}
-        onTagSelect={setActiveTag}
+        onTagSelect={handleTagClick}
         trendingAuthors={trendingAuthors}
         allTags={tags}
         initialFollowedAuthorIds={initialFollowedAuthorIds}
@@ -197,3 +270,4 @@ export default function FeedClient({
     </div>
   )
 }
+

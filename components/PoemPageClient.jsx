@@ -29,7 +29,19 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
   const [likersModalOpen, setLikersModalOpen] = useState(false)
   const [likers, setLikers] = useState([])
   const [likersLoading, setLikersLoading] = useState(false)
+  const [shareUrls, setShareUrls] = useState({ twitter: "", facebook: "" })
   const collectionsDropdownRef = useRef(null)
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const url = `${window.location.origin}/poem/${poem.id}`
+      const text = `"${poem.title}" by ${poem.author.name} on Verse`
+      setShareUrls({
+        twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
+        facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`
+      })
+    }
+  }, [poem.id, poem.title, poem.author.name])
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -278,11 +290,17 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
 
         <hr className="divider" style={{ margin: "20px 0" }} />
         <div className="section-title">Share</div>
-        <div className="share-buttons">
-          <button className="btn btn-ghost btn-sm" onClick={handleShare} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
-            <i className="ti ti-copy" style={{ fontSize: "13px" }} aria-hidden="true"></i> Copy link
+        <div className="share-buttons" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "8px" }}>
+          <button className="btn btn-ghost btn-sm" onClick={handleShare} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", width: "100%" }}>
+            <i className="ti ti-copy" style={{ fontSize: "13px" }} aria-hidden="true"></i> Copy Link
           </button>
-          <button className="btn btn-ghost btn-sm" onClick={() => showToast("Open Instagram and paste your poem image!")} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "5px" }}>
+          <a href={shareUrls.twitter} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", textDecoration: "none", color: "inherit", width: "100%" }} aria-label="Share on Twitter/X">
+            <i className="ti ti-brand-x" style={{ fontSize: "13px" }} aria-hidden="true"></i> Twitter/X
+          </a>
+          <a href={shareUrls.facebook} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", textDecoration: "none", color: "inherit", width: "100%" }} aria-label="Share on Facebook">
+            <i className="ti ti-brand-facebook" style={{ fontSize: "13px" }} aria-hidden="true"></i> Facebook
+          </a>
+          <button className="btn btn-ghost btn-sm" onClick={() => showToast("Open Instagram and paste your poem image!")} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", width: "100%" }}>
             <i className="ti ti-brand-instagram" style={{ fontSize: "13px" }} aria-hidden="true"></i> Instagram
           </button>
         </div>

@@ -5,8 +5,12 @@ import FeedClient from "@/components/FeedClient"
 export default async function Home() {
   const session = await auth()
   
-  const whereClause = {
+  const limit = 6
+
+  // Base regular where clause
+  const regularWhere = {
     status: { not: "DELETED" },
+    featured: false,
     ...(session?.user?.id
       ? {
           OR: [
@@ -17,24 +21,63 @@ export default async function Home() {
       : { isPrivate: false })
   }
 
-  const poems = await prisma.poem.findMany({
-    where: whereClause,
-    include: {
-      author: true,
-      tags: true,
-      _count: {
-        select: { likes: true }
-      }
-    },
-    orderBy: [
-      { featured: 'desc' },
-      { createdAt: 'desc' }
-    ]
-  })
+  // Base featured where clause
+  const featuredWhere = {
+    status: { not: "DELETED" },
+    featured: true,
+    ...(session?.user?.id
+      ? {
+          OR: [
+            { isPrivate: false },
+            { authorId: session.user.id }
+          ]
+        }
+      : { isPrivate: false })
+  }
 
-  const trendingAuthorsRaw = await prisma.user.findMany({
-    take: 4,
-  })
+  // Run database queries concurrently
+  const [initialPoemsRaw, featuredPoemsRaw, trendingAuthorsRaw, allTagsRaw] = await Promise.all([
+    prisma.poem.findMany({
+      where: regularWhere,
+      take: limit + 1,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        author: true,
+        tags: true,
+        _count: {
+          select: { likes: true }
+        }
+      }
+    }),
+    prisma.poem.findMany({
+      where: featuredWhere,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        author: true,
+        tags: true,
+        _count: {
+          select: { likes: true }
+        }
+      }
+    }),
+    prisma.user.findMany({
+      where: { status: "ACTIVE" },
+      take: 4,
+    }),
+    prisma.tag.findMany({
+      select: { name: true }
+    })
+  ])
+
+  // Safely serialize database model dates to match Client Component expectations
+  const initialPoems = JSON.parse(JSON.stringify(initialPoemsRaw))
+  const featuredPoems = JSON.parse(JSON.stringify(featuredPoemsRaw))
+
+  let initialNextCursor = null
+  if (initialPoems.length > limit) {
+    const nextItem = initialPoems.pop()
+    initialNextCursor = nextItem.id
+  }
 
   let likedPoemIds = []
   let followedAuthorIds = []
@@ -57,17 +100,7 @@ export default async function Home() {
     followedAuthorIds = userFollows.map(f => f.followingId)
   }
 
-  // Extract all unique tags
-  const tagsSet = new Set()
-  poems.forEach(p => {
-    if (Array.isArray(p.tags)) {
-      p.tags.forEach(t => tagsSet.add(t.name))
-    }
-  })
-  const tags = Array.from(tagsSet).filter(Boolean)
-
-  const featuredPoems = poems.filter(p => p.featured)
-  const regularPoems  = poems.filter(p => !p.featured)
+  const tags = allTagsRaw.map(t => t.name).filter(Boolean)
 
   const trendingAuthors = trendingAuthorsRaw
     .filter(a => a.id !== session?.user?.id)
@@ -75,13 +108,15 @@ export default async function Home() {
 
   return (
     <FeedClient 
-      initialPoems={regularPoems}
+      initialPoems={initialPoems}
       featuredPoems={featuredPoems}
       tags={tags} 
       trendingAuthors={trendingAuthors} 
       initialLikedPoemIds={likedPoemIds}
       initialFollowedAuthorIds={followedAuthorIds}
       currentUserId={session?.user?.id}
+      initialNextCursor={initialNextCursor}
     />
   )
 }
+
