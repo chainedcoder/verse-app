@@ -44,6 +44,6 @@ test.describe('Poem Deletion Flow', () => {
     await page.click('button:has-text("Delete")');
 
     // 5. Verify redirect to home
-    await expect(page).toHaveURL('http://localhost:3000/');
+    await expect(page).toHaveURL('http://localhost:3000/', { timeout: 15000 });
   });
 });

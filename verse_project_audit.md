@@ -163,7 +163,7 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 ## 9. ♿ Accessibility Issues
 
 ### Tasks:
-- [ ] Use semantic elements or proper ARIA roles on clickable cards
+- [x] Use semantic elements or proper ARIA roles on clickable cards
 - [ ] Add `role="alert"` and `aria-live="polite"` to toast UI
 - [ ] Add ARIA landmarks (`role="main"`, `role="navigation"`, etc.)
 - [ ] Add keyboard support for template card selection
@@ -208,8 +208,8 @@ The design system requires standardization.
 ### Tasks:
 - [x] Apply unified `.card`, `.btn` styles across all pages.
 - [x] Standardize responsive grids for feeds and profiles.
-- [ ] Implement robust loading skeletons (instead of generic "Loading..." text).
-- [ ] Add empty states for all views (empty collections, no followers, etc.).
+- [x] Implement robust loading skeletons (instead of generic "Loading..." text).
+- [x] Add empty states for all views (empty collections, no followers, etc.).
 - [ ] **Implement Storybook** to isolate and document UI components, preventing unintended layout regressions.
 - [ ] **Migrate to CSS Modules** (e.g., `Nav.module.css`) to prevent global style bleed and strictly scope styles.
 - [x] add an undo for destructive actions (delete poem, delete collection, remove poem from collection)
@@ -268,6 +268,6 @@ The design system requires standardization.
 
 ## Recommended Priority Order (Updated)
 
-1. **Accessibility & Design Polish:** Implement semantic HTML, ARIA roles, loading skeletons, and empty states.
+1. **Accessibility & Design Polish:** ✅ (Done) Implement semantic HTML, ARIA roles, loading skeletons, and empty states.
 2. **Infrastructure & Analytics:** Integrate Google Analytics, Sentry error tracking, Web Vitals, and Cloud Storage integration.
 3. **Advanced Features:** PWA & Offline Support, Web Share API, and Embed code generation.

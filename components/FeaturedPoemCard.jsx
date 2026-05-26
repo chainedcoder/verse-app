@@ -80,10 +80,9 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
     : '?'
 
   return (
-    <div
+    <article
       className={`featured-poem-card${isMine ? " poem-card--mine" : ""}`}
       onClick={() => router.push(`/poem/${poem.id}`)}
-      role="article"
       aria-label={`Featured poem: ${poem.title}`}
     >
       {/* Accent bar */}
@@ -211,6 +210,6 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
           </div>
         </div>
       </div>
-    </div>
+    </article>
   )
 }

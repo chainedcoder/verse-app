@@ -17,7 +17,7 @@ test.describe('Feed and Navigation', () => {
 
     // Verify Sidebar
     await expect(page.locator('.feed-sidebar')).toBeVisible();
-    await expect(page.locator('text=Trending authors')).toBeVisible();
+    await expect(page.locator('.feed-sidebar').locator('text=Trending authors')).toBeVisible();
   });
 
   test('featured poems appear before regular poems', async ({ page }) => {

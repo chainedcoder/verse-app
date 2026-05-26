@@ -88,7 +88,7 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
   return (
     <div onClick={() => router.push(`/poem/${poem.id}`)} style={{ cursor: "pointer", display: "block", position: "relative" }} className="poem-card-container">
       {customRemoveButton}
-      <div className={`card card-clickable poem-card-featured${isMine ? " poem-card--mine" : ""}`} style={{ marginBottom: "16px" }}>
+      <article className={`card card-clickable poem-card-featured${isMine ? " poem-card--mine" : ""}`} style={{ marginBottom: "16px" }} aria-label={`Poem: ${poem.title}`}>
         {poem.featured && <span className="badge badge-featured">featured</span>}
         <div className="category-label" style={{ marginBottom: "6px", display: "flex", gap: "6px", flexWrap: "wrap" }}>
           {tagsList.map((t, i) => (
@@ -183,7 +183,7 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
             </div>
           </div>
         </div>
-      </div>
+      </article>
     </div>
   )
 }

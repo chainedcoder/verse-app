@@ -51,7 +51,10 @@ test.describe('Profile Settings Flow', () => {
     await page.goto('/authors');
     
     // Search or find the user
-    await page.click(`text=${testName}`);
+    await Promise.all([
+      page.waitForURL('**/author/**'),
+      page.click(`text=${testName}`)
+    ]);
     
     // Verify bio and location are visible
     await expect(page.locator('.profile-bio')).toContainText(newLocation);

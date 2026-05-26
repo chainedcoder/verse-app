@@ -181,6 +181,12 @@ export default function Nav() {
                   <div 
                     onClick={(e) => { e.stopPropagation(); setShowDropdown(!showDropdown); }} 
                     style={{ width: "25px", height: "25px", cursor: "pointer", position: "relative", userSelect: "none" }}
+                    role="button"
+                    aria-expanded={showDropdown}
+                    aria-controls="user-menu"
+                    aria-label="User menu"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setShowDropdown(!showDropdown); } }}
                   >
                     <Avatar 
                       image={session.user?.image} 
@@ -197,7 +203,7 @@ export default function Nav() {
                     )}
                   </div>
                   {showDropdown && (
-                    <div style={{
+                    <div id="user-menu" role="menu" style={{
                       position: "absolute", top: "100%", right: "0", marginTop: "8px",
                       backgroundColor: "var(--bg-card)", border: "1px solid var(--border-secondary)",
                       borderRadius: "8px", width: "300px", maxHeight: "500px", overflowY: "auto",
@@ -270,7 +276,7 @@ export default function Nav() {
             )}
           </div>
 
-          <button className={`hamburger ${drawerOpen ? "open" : ""}`} aria-label="Menu" onClick={toggleDrawer}>
+          <button className={`hamburger ${drawerOpen ? "open" : ""}`} aria-label="Menu" aria-expanded={drawerOpen} aria-controls="mobile-menu" onClick={toggleDrawer}>
             <span className="hamburger-line"></span>
             <span className="hamburger-line"></span>
             <span className="hamburger-line"></span>
@@ -279,7 +285,7 @@ export default function Nav() {
       </nav>
 
       <div className={`drawer-overlay ${drawerOpen ? "open" : ""}`} onClick={closeDrawer} style={{ display: drawerOpen ? 'block' : 'none' }}></div>
-      <div className={`mobile-drawer ${drawerOpen ? "open" : ""}`} style={{ display: drawerOpen ? 'flex' : 'none' }}>
+      <div className={`mobile-drawer ${drawerOpen ? "open" : ""}`} id="mobile-menu" style={{ display: drawerOpen ? 'flex' : 'none' }}>
         <form action="/search" style={{ marginBottom: "16px", position: "relative" }}>
           <i className="ti ti-search" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--text-tertiary)" }}></i>
           <input 

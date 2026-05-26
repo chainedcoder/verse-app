@@ -27,9 +27,9 @@ export default async function Collections() {
       </div>
       
       {collections.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "60px 0" }}>
-          <i className="ti ti-folders" style={{ fontSize: "48px", color: "var(--text-tertiary)", marginBottom: "16px", display: "block" }}></i>
-          <p style={{ color: "var(--text-secondary)" }}>No collections found. Be the first to create one!</p>
+        <div className="empty-state">
+          <i className="ti ti-folders" aria-hidden="true"></i>
+          <p>No collections found. Be the first to create one!</p>
         </div>
       ) : (
         <div className="collections-grid">
