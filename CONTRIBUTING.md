@@ -18,7 +18,7 @@ Verse is built on a modern, full-stack architecture:
 To get the project running locally on your machine, follow these steps:
 
 ### Prerequisites
-- Node.js 18.x or later
+- Node.js 24.x or later
 - npm or yarn
 
 ### Installation
