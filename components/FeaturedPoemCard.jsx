@@ -96,7 +96,7 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
 
   return (
     <article
-      className={`${styles['featured-poem-card']} ${isMine ? styles['poem-card--mine'] : ""}`}
+      className={`${styles['featured-poem-card']} featured-poem-card ${isMine ? styles['poem-card--mine'] : ""}`}
       onClick={() => router.push(`/poem/${poem.id}`)}
       aria-label={`Featured poem: ${poem.title}`}
     >
@@ -128,13 +128,13 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
               </span>
             )}
           </div>
-          <div className={styles['featured-poem-card__read-time']}>
+          <div className={`${styles['featured-poem-card__read-time']} featured-poem-card__read-time`}>
             {readTime} m read
           </div>
         </div>
 
         {/* Title */}
-        <h2 className={`${styles['featured-poem-card__title']} serif ${styles['poem-card__title--clamp-2']}`} title={poem.title}>{poem.title}</h2>
+        <h2 className={`${styles['featured-poem-card__title']} serif ${styles['poem-card__title--clamp-2']} poem-card__title--clamp-2 poem-card__title--clamp`} title={poem.title}>{poem.title}</h2>
 
         {/* Excerpt */}
         <div
@@ -177,7 +177,7 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
             {/* Download — hidden on very small screens, shown via share menu */}
             <Link
               href={`/export/${poem.id}`}
-              className="action-icon poem-card-download-btn"
+              className={`action-icon ${styles['poem-card-download-btn']} poem-card-download-btn`}
               onClick={e => e.stopPropagation()}
               aria-label="Download"
             >
@@ -185,14 +185,14 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
             </Link>
 
             {/* Share — hidden on very small screens */}
-            <button className="action-icon poem-card-share-btn" onClick={handleShare} aria-label="Share">
+            <button className={`action-icon ${styles['poem-card-share-btn']} poem-card-share-btn`} onClick={handleShare} aria-label="Share">
               <i className={`ti ${copied ? "ti-check" : "ti-share"}`} style={{ color: copied ? "var(--primary)" : "inherit" }} aria-hidden="true" />
             </button>
 
             {/* Combined share menu trigger — visible only on very small screens */}
-            <div className="poem-card-share-menu-wrap" ref={shareMenuRef}>
+            <div className={`poem-card-share-menu-wrap ${styles['poem-card-share-menu-wrap']}`} ref={shareMenuRef}>
               <button
-                className={`action-icon poem-card-share-menu-btn ${copied ? "liked" : ""}`}
+                className={`action-icon ${styles['poem-card-share-menu-btn']} poem-card-share-menu-btn ${copied ? "liked" : ""}`}
                 onClick={handleShareMenuToggle}
                 aria-label="Share options"
                 aria-expanded={shareMenuOpen}
@@ -201,10 +201,10 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
                 <i className={`ti ${copied ? "ti-check" : "ti-share"}`} style={{ color: copied ? "var(--primary)" : "inherit" }} aria-hidden="true" />
               </button>
               {shareMenuOpen && (
-                <div className="poem-card-share-dropdown" role="menu">
+                <div className={`${styles['poem-card-share-dropdown']} poem-card-share-dropdown`} role="menu">
                   <Link
                     href={`/export/${poem.id}`}
-                    className="poem-card-share-dropdown-item"
+                    className={`${styles['poem-card-share-dropdown-item']} poem-card-share-dropdown-item`}
                     onClick={e => { e.stopPropagation(); setShareMenuOpen(false) }}
                     role="menuitem"
                   >
@@ -212,7 +212,7 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
                     Download
                   </Link>
                   <button
-                    className="poem-card-share-dropdown-item"
+                    className={`${styles['poem-card-share-dropdown-item']} poem-card-share-dropdown-item`}
                     onClick={handleShare}
                     role="menuitem"
                   >

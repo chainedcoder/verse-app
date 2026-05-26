@@ -111,7 +111,7 @@ export default function Nav() {
   return (
     <>
       <nav className={styles.navbar} id="navbar">
-        <Link className={styles.navbarLogo} href="/" onClick={closeDrawer}>verse</Link>
+        <Link className={`${styles.navbarLogo} navbar-logo`} href="/" onClick={closeDrawer}>verse</Link>
 
         <div className={styles.navbarLinks} id="nav-links">
           <Link className={`${styles.navbarLink} ${pathname === "/" ? styles.active : ""}`} href="/">Discover</Link>
@@ -119,8 +119,8 @@ export default function Nav() {
           <Link className={`${styles.navbarLink} ${pathname === "/authors" ? styles.active : ""}`} href="/authors">Authors</Link>
         </div>
 
-        <div className={styles.navbarActions}>
-          <div className={styles.navbarDesktopActions}>
+        <div className={`${styles.navbarActions} navbar-actions`}>
+          <div className={`${styles.navbarDesktopActions} navbar-desktop-actions`}>
             <div style={{ position: "relative" }} ref={searchRef}>
               <form action="/search" style={{ position: "relative", display: "flex", alignItems: "center" }}>
                 <i className="ti ti-search" aria-hidden="true" style={{ position: "absolute", left: "12px", color: "var(--text-tertiary)", pointerEvents: "none" }}></i>

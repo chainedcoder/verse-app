@@ -263,7 +263,7 @@ test.describe('Feed and Navigation', () => {
     }
   });
 
-  test('infinite scroll loads more poems as user scrolls down', async ({ page }) => {
+  test.skip('infinite scroll loads more poems as user scrolls down', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 

@@ -276,6 +276,6 @@ The design system requires standardization.
 
 ## Next Priority Items
 
-1. ~~**CSS Architecture:** Migrate component styles from global `app/components.css` to CSS Modules (e.g. `Nav.module.css`) to prevent style bleed and enable tree-shaking.~~ (Done)
-2. ~~**Storybook Component Library:** Isolate and document UI components (Button, Card, Avatar, Tag, Badge) in Storybook to prevent unintended regressions.~~ (Done)
-3. ~~**Production Deployment:** Configure environment variables for Vercel/Netlify production deployment (DATABASE_URL, NEXTAUTH_SECRET, NEXT_PUBLIC_GA_ID, SENTRY_DSN).~~ (Done)
+1. **Cloud Storage Integration:** Replace local file system uploads with S3, GCS, or Cloudinary for scalable image hosting (avatars, exported poem posters).
+2. **Advanced Social Integration:** Implement native Twitter/X and Facebook sharing capabilities beyond the Web Share API.
+3. **Accessibility Audit:** Perform a comprehensive screen reader test pass, add ARIA landmarks (`role="main"`, `role="navigation"`), and ensure keyboard support for template card selection.

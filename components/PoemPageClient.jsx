@@ -95,8 +95,8 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
     
     startTransition(async () => {
       try {
-        await togglePoemInCollection(collectionId, poem.id)
         showToast(currentlyHas ? "Removed from collection" : "Saved to collection")
+        await togglePoemInCollection(collectionId, poem.id)
       } catch (e) {
         showToast("Error updating collection")
       }

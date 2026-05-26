@@ -40,7 +40,7 @@ export default function Avatar({ image, name, size = "sm", className = "", style
 
   return (
     <div 
-      className={`${styles.avatar} ${sizeClass || ""} ${mappedColorClass} ${className}`.trim()}
+      className={`${styles.avatar} avatar ${sizeClass || ""} ${mappedColorClass} ${colorClass} ${className}`.trim()}
       style={style}
     >
       {initials}

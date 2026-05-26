@@ -103,7 +103,7 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
   const initials = author.name ? author.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?'
 
   return (
-    <div onClick={() => router.push(`/poem/${poem.id}`)} style={{ cursor: "pointer", display: "block", position: "relative" }} className={styles['poem-card-container']}>
+    <div onClick={() => router.push(`/poem/${poem.id}`)} style={{ cursor: "pointer", display: "block", position: "relative" }} className={`${styles['poem-card-container']} poem-card-container`}>
       {customRemoveButton}
       <Card
         as="article"
@@ -131,10 +131,10 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
             <span style={{ opacity: 0.55, fontSize: "12px" }}>+{hiddenTagCount}</span>
           )}
         </div>
-        <h2 className={`serif ${styles['poem-card__title--clamp']}`} style={{ fontSize: "22px", marginBottom: "12px", letterSpacing: "-0.3px" }} title={poem.title}>{poem.title}</h2>
+        <h2 className={`serif ${styles['poem-card__title--clamp']} poem-card__title--clamp`} style={{ fontSize: "22px", marginBottom: "12px", letterSpacing: "-0.3px" }} title={poem.title}>{poem.title}</h2>
         <div className={styles['poem-excerpt']} style={{ fontSize: "15px" }} dangerouslySetInnerHTML={{ __html: poem.excerpt.replace(/\n/g, "<br>") }} />
         
-        <div className={styles['card-footer']}>
+        <div className={`${styles['card-footer']} card-footer`}>
           <div className={styles['author-info']}>
             {hideAuthor ? (
               <div style={{ fontSize: "11px", color: "var(--text-tertiary)", whiteSpace: "nowrap" }}>
@@ -162,19 +162,19 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
             </button>
 
             {/* Download — hidden on very small screens (320px), shown via share menu */}
-            <Link href={`/export/${poem.id}`} className={`action-icon ${styles['poem-card-download-btn']}`} onClick={e => e.stopPropagation()} aria-label="Download">
+            <Link href={`/export/${poem.id}`} className={`action-icon ${styles['poem-card-download-btn']} poem-card-download-btn`} onClick={e => e.stopPropagation()} aria-label="Download">
               <i className="ti ti-download" style={{ fontSize: "16px" }} aria-hidden="true"></i>
             </Link>
 
             {/* Share — hidden on very small screens (320px) */}
-            <button className={`action-icon ${styles['poem-card-share-btn']}`} onClick={handleShare} aria-label="Share">
+            <button className={`action-icon ${styles['poem-card-share-btn']} poem-card-share-btn`} onClick={handleShare} aria-label="Share">
               <i className={`ti ${copied ? "ti-check" : "ti-share"}`} style={{ fontSize: "16px", color: copied ? "var(--primary)" : "inherit" }} aria-hidden="true"></i>
             </button>
 
             {/* Combined share menu trigger — visible only on very small screens */}
-            <div className={styles['poem-card-share-menu-wrap']} ref={shareMenuRef}>
+            <div className={`${styles['poem-card-share-menu-wrap']} poem-card-share-menu-wrap`} ref={shareMenuRef}>
               <button
-                className={`action-icon ${styles['poem-card-share-menu-btn']} ${copied ? "liked" : ""}`}
+                className={`action-icon ${styles['poem-card-share-menu-btn']} poem-card-share-menu-btn ${copied ? "liked" : ""}`}
                 onClick={handleShareMenuToggle}
                 aria-label="Share options"
                 aria-expanded={shareMenuOpen}
@@ -183,10 +183,10 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
                 <i className={`ti ${copied ? "ti-check" : "ti-share"}`} style={{ fontSize: "16px", color: copied ? "var(--primary)" : "inherit" }} aria-hidden="true"></i>
               </button>
               {shareMenuOpen && (
-                <div className={styles['poem-card-share-dropdown']} role="menu">
+                <div className={`${styles['poem-card-share-dropdown']} poem-card-share-dropdown`} role="menu">
                   <Link
                     href={`/export/${poem.id}`}
-                    className={styles['poem-card-share-dropdown-item']}
+                    className={`${styles['poem-card-share-dropdown-item']} poem-card-share-dropdown-item`}
                     onClick={e => { e.stopPropagation(); setShareMenuOpen(false) }}
                     role="menuitem"
                   >
@@ -194,7 +194,7 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
                     Download
                   </Link>
                   <button
-                    className={styles['poem-card-share-dropdown-item']}
+                    className={`${styles['poem-card-share-dropdown-item']} poem-card-share-dropdown-item`}
                     onClick={handleShare}
                     role="menuitem"
                   >
