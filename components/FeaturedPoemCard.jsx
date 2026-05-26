@@ -57,11 +57,13 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
     if (!shareMenuOpen) return
     const onOutside = (e) => {
       if (shareMenuRef.current && !shareMenuRef.current.contains(e.target)) {
+        e.stopPropagation()
+        e.preventDefault()
         setShareMenuOpen(false)
       }
     }
-    document.addEventListener("mousedown", onOutside)
-    return () => document.removeEventListener("mousedown", onOutside)
+    document.addEventListener("click", onOutside, true)
+    return () => document.removeEventListener("click", onOutside, true)
   }, [shareMenuOpen])
 
   if (!author) return null
