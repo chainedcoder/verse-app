@@ -209,8 +209,8 @@ The design system requires standardization.
 - [x] Standardize responsive grids for feeds and profiles.
 - [x] Implement robust loading skeletons (instead of generic "Loading..." text).
 - [x] Add empty states for all views (empty collections, no followers, etc.).
-- [ ] **Implement Storybook** to isolate and document UI components, preventing unintended layout regressions.
-- [ ] **Migrate to CSS Modules** (e.g., `Nav.module.css`) to prevent global style bleed and strictly scope styles.
+- [x] **Implement Storybook** to isolate and document UI components, preventing unintended layout regressions.
+- [x] **Migrate to CSS Modules** (e.g., `Nav.module.css`) to prevent global style bleed and strictly scope styles.
 - [x] add an undo for destructive actions (delete poem, delete collection, remove poem from collection)
 
 ---
@@ -227,7 +227,7 @@ The design system requires standardization.
 
 - [x] ~~Set up CI/CD pipeline (GitHub Actions)~~ (Done)
 - [x] ~~Configure production deployment (Vercel, Netlify)~~ (Done)
-- [ ] Add environment variable management for production
+- [x] Add environment variable management for production
 - [x] ~~Configure custom domain and SSL~~ (Instructions added)
 - [x] cant easily tell my poems or collections apart
 
@@ -276,6 +276,6 @@ The design system requires standardization.
 
 ## Next Priority Items
 
-1. **CSS Architecture:** Migrate component styles from global `app/components.css` to CSS Modules (e.g. `Nav.module.css`) to prevent style bleed and enable tree-shaking.
-2. **Storybook Component Library:** Isolate and document UI components (Button, Card, Avatar, Tag, Badge) in Storybook to prevent unintended regressions.
-3. **Production Deployment:** Configure environment variables for Vercel/Netlify production deployment (DATABASE_URL, NEXTAUTH_SECRET, NEXT_PUBLIC_GA_ID, SENTRY_DSN).
+1. ~~**CSS Architecture:** Migrate component styles from global `app/components.css` to CSS Modules (e.g. `Nav.module.css`) to prevent style bleed and enable tree-shaking.~~ (Done)
+2. ~~**Storybook Component Library:** Isolate and document UI components (Button, Card, Avatar, Tag, Badge) in Storybook to prevent unintended regressions.~~ (Done)
+3. ~~**Production Deployment:** Configure environment variables for Vercel/Netlify production deployment (DATABASE_URL, NEXTAUTH_SECRET, NEXT_PUBLIC_GA_ID, SENTRY_DSN).~~ (Done)

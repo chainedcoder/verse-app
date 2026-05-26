@@ -7,6 +7,8 @@ import { useSession, signOut } from "next-auth/react"
 import { getNotifications, markNotificationsAsRead } from "@/app/actions/notifications"
 import { searchPoems } from "@/app/actions/poems"
 import Avatar from "./Avatar"
+import Button from "./Button"
+import styles from "./Nav.module.css"
 
 export default function Nav() {
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -59,8 +61,10 @@ export default function Nav() {
       }, 300)
       return () => clearTimeout(delayFn)
     } else {
-      setSearchResults([])
-      setShowSearchDropdown(false)
+      Promise.resolve().then(() => {
+        setSearchResults([])
+        setShowSearchDropdown(false)
+      })
     }
   }, [searchQuery])
 
@@ -69,7 +73,9 @@ export default function Nav() {
       setTheme(document.documentElement.getAttribute("data-theme") || "light")
     })
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] })
-    setTheme(document.documentElement.getAttribute("data-theme") || "light")
+    Promise.resolve().then(() => {
+      setTheme(document.documentElement.getAttribute("data-theme") || "light")
+    })
     return () => observer.disconnect()
   }, [])
 
@@ -104,17 +110,17 @@ export default function Nav() {
 
   return (
     <>
-      <nav className="navbar" id="navbar">
-        <Link className="navbar-logo" href="/" onClick={closeDrawer}>verse</Link>
+      <nav className={styles.navbar} id="navbar">
+        <Link className={styles.navbarLogo} href="/" onClick={closeDrawer}>verse</Link>
 
-        <div className="navbar-links" id="nav-links">
-          <Link className={`navbar-link ${pathname === "/" ? "active" : ""}`} href="/">Discover</Link>
-          <Link className={`navbar-link ${pathname === "/collections" ? "active" : ""}`} href="/collections">Collections</Link>
-          <Link className={`navbar-link ${pathname === "/authors" ? "active" : ""}`} href="/authors">Authors</Link>
+        <div className={styles.navbarLinks} id="nav-links">
+          <Link className={`${styles.navbarLink} ${pathname === "/" ? styles.active : ""}`} href="/">Discover</Link>
+          <Link className={`${styles.navbarLink} ${pathname === "/collections" ? styles.active : ""}`} href="/collections">Collections</Link>
+          <Link className={`${styles.navbarLink} ${pathname === "/authors" ? styles.active : ""}`} href="/authors">Authors</Link>
         </div>
 
-        <div className="navbar-actions">
-          <div className="navbar-desktop-actions">
+        <div className={styles.navbarActions}>
+          <div className={styles.navbarDesktopActions}>
             <div style={{ position: "relative" }} ref={searchRef}>
               <form action="/search" style={{ position: "relative", display: "flex", alignItems: "center" }}>
                 <i className="ti ti-search" aria-hidden="true" style={{ position: "absolute", left: "12px", color: "var(--text-tertiary)", pointerEvents: "none" }}></i>
@@ -170,13 +176,13 @@ export default function Nav() {
               )}
             </div>
 
-            <button className="btn btn-ghost btn-sm" id="theme-toggle" aria-label="Toggle theme" onClick={togglePanel}>
+            <Button variant="ghost" size="sm" id="theme-toggle" aria-label="Toggle theme" onClick={togglePanel}>
               <i className={`ti ${themeIcon}`} aria-hidden="true"></i>
-            </button>
+            </Button>
             
             {session ? (
               <>
-                <Link href="/write" className="btn btn-primary btn-sm">Write</Link>
+                <Button href="/write" variant="primary" size="sm">Write</Button>
                 <div style={{ position: "relative" }} ref={dropdownRef}>
                   <div 
                     onClick={(e) => { e.stopPropagation(); setShowDropdown(!showDropdown); }} 
@@ -236,7 +242,7 @@ export default function Nav() {
                             }}
                             onClick={() => { setShowDropdown(false); if (!notif.read) handleMarkAllRead(); }}
                           >
-                              <Avatar image={notif.actor?.image} name={notif.actor?.name} size="sm" />
+                            <Avatar image={notif.actor?.image} name={notif.actor?.name} size="sm" />
                             <div style={{ fontSize: "13px", color: "var(--text-primary)" }}>
                               <strong>{notif.actor?.name}</strong>{" "}
                               {notif.type === "LIKE" ? "liked your poem" : 
@@ -270,22 +276,22 @@ export default function Nav() {
               </>
             ) : (
               <>
-                <Link href="/login" className="btn btn-ghost btn-sm" id="nav-login">Log in</Link>
-                <Link href="/signup" className="btn btn-primary btn-sm" id="nav-signup">Sign up</Link>
+                <Button href="/login" variant="ghost" size="sm" id="nav-login">Log in</Button>
+                <Button href="/signup" variant="primary" size="sm" id="nav-signup">Sign up</Button>
               </>
             )}
           </div>
 
-          <button className={`hamburger ${drawerOpen ? "open" : ""}`} aria-label="Menu" aria-expanded={drawerOpen} aria-controls="mobile-menu" onClick={toggleDrawer}>
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
-            <span className="hamburger-line"></span>
+          <button className={`${styles.hamburger} ${drawerOpen ? styles.open : ""}`} aria-label="Menu" aria-expanded={drawerOpen} aria-controls="mobile-menu" onClick={toggleDrawer}>
+            <span className={styles.hamburgerLine}></span>
+            <span className={styles.hamburgerLine}></span>
+            <span className={styles.hamburgerLine}></span>
           </button>
         </div>
       </nav>
 
-      <div className={`drawer-overlay ${drawerOpen ? "open" : ""}`} onClick={closeDrawer} style={{ display: drawerOpen ? 'block' : 'none' }}></div>
-      <div className={`mobile-drawer ${drawerOpen ? "open" : ""}`} id="mobile-menu" style={{ display: drawerOpen ? 'flex' : 'none' }}>
+      <div className={`${styles.drawerOverlay} ${drawerOpen ? styles.open : ""}`} onClick={closeDrawer} style={{ display: drawerOpen ? 'block' : 'none' }}></div>
+      <div className={`${styles.mobileDrawer} ${drawerOpen ? styles.open : ""}`} id="mobile-menu" style={{ display: drawerOpen ? 'flex' : 'none' }}>
         <form action="/search" style={{ marginBottom: "16px", position: "relative" }}>
           <i className="ti ti-search" style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--text-tertiary)" }}></i>
           <input 
@@ -297,32 +303,32 @@ export default function Nav() {
           />
         </form>
 
-        <Link className={`mobile-drawer-link ${pathname === "/" ? "active" : ""}`} href="/" onClick={closeDrawer}>
+        <Link className={`${styles.mobileDrawerLink} ${pathname === "/" ? styles.active : ""}`} href="/" onClick={closeDrawer}>
           <i className="ti ti-compass" aria-hidden="true"></i> Discover
         </Link>
-        <Link className={`mobile-drawer-link ${pathname === "/collections" ? "active" : ""}`} href="/collections" onClick={closeDrawer}>
+        <Link className={`${styles.mobileDrawerLink} ${pathname === "/collections" ? styles.active : ""}`} href="/collections" onClick={closeDrawer}>
           <i className="ti ti-folders" aria-hidden="true"></i> Collections
         </Link>
-        <Link className={`mobile-drawer-link ${pathname === "/authors" ? "active" : ""}`} href="/authors" onClick={closeDrawer}>
+        <Link className={`${styles.mobileDrawerLink} ${pathname === "/authors" ? styles.active : ""}`} href="/authors" onClick={closeDrawer}>
           <i className="ti ti-users" aria-hidden="true"></i> Authors
         </Link>
-        <hr className="mobile-drawer-divider" />
-        <div className="mobile-drawer-link" style={{ cursor: "pointer" }} onClick={(e) => { togglePanel(e); closeDrawer(); }}>
+        <hr className={styles.mobileDrawerDivider} />
+        <div className={styles.mobileDrawerLink} style={{ cursor: "pointer" }} onClick={(e) => { togglePanel(e); closeDrawer(); }}>
           <i className={`ti ${themeIcon}`} aria-hidden="true"></i> Appearance
         </div>
-        <hr className="mobile-drawer-divider" />
+        <hr className={styles.mobileDrawerDivider} />
         
         {session ? (
           <>
-            <Link href="/write" className="btn btn-primary btn-full" style={{ marginBottom: "8px" }} onClick={closeDrawer}>Write</Link>
-            <Link href="/profile" className="btn btn-ghost btn-full" style={{ marginBottom: "8px" }} onClick={closeDrawer}>Profile</Link>
-            <Link href="/settings/profile" className="btn btn-ghost btn-full" style={{ marginBottom: "8px" }} onClick={closeDrawer}>Settings</Link>
-            <button className="btn btn-ghost btn-full" onClick={() => { signOut(); closeDrawer(); }}>Sign out</button>
+            <Button href="/write" variant="primary" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Write</Button>
+            <Button href="/profile" variant="ghost" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Profile</Button>
+            <Button href="/settings/profile" variant="ghost" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Settings</Button>
+            <Button variant="ghost" full onClick={() => { signOut(); closeDrawer(); }}>Sign out</Button>
           </>
         ) : (
           <>
-            <Link href="/login" className="btn btn-ghost btn-full" style={{ marginBottom: "8px" }} onClick={closeDrawer}>Log in</Link>
-            <Link href="/signup" className="btn btn-primary btn-full" onClick={closeDrawer}>Sign up</Link>
+            <Button href="/login" variant="ghost" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Log in</Button>
+            <Button href="/signup" variant="primary" full onClick={closeDrawer}>Sign up</Button>
           </>
         )}
       </div>

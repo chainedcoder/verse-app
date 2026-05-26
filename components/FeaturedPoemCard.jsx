@@ -5,6 +5,8 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toggleLike } from "@/app/actions/interactions"
 import Avatar from "./Avatar"
+import Badge from "./Badge"
+import styles from "./FeaturedPoemCard.module.css"
 
 function estimateReadTime(text) {
   if (!text) return 1
@@ -94,21 +96,21 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
 
   return (
     <article
-      className={`featured-poem-card${isMine ? " poem-card--mine" : ""}`}
+      className={`${styles['featured-poem-card']} ${isMine ? styles['poem-card--mine'] : ""}`}
       onClick={() => router.push(`/poem/${poem.id}`)}
       aria-label={`Featured poem: ${poem.title}`}
     >
       {/* Accent bar */}
-      <div className="featured-poem-card__accent" aria-hidden="true" />
+      <div className={styles['featured-poem-card__accent']} aria-hidden="true" />
 
-      <div className="featured-poem-card__body">
+      <div className={styles['featured-poem-card__body']}>
         {/* Header row */}
-        <div className="featured-poem-card__header">
-          <div className="featured-poem-card__meta">
+        <div className={styles['featured-poem-card__header']}>
+          <div className={styles['featured-poem-card__meta']}>
             {poem.featured && (
-              <span className="badge badge-featured">
+              <Badge variant="featured">
                 <i className="ti ti-star-filled" aria-hidden="true" /> Featured
-              </span>
+              </Badge>
             )}
             {tagsList.length > 0 && (
               <span className="category-label" style={{ margin: 0 }}>
@@ -126,33 +128,33 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
               </span>
             )}
           </div>
-          <div className="featured-poem-card__read-time">
+          <div className={styles['featured-poem-card__read-time']}>
             {readTime} m read
           </div>
         </div>
 
         {/* Title */}
-        <h2 className="featured-poem-card__title serif poem-card__title--clamp-2" title={poem.title}>{poem.title}</h2>
+        <h2 className={`${styles['featured-poem-card__title']} serif ${styles['poem-card__title--clamp-2']}`} title={poem.title}>{poem.title}</h2>
 
         {/* Excerpt */}
         <div
-          className="featured-poem-card__excerpt poem-excerpt"
+          className={`${styles['featured-poem-card__excerpt']} poem-excerpt`}
           dangerouslySetInnerHTML={{ __html: poem.excerpt.replace(/\n/g, "<br>") }}
         />
 
         {/* Footer */}
-        <div className="featured-poem-card__footer">
+        <div className={styles['featured-poem-card__footer']}>
           <Link
             href={`/author/${poem.authorId}`}
-            className="featured-poem-card__author"
+            className={styles['featured-poem-card__author']}
             onClick={e => e.stopPropagation()}
           >
             <Avatar image={author.image} name={author.name} size="sm" />
             <div>
-              <div className="author-name">
+              <div className={styles['author-name']}>
                 {isMine ? (<><i className="ti ti-pencil" style={{ fontSize: "11px", marginRight: "4px", opacity: 0.7 }} aria-hidden="true" />{author.name} (You)</>) : author.name}
               </div>
-              <div className="featured-poem-card__date">
+              <div className={styles['featured-poem-card__date']}>
                 <span suppressHydrationWarning>
                   {poem.createdAt
                     ? new Date(poem.createdAt).toLocaleDateString('en-US', { timeZone: 'UTC' })

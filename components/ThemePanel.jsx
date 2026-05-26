@@ -10,8 +10,10 @@ export default function ThemePanel() {
 
   useEffect(() => {
     // Initialize
-    setThemeState(getTheme())
-    setAccentState(getAccent())
+    Promise.resolve().then(() => {
+      setThemeState(getTheme())
+      setAccentState(getAccent())
+    })
 
     const handleThemeChange = (e) => setThemeState(e.detail.theme)
     const handleAccentChange = (e) => setAccentState(e.detail.accent)

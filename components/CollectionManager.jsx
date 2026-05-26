@@ -69,7 +69,7 @@ export default function CollectionManager({ collection, allUserPoems }) {
       }, 300)
       return () => clearTimeout(delayFn)
     } else {
-      setSearchResults([])
+      Promise.resolve().then(() => setSearchResults([]))
     }
   }, [searchQuery])
 

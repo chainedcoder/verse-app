@@ -1,0 +1,72 @@
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+  letter-spacing: 0.02em;
+  transition: transform 0.2s ease;
+}
+
+.avatar:hover {
+  transform: scale(1.05);
+}
+
+.avatar-sm {
+  width: 28px;
+  height: 28px;
+  font-size: 10px;
+}
+
+.avatar-md {
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+}
+
+.avatar-lg {
+  width: 48px;
+  height: 48px;
+  font-size: 16px;
+}
+
+.avatar-xl {
+  width: 64px;
+  height: 64px;
+  font-size: 22px;
+}
+
+/* Avatar color variants */
+.avatar-warm {
+  background: #e8d5c4;
+  color: #7a5c44;
+}
+
+.avatar-green {
+  background: #d4e8e0;
+  color: #2d6a53;
+}
+
+.avatar-purple {
+  background: #e0d4e8;
+  color: #5a3d70;
+}
+
+.avatar-blue {
+  background: #d4dfe8;
+  color: #3d5a70;
+}
+
+.avatar-rose {
+  background: #e8d4d8;
+  color: #704050;
+}
+
+.avatar-amber {
+  background: #e8e0d4;
+  color: #6a5a3d;
+}

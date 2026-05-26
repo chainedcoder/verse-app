@@ -1,6 +1,7 @@
 "use client"
 
 import { Component } from "react"
+import Link from "next/link"
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
@@ -65,10 +66,10 @@ export default class ErrorBoundary extends Component {
                 <i className="ti ti-refresh" aria-hidden="true" />
                 Try again
               </button>
-              <a href="/" className="btn btn-ghost btn-md">
+              <Link href="/" className="btn btn-ghost btn-md">
                 <i className="ti ti-home" aria-hidden="true" />
                 Go home
-              </a>
+              </Link>
             </div>
             {process.env.NODE_ENV === "development" && this.state.error && (
               <details

@@ -1,3 +1,5 @@
+import styles from "./Avatar.module.css"
+
 export default function Avatar({ image, name, size = "sm", className = "", style = {} }) {
   let initials = "?";
   if (name) {
@@ -20,24 +22,25 @@ export default function Avatar({ image, name, size = "sm", className = "", style
 
   const isImageUrl = hasImage && !isImageClass;
 
-  const sizeClass = size ? `avatar-${size}` : "";
+  const sizeClass = size ? styles[`avatar-${size}`] : "";
 
   if (isImageUrl) {
     return (
       <img
         src={image}
         alt={name || ""}
-        className={`avatar ${sizeClass} ${className}`.trim()}
+        className={`${styles.avatar} ${sizeClass || ""} ${className}`.trim()}
         style={{ objectFit: "cover", ...style }}
       />
     );
   }
 
   const colorClass = isImageClass ? image : "avatar-warm";
+  const mappedColorClass = styles[colorClass] || colorClass;
 
   return (
     <div 
-      className={`avatar ${sizeClass} ${colorClass} ${className}`.trim()}
+      className={`${styles.avatar} ${sizeClass || ""} ${mappedColorClass} ${className}`.trim()}
       style={style}
     >
       {initials}

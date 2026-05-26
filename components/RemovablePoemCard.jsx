@@ -4,6 +4,7 @@ import { useTransition } from "react"
 import PoemCard from "./PoemCard"
 import { togglePoemInCollection } from "@/app/actions/collections"
 import { useToast } from "@/components/ToastProvider"
+import styles from "./PoemCard.module.css"
 
 export default function RemovablePoemCard({ poem, collectionId, isMine }) {
   const [isPending, startTransition] = useTransition()
@@ -27,9 +28,9 @@ export default function RemovablePoemCard({ poem, collectionId, isMine }) {
         isMine={isMine}
         onRemove={() => {}} // handled below via our own button overlay
         customRemoveButton={
-          <div className="remove-poem-btn">
+          <div className={styles.removePoemBtn}>
             <button
-              className="remove-poem-icon"
+              className={styles.removePoemIcon}
               onClick={handleRemoveClick}
               aria-label="Remove from collection"
             >

@@ -36,10 +36,10 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
     if (typeof window !== "undefined") {
       const url = `${window.location.origin}/poem/${poem.id}`
       const text = `"${poem.title}" by ${poem.author.name} on Verse`
-      setShareUrls({
+      Promise.resolve().then(() => setShareUrls({
         twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
         facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`
-      })
+      }))
     }
   }, [poem.id, poem.title, poem.author.name])
 
@@ -162,7 +162,7 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
   }
 
   useEffect(() => {
-    fetchComments()
+    Promise.resolve().then(() => fetchComments())
   }, [poem.id])
 
   const tagsList = poem.tags ? poem.tags.map(t => t.name) : []
