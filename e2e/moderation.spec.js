@@ -1,4 +1,5 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
+import { execSync } from 'child_process';
 
 test.describe('Moderation and Reporting Flow', () => {
   // Use a unique suffix for the users and content
@@ -55,7 +56,6 @@ test.describe('Moderation and Reporting Flow', () => {
     await registerUser(adminPage, 'Admin Boss', adminEmail, 'password123');
 
     // Manually elevate to ADMIN using sqlite3 command since we can't easily run Prisma code here
-    const { execSync } = require('child_process');
     execSync(`sqlite3 dev.db "UPDATE User SET role='ADMIN' WHERE email='${adminEmail}';"`);
 
     // 3. Admin reports the poem (testing reporting flow)

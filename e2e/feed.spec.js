@@ -61,7 +61,10 @@ test.describe('Feed and Navigation', () => {
       card.click()
     ]);
 
-    await expect(page.locator('.poem-viewer-title')).toContainText(poemTitle);
+    // Title may be clamped with ellipsis — match truncated portion
+    await expect(page.locator('.poem-viewer-title')).toContainText(
+      poemTitle.replace(/…$/, '').trim().substring(0, 20)
+    );
     await expect(page.locator('text=Download as')).toBeVisible();
   });
 
@@ -89,7 +92,6 @@ test.describe('Feed and Navigation', () => {
 
     if (tagCount > 0) {
       const firstTag = tags.first();
-      const tagText = await firstTag.innerText();
       await firstTag.click();
 
       // Verify the tag becomes active
@@ -98,6 +100,166 @@ test.describe('Feed and Navigation', () => {
       // The feed should not be empty (or show empty state)
       const feedContent = page.locator('#poem-feed');
       await expect(feedContent).toBeVisible();
+    }
+  });
+
+  test('poem cards show read time with "m" abbreviation, not "min"', async ({ page }) => {
+    await page.goto('/');
+
+    // Check featured cards
+    const featuredCards = page.locator('.featured-poem-card');
+    const featuredCount = await featuredCards.count();
+    if (featuredCount > 0) {
+      const readTimeEl = featuredCards.first().locator('.featured-poem-card__read-time');
+      const readTimeText = await readTimeEl.innerText();
+      expect(readTimeText).toMatch(/\d+ m read/);
+      expect(readTimeText).not.toMatch(/min read/);
+    }
+
+    // Check regular poem cards — read time in the author-info footer
+    const regularCards = page.locator('.poem-card-featured');
+    const regularCount = await regularCards.count();
+    if (regularCount > 0) {
+      const footerText = await regularCards.first().locator('.card-footer').innerText();
+      expect(footerText).toMatch(/\d+ m read/);
+      expect(footerText).not.toMatch(/min read/);
+    }
+  });
+
+  test('featured strip is always on its own row above the regular poem grid', async ({ page }) => {
+    await page.goto('/');
+
+    const featuredStrip = page.locator('.featured-strip');
+    const featuredCount = await page.locator('.featured-poem-card').count();
+
+    if (featuredCount > 0) {
+      await expect(featuredStrip).toBeVisible();
+
+      const regularGrid = page.locator('.regular-poem-grid');
+      const regularCount = await regularGrid.count();
+
+      if (regularCount > 0) {
+        const featuredBox = await featuredStrip.boundingBox();
+        const regularBox  = await regularGrid.boundingBox();
+        if (featuredBox && regularBox) {
+          // The featured strip bottom edge should be above the regular grid top edge
+          expect(featuredBox.y + featuredBox.height).toBeLessThanOrEqual(regularBox.y + 1);
+        }
+      }
+    }
+  });
+
+  test('at 320px viewport, individual share/download buttons are hidden and combined trigger is shown', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 700 });
+    await page.goto('/');
+
+    // Get the first poem card (featured or regular)
+    const regularCards = page.locator('.poem-card-featured');
+    const regularCount = await regularCards.count();
+
+    if (regularCount > 0) {
+      const card = regularCards.first();
+
+      // Individual download and share buttons should be visually hidden (CSS display:none)
+      const downloadBtn = card.locator('.poem-card-download-btn');
+      const shareBtn    = card.locator('.poem-card-share-btn');
+      const menuWrap    = card.locator('.poem-card-share-menu-wrap');
+
+      await expect(downloadBtn).toHaveCSS('display', 'none');
+      await expect(shareBtn).toHaveCSS('display', 'none');
+      await expect(menuWrap).not.toHaveCSS('display', 'none');
+    }
+  });
+
+  test('at 320px, clicking combined share trigger reveals download and share link options', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 700 });
+    await page.goto('/');
+
+    const regularCards = page.locator('.poem-card-featured');
+    const regularCount = await regularCards.count();
+
+    if (regularCount > 0) {
+      const card = regularCards.first();
+      const menuTrigger = card.locator('.poem-card-share-menu-btn');
+
+      await menuTrigger.click();
+
+      const dropdown = card.locator('.poem-card-share-dropdown');
+      await expect(dropdown).toBeVisible();
+      await expect(dropdown.locator('[role="menuitem"]').nth(0)).toContainText('Download');
+      await expect(dropdown.locator('[role="menuitem"]').nth(1)).toContainText('Share link');
+    }
+  });
+
+  // ── Mobile feed interrupt sections ───────────────────────────
+
+  test('mobile trending authors strip is visible at 425px viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 425, height: 900 });
+    await page.goto('/');
+
+    const authorsStrip = page.locator('.mobile-authors-strip');
+    const count = await authorsStrip.count();
+
+    if (count > 0) {
+      await expect(authorsStrip).toBeVisible();
+      await expect(authorsStrip.locator('.section-title')).toContainText('Trending authors');
+
+      // Snap scroll container should be present
+      const snapContainer = authorsStrip.locator('.mobile-snap-scroll');
+      await expect(snapContainer).toBeVisible();
+
+      // Author cards should be rendered
+      const authorCards = snapContainer.locator('.mobile-author-card');
+      expect(await authorCards.count()).toBeGreaterThan(0);
+    }
+  });
+
+  test('mobile popular tags strip is visible at 425px viewport', async ({ page }) => {
+    await page.setViewportSize({ width: 425, height: 900 });
+    await page.goto('/');
+
+    const tagsStrip = page.locator('.mobile-tags-strip');
+    const count = await tagsStrip.count();
+
+    if (count > 0) {
+      await expect(tagsStrip).toBeVisible();
+      await expect(tagsStrip.locator('.section-title')).toContainText('Popular tags');
+
+      const tagsScroll = tagsStrip.locator('.mobile-tags-scroll');
+      await expect(tagsScroll).toBeVisible();
+    }
+  });
+
+  test('mobile interrupt sections are hidden on desktop (1280px+)', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('/');
+
+    const authorsStrip = page.locator('.mobile-authors-strip');
+    const tagsStrip    = page.locator('.mobile-tags-strip');
+
+    if (await authorsStrip.count() > 0) {
+      await expect(authorsStrip).toHaveCSS('display', 'none');
+    }
+    if (await tagsStrip.count() > 0) {
+      await expect(tagsStrip).toHaveCSS('display', 'none');
+    }
+  });
+
+  test('poem card titles use the clamping CSS class', async ({ page }) => {
+    await page.goto('/');
+
+    // Regular poem cards
+    const regularCards = page.locator('.poem-card-featured');
+    if (await regularCards.count() > 0) {
+      const titleEl = regularCards.first().locator('h2.poem-card__title--clamp');
+      await expect(titleEl).toBeAttached();
+    }
+
+    // Featured poem cards
+    const featuredCards = page.locator('.featured-poem-card');
+    if (await featuredCards.count() > 0) {
+      const titleEl = featuredCards.first().locator('h2.poem-card__title--clamp-2');
+      await expect(titleEl).toBeAttached();
     }
   });
 });

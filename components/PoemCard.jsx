@@ -73,8 +73,13 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
 
   if (!author) return null
 
-  const tagsList = poem.tags ? poem.tags.map(t => t.name) : []
-  
+  const allTags = poem.tags ? poem.tags.map(t => t.name) : []
+  // Show at most 3 tags; truncate each to 18 chars
+  const MAX_TAGS = 3
+  const MAX_TAG_LEN = 18
+  const tagsList = allTags.slice(0, MAX_TAGS)
+  const hiddenTagCount = allTags.length - tagsList.length
+
   // compute initials
   const initials = author.name ? author.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?'
 
@@ -86,14 +91,22 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
         <div className="category-label" style={{ marginBottom: "6px", display: "flex", gap: "6px", flexWrap: "wrap" }}>
           {tagsList.map((t, i) => (
             <span key={t}>
-              <Link href={`/search?q=${encodeURIComponent(t)}`} onClick={e => e.stopPropagation()} style={{ color: "inherit", textDecoration: "none" }}>
-                #{t}
+              <Link
+                href={`/search?q=${encodeURIComponent(t)}`}
+                onClick={e => e.stopPropagation()}
+                style={{ color: "inherit", textDecoration: "none" }}
+                title={t.length > MAX_TAG_LEN ? t : undefined}
+              >
+                #{t.length > MAX_TAG_LEN ? t.slice(0, MAX_TAG_LEN) + "…" : t}
               </Link>
               {i < tagsList.length - 1 && " · "}
             </span>
           ))}
+          {hiddenTagCount > 0 && (
+            <span style={{ opacity: 0.55, fontSize: "12px" }}>+{hiddenTagCount}</span>
+          )}
         </div>
-        <h2 className="serif" style={{ fontSize: "22px", marginBottom: "12px", letterSpacing: "-0.3px" }}>{poem.title}</h2>
+        <h2 className="serif poem-card__title--clamp" style={{ fontSize: "22px", marginBottom: "12px", letterSpacing: "-0.3px" }} title={poem.title}>{poem.title}</h2>
         <div className="poem-excerpt" style={{ fontSize: "15px" }} dangerouslySetInnerHTML={{ __html: poem.excerpt.replace(/\n/g, "<br>") }} />
         
         <div className="card-footer">

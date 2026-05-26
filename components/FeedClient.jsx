@@ -1,9 +1,38 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useTransition } from "react"
+import Link from "next/link"
 import PoemCard from "@/components/PoemCard"
 import FeaturedPoemCard from "@/components/FeaturedPoemCard"
 import Sidebar from "@/components/Sidebar"
+import Avatar from "@/components/Avatar"
+import { toggleFollow } from "@/app/actions/interactions"
+
+/**
+ * A self-contained follow button for an author in the mobile trending strip.
+ * Manages its own state to avoid prop-drilling.
+ */
+function MobileFollowButton({ authorId, initialFollowing }) {
+  const [following, setFollowing] = useState(initialFollowing)
+  const [isPending, startTransition] = useTransition()
+
+  const handleFollow = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setFollowing(f => !f)
+    startTransition(async () => { await toggleFollow(authorId) })
+  }
+
+  return (
+    <button
+      className={`btn ${following ? "btn-primary" : "btn-ghost"} btn-sm`}
+      onClick={handleFollow}
+      disabled={isPending}
+    >
+      {following ? "Following" : "Follow"}
+    </button>
+  )
+}
 
 export default function FeedClient({
   initialPoems,
@@ -87,6 +116,55 @@ export default function FeedClient({
                       isMine={currentUserId && poem.authorId === currentUserId}
                     />
                   ))}
+                </section>
+              )}
+
+              {/* ── Mobile-only: Trending Authors swipe strip ── */}
+              {trendingAuthors && trendingAuthors.length > 0 && (
+                <section className="mobile-feed-interrupt mobile-authors-strip" aria-label="Trending authors">
+                  <div className="mobile-feed-interrupt__header">
+                    <span className="section-title" style={{ margin: 0 }}>Trending authors</span>
+                  </div>
+                  <div className="mobile-snap-scroll" role="list">
+                    {trendingAuthors.map(author => {
+                      if (!author) return null
+                      return (
+                        <article key={author.id} className="mobile-author-card" role="listitem">
+                          <Link href={`/author/${author.id}`} className="mobile-author-card__link">
+                            <Avatar image={author.image} name={author.name} size="md" />
+                            <div className="mobile-author-card__name">{author.name}</div>
+                            {author.bio && (
+                              <div className="mobile-author-card__bio">{author.bio}</div>
+                            )}
+                          </Link>
+                          <MobileFollowButton
+                            authorId={author.id}
+                            initialFollowing={followedSet.has(author.id)}
+                          />
+                        </article>
+                      )
+                    })}
+                  </div>
+                </section>
+              )}
+
+              {/* ── Mobile-only: Popular Tags swipe strip ──────── */}
+              {tags && tags.length > 0 && (
+                <section className="mobile-feed-interrupt mobile-tags-strip" aria-label="Popular tags">
+                  <div className="mobile-feed-interrupt__header">
+                    <span className="section-title" style={{ margin: 0 }}>Popular tags</span>
+                  </div>
+                  <div className="mobile-tags-scroll">
+                    {tags.map(tag => (
+                      <span
+                        key={tag}
+                        className={`tag ${activeTag === tag ? "active" : ""}`}
+                        onClick={() => setActiveTag(tag)}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 </section>
               )}
 

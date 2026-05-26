@@ -66,7 +66,13 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
 
   if (!author) return null
 
-  const tagsList = poem.tags ? poem.tags.map(t => t.name) : []
+  const allTags = poem.tags ? poem.tags.map(t => t.name) : []
+  // Show at most 3 tags; truncate each to 18 chars
+  const MAX_TAGS = 3
+  const MAX_TAG_LEN = 18
+  const tagsList = allTags.slice(0, MAX_TAGS)
+  const hiddenTagCount = allTags.length - tagsList.length
+
   const initials = author.name
     ? author.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
     : '?'
@@ -91,7 +97,19 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
               </span>
             )}
             {tagsList.length > 0 && (
-              <span className="category-label" style={{ margin: 0 }}>{tagsList.join(" · ")}</span>
+              <span className="category-label" style={{ margin: 0 }}>
+                {tagsList.map((t, i) => (
+                  <span key={t}>
+                    <span title={t.length > MAX_TAG_LEN ? t : undefined}>
+                      #{t.length > MAX_TAG_LEN ? t.slice(0, MAX_TAG_LEN) + "…" : t}
+                    </span>
+                    {i < tagsList.length - 1 && " · "}
+                  </span>
+                ))}
+                {hiddenTagCount > 0 && (
+                  <span style={{ opacity: 0.55, fontSize: "12px", marginLeft: "4px" }}>+{hiddenTagCount}</span>
+                )}
+              </span>
             )}
           </div>
           <div className="featured-poem-card__read-time">
@@ -100,7 +118,7 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
         </div>
 
         {/* Title */}
-        <h2 className="featured-poem-card__title serif">{poem.title}</h2>
+        <h2 className="featured-poem-card__title serif poem-card__title--clamp-2" title={poem.title}>{poem.title}</h2>
 
         {/* Excerpt */}
         <div

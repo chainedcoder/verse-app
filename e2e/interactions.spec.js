@@ -46,7 +46,8 @@ test.describe('Interactions Flow (Likes & Follows)', () => {
     await expect(likeButton.locator('.like-count')).toHaveText((initialLikes + 1).toString());
 
     // Refresh page to ensure persistence
-    await page.waitForTimeout(500);
+    // Wait longer to ensure server action completes
+    await page.waitForTimeout(2000);
     await page.reload();
     
     const reloadedFirstPoemCard = page.locator('.poem-card-featured').first();

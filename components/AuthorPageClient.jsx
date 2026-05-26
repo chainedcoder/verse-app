@@ -16,8 +16,8 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
 
   const authorTags = [...new Set(poems.flatMap(p => p.tags ? p.tags.map(t => t.name) : []))]
 
-  const filteredPoems = activeTab === "all" 
-    ? poems 
+  const filteredPoems = activeTab === "all"
+    ? poems
     : poems.filter(p => p.tags && p.tags.map(t => t.name).includes(activeTab))
 
   const handleFollow = () => {
@@ -43,10 +43,10 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
             <span className="stat" style={{ cursor: "pointer" }} onClick={() => setActiveTab("following")}><strong>{author.followingCount}</strong> following</span>
           </div>
           <div style={{ display: "flex", gap: "8px", alignItems: "center", marginTop: "12px" }}>
-            <button 
+            <button
               data-testid="follow-button"
-              className={`btn ${following ? "btn-primary" : "btn-ghost"}`} 
-              onClick={handleFollow} 
+              className={`btn ${following ? "btn-primary" : "btn-ghost"}`}
+              onClick={handleFollow}
               style={{ fontSize: "12px", padding: "7px 20px" }}
             >
               {following ? "Following" : "Follow"}
@@ -58,29 +58,29 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
 
       {/* Tabs */}
       <div className="tab-bar">
-        <button 
-          className={`tab-item ${activeTab === "all" ? "active" : ""}`} 
+        <button
+          className={`tab-item ${activeTab === "all" ? "active" : ""}`}
           onClick={() => setActiveTab("all")}
         >
           All works
         </button>
         {authorTags.map(tag => (
-          <button 
+          <button
             key={tag}
-            className={`tab-item ${activeTab === tag ? "active" : ""}`} 
+            className={`tab-item ${activeTab === tag ? "active" : ""}`}
             onClick={() => setActiveTab(tag)}
           >
             {tag}
           </button>
         ))}
-        <button 
-          className={`tab-item ${activeTab === "followers" ? "active" : ""}`} 
+        <button
+          className={`tab-item ${activeTab === "followers" ? "active" : ""}`}
           onClick={() => setActiveTab("followers")}
         >
           Followers
         </button>
-        <button 
-          className={`tab-item ${activeTab === "following" ? "active" : ""}`} 
+        <button
+          className={`tab-item ${activeTab === "following" ? "active" : ""}`}
           onClick={() => setActiveTab("following")}
         >
           Following
@@ -125,7 +125,7 @@ export default function AuthorPageClient({ author, poems, initialFollowing = fal
             ) : (
               filteredPoems.map(poem => {
                 const p = { ...poem, author }
-                return <PoemCard key={p.id} poem={p} initialLiked={likedSet.has(p.id)} />
+                return <PoemCard key={p.id} poem={p} initialLiked={likedSet.has(p.id)} hideAuthor={true} />
               })
             )}
           </div>

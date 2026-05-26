@@ -865,3 +865,143 @@
     display: block;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+   POEM CARD — Title & tag clamping
+   ───────────────────────────────────────────────────────────── */
+
+/* 1-line clamp for regular poem cards */
+.poem-card__title--clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 2-line clamp for featured poem card (larger font, more room) */
+.poem-card__title--clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MOBILE FEED INTERRUPTS
+   Trending Authors and Popular Tags snap-scroll sections that
+   appear inline in the feed on narrow viewports (<768px).
+   Hidden on desktop — the sidebar shows them there instead.
+   ───────────────────────────────────────────────────────────── */
+
+.mobile-feed-interrupt {
+  display: none; /* hidden by default; revealed below 768px */
+  margin-bottom: 28px;
+}
+
+@media (max-width: 767px) {
+  .mobile-feed-interrupt {
+    display: block;
+  }
+}
+
+.mobile-feed-interrupt__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  padding: 0 2px;
+}
+
+/* ── Trending Authors: horizontal snap-scroll list ── */
+.mobile-snap-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
+  /* hide the scrollbar visually */
+  scrollbar-width: none;
+}
+
+.mobile-snap-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-author-card {
+  flex: 0 0 148px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-secondary);
+  border-radius: 14px;
+  padding: 18px 12px 14px;
+  text-align: center;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.mobile-author-card:hover,
+.mobile-author-card:focus-within {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border-color: var(--accent);
+}
+
+.mobile-author-card__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+  width: 100%;
+}
+
+.mobile-author-card__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.mobile-author-card__bio {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.4;
+}
+
+/* Pin the follow button to the card bottom regardless of bio presence */
+.mobile-author-card > .btn {
+  margin-top: auto;
+}
+
+/* ── Popular Tags: horizontal snap-scroll row ── */
+.mobile-tags-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 6px;
+  scrollbar-width: none;
+}
+
+.mobile-tags-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-tags-scroll .tag {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  white-space: nowrap;
+}
+
