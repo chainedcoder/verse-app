@@ -117,7 +117,11 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
         // User cancelled or share failed — fall through to clipboard
       }
     }
-    navigator.clipboard.writeText(url).then(() => showToast("Link copied!"))
+    navigator.clipboard.writeText(url)
+      .then(() => showToast("Link copied!"))
+      .catch((err) => {
+        console.warn("Failed to copy link: ", err)
+      })
   }
 
   const fetchComments = async () => {

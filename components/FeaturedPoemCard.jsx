@@ -48,11 +48,15 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
         // cancelled or unsupported — fall through
       }
     }
-    navigator.clipboard.writeText(url).then(() => {
-      setCopied(true)
-      setShareMenuOpen(false)
-      setTimeout(() => setCopied(false), 2000)
-    })
+    navigator.clipboard.writeText(url)
+      .then(() => {
+        setCopied(true)
+        setShareMenuOpen(false)
+        setTimeout(() => setCopied(false), 2000)
+      })
+      .catch((err) => {
+        console.warn("Failed to copy link: ", err)
+      })
   }
 
   const handleShareMenuToggle = (e) => {
