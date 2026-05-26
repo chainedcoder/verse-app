@@ -3,7 +3,11 @@ import Nav from "@/components/Nav"
 import ThemePanel from "@/components/ThemePanel"
 import { Providers } from "@/components/Providers"
 import { ToastProvider } from "@/components/ToastProvider"
+import ErrorBoundary from "@/components/ErrorBoundary"
+import { WebVitals } from "@/components/WebVitals"
 import Script from "next/script"
+
+const GA_ID = process.env.NEXT_PUBLIC_GA_ID
 
 export const metadata = {
   title: "Verse — Poetry & Lyrics",
@@ -41,15 +45,55 @@ export default function RootLayout({ children }) {
             `
           }}
         />
+        {/* Service Worker registration */}
+        <Script
+          id="sw-register"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').catch(function(err) {
+                    console.warn('SW registration failed:', err);
+                  });
+                });
+              }
+            `
+          }}
+        />
+        {/* Google Analytics — activates only when NEXT_PUBLIC_GA_ID is set */}
+        {GA_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script
+              id="ga-init"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${GA_ID}', { page_path: window.location.pathname });
+                `
+              }}
+            />
+          </>
+        )}
       </head>
       <body>
         <Providers>
           <ToastProvider>
+            <WebVitals />
             <div id="app">
               <Nav />
               <ThemePanel />
               <main id="main-content" className="page-enter">
-                {children}
+                <ErrorBoundary>
+                  {children}
+                </ErrorBoundary>
               </main>
             </div>
           </ToastProvider>
@@ -58,3 +102,4 @@ export default function RootLayout({ children }) {
     </html>
   )
 }
+

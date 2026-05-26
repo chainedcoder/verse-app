@@ -35,10 +35,19 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
     startTransition(async () => { await toggleLike(poem.id) })
   }
 
-  const handleShare = (e) => {
+  const handleShare = async (e) => {
     e.preventDefault()
     e.stopPropagation()
     const url = `${window.location.origin}/poem/${poem.id}`
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share({ title: poem.title, url })
+        setShareMenuOpen(false)
+        return
+      } catch {
+        // cancelled or unsupported — fall through
+      }
+    }
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true)
       setShareMenuOpen(false)

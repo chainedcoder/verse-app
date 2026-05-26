@@ -19,6 +19,8 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
   const [isPending, startTransition] = useTransition()
   const [toastMessage, setToastMessage] = useState("")
   const [collectionsModalOpen, setCollectionsModalOpen] = useState(false)
+  const [embedModalOpen, setEmbedModalOpen] = useState(false)
+  const [embedCopied, setEmbedCopied] = useState(false)
   const [localCollections, setLocalCollections] = useState(userCollections)
   const [comments, setComments] = useState([])
   const [commentInput, setCommentInput] = useState("")
@@ -89,8 +91,20 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
     })
   }
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const url = `${window.location.origin}/poem/${poem.id}`
+    if (typeof navigator.share === "function") {
+      try {
+        await navigator.share({
+          title: poem.title,
+          text: poem.excerpt?.replace(/<[^>]+>/g, "").slice(0, 120) + "…",
+          url,
+        })
+        return
+      } catch {
+        // User cancelled or share failed — fall through to clipboard
+      }
+    }
     navigator.clipboard.writeText(url).then(() => showToast("Link copied!"))
   }
 
@@ -191,8 +205,11 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
             <button className="btn btn-ghost btn-sm" onClick={() => setCollectionsModalOpen(!collectionsModalOpen)}>
               <i className="ti ti-bookmark" style={{ fontSize: "14px" }} aria-hidden="true"></i> Save
             </button>
-            <button className="btn btn-ghost btn-sm" onClick={handleShare}>
+            <button className="btn btn-ghost btn-sm" onClick={handleShare} aria-label="Share poem">
               <i className="ti ti-share" style={{ fontSize: "14px" }} aria-hidden="true"></i> Share
+            </button>
+            <button className="btn btn-ghost btn-sm" onClick={() => setEmbedModalOpen(true)} aria-label="Get embed code">
+              <i className="ti ti-code" style={{ fontSize: "14px" }} aria-hidden="true"></i> Embed
             </button>
             <Link href={`/export/${poem.id}`} className="btn btn-primary btn-sm">
               <i className="ti ti-download" style={{ fontSize: "14px" }} aria-hidden="true"></i> Download
@@ -391,6 +408,74 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Embed Modal */}
+      {embedModalOpen && (
+        <div
+          style={{
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: "rgba(0,0,0,0.5)", display: "flex",
+            alignItems: "center", justifyContent: "center",
+            zIndex: 9999, padding: "20px"
+          }}
+          onClick={(e) => { if (e.target === e.currentTarget) setEmbedModalOpen(false) }}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Embed code"
+        >
+          <div style={{
+            backgroundColor: "var(--bg-card)", borderRadius: "12px", width: "100%",
+            maxWidth: "520px", border: "1px solid var(--border-secondary)",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.2)", overflow: "hidden"
+          }}>
+            <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border-secondary)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "600" }}>Embed this poem</h3>
+              <button onClick={() => setEmbedModalOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-secondary)", fontSize: "20px" }} aria-label="Close">
+                <i className="ti ti-x" aria-hidden="true"></i>
+              </button>
+            </div>
+            <div style={{ padding: "20px" }}>
+              <p style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "16px", lineHeight: 1.5 }}>
+                Copy the code below to embed this poem on any website.
+              </p>
+              <div style={{ position: "relative", marginBottom: "16px" }}>
+                <textarea
+                  readOnly
+                  data-testid="embed-code"
+                  value={`<iframe src="${typeof window !== 'undefined' ? window.location.origin : ''}/poem/${poem.id}/embed" width="100%" height="400" style="border:none;border-radius:12px;" loading="lazy" title="${poem.title} by ${poem.author?.name} on Verse"></iframe>`}
+                  className="input"
+                  rows={4}
+                  style={{ resize: "none", fontSize: "12px", fontFamily: "monospace", paddingRight: "44px" }}
+                  onClick={(e) => e.target.select()}
+                />
+              </div>
+              <div style={{ display: "flex", gap: "8px", justifyContent: "space-between", alignItems: "center" }}>
+                <a
+                  href={`/poem/${poem.id}/embed`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-ghost btn-sm"
+                >
+                  <i className="ti ti-external-link" style={{ fontSize: "14px" }} aria-hidden="true" /> Preview
+                </a>
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => {
+                    const url = typeof window !== 'undefined' ? window.location.origin : ''
+                    const code = `<iframe src="${url}/poem/${poem.id}/embed" width="100%" height="400" style="border:none;border-radius:12px;" loading="lazy" title="${poem.title} by ${poem.author?.name} on Verse"></iframe>`
+                    navigator.clipboard.writeText(code).then(() => {
+                      setEmbedCopied(true)
+                      setTimeout(() => setEmbedCopied(false), 2000)
+                    })
+                  }}
+                >
+                  <i className={`ti ${embedCopied ? 'ti-check' : 'ti-copy'}`} style={{ fontSize: "14px" }} aria-hidden="true" />
+                  {embedCopied ? 'Copied!' : 'Copy code'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
