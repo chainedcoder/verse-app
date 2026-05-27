@@ -41,6 +41,7 @@ export default async function PoemPage(props) {
     where: { id: poemId },
     include: {
       tags: true,
+      images: true,
       author: {
         include: {
           _count: {

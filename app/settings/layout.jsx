@@ -33,6 +33,12 @@ export default function SettingsLayout({ children }) {
           <Link href="/settings/account" className="btn btn-ghost" style={{ justifyContent: "flex-start" }}>
             <i className="ti ti-shield-lock"></i> Account & Privacy
           </Link>
+          <Link href="/settings/sessions" className="btn btn-ghost" style={{ justifyContent: "flex-start" }}>
+            <i className="ti ti-devices"></i> Sessions
+          </Link>
+          <Link href="/settings/preferences" className="btn btn-ghost" style={{ justifyContent: "flex-start" }}>
+            <i className="ti ti-palette"></i> Preferences
+          </Link>
         </nav>
         
         <div style={{ flex: 1, width: "100%" }}>

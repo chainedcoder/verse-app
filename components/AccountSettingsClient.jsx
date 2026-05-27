@@ -106,6 +106,31 @@ export default function AccountSettingsClient({ user }) {
         </label>
       </div>
 
+      <div className="form-group" style={{ padding: "16px", backgroundColor: "var(--bg-secondary)", borderRadius: "8px", border: "1px solid var(--border-secondary)" }}>
+        <h3 style={{ fontSize: "16px", marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}>
+          <i className="ti ti-link"></i> Linked Accounts
+        </h3>
+        {user.accounts && user.accounts.length > 0 ? (
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {user.accounts.map(account => (
+              <div key={account.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px", backgroundColor: "var(--bg-card)", borderRadius: "6px", border: "1px solid var(--border)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <i className={`ti ti-brand-${account.provider.toLowerCase()}`} style={{ fontSize: "24px" }}></i>
+                  <div>
+                    <div style={{ fontWeight: 500, textTransform: "capitalize" }}>{account.provider}</div>
+                  </div>
+                </div>
+                <div style={{ fontSize: "12px", color: "var(--text-tertiary)", padding: "4px 8px", backgroundColor: "rgba(16, 185, 129, 0.1)", color: "#10b981", borderRadius: "12px" }}>
+                  Connected
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ fontSize: "14px", color: "var(--text-tertiary)" }}>No accounts linked. Use Social login to link accounts.</div>
+        )}
+      </div>
+
       <div className="form-actions" style={{ display: "flex", justifyContent: "flex-end", marginTop: "8px" }}>
         <button 
           type="submit" 

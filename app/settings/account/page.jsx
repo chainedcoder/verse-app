@@ -15,7 +15,8 @@ export default async function AccountSettingsPage() {
   }
 
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id }
+    where: { id: session.user.id },
+    include: { accounts: true }
   })
 
   if (!user) {

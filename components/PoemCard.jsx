@@ -7,6 +7,7 @@ import { toggleLike } from "@/app/actions/interactions"
 import Avatar from "./Avatar"
 import ExportModal from "./ExportModal"
 import AtmosphericVibe from "./AtmosphericVibe"
+import PoemImageCarousel from "./PoemImageCarousel"
 
 import styles from "./PoemCard.module.css"
 import Card from "./Card"
@@ -168,6 +169,11 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
         <h2 className={`serif ${styles['poem-card__title--clamp']} poem-card__title--clamp`} style={{ fontSize: "22px", marginBottom: "12px", letterSpacing: "-0.3px" }} title={poem.title}>{poem.title}</h2>
         <div className={`${styles['poem-excerpt']} poem-excerpt ${isImmersive ? styles['immersive-excerpt'] : ''}`} style={isImmersive ? { fontSize: "15px", flexShrink: 0 } : { fontSize: "15px" }} dangerouslySetInnerHTML={{ __html: ((isImmersive && poem.fullText) ? poem.fullText : poem.excerpt).replace(/\n/g, "<br>") }} />
         
+        {poem.images && poem.images.length > 0 && (!isImmersive || (poem.vibeConfig && poem.vibeConfig.includes('illustration'))) && (
+          <div style={{ marginTop: "16px" }}>
+            <PoemImageCarousel images={poem.images} featured={poem.featured} />
+          </div>
+        )}
         {isImmersive && <hr className="divider" style={{ margin: "16px 0 0 0" }} />}
         {isImmersive && <AtmosphericVibe poem={poem} config={poem.vibeConfig} />}
 

@@ -4,6 +4,7 @@ import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
+import { uploadFileToS3 } from "@/lib/s3"
 
 export async function createPoem(formData) {
   const session = await auth()
@@ -31,6 +32,22 @@ export async function createPoem(formData) {
   const generatedExcerpt = excerpt || fullText.split("\n").slice(0, 2).join("\n")
   const tagsArray = tagsString.split(',').map(t => t.trim()).filter(Boolean)
 
+  const imageFiles = formData.getAll("images").filter(f => f && f.size > 0)
+  const uploadedImages = []
+  
+  for (const file of imageFiles) {
+    try {
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+      const ext = file.name.split('.').pop()
+      const filename = `poem-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`
+      const url = await uploadFileToS3(buffer, filename, file.type)
+      uploadedImages.push({ url, alt: file.name })
+    } catch (e) {
+      console.error("Error uploading poem image:", e)
+    }
+  }
+
   const poem = await prisma.poem.create({
     data: {
       title,
@@ -44,6 +61,9 @@ export async function createPoem(formData) {
           where: { name: tag },
           create: { name: tag }
         }))
+      },
+      images: {
+        create: uploadedImages
       },
       authorId: session.user.id
     }
@@ -83,23 +103,47 @@ export async function updatePoem(poemId, formData) {
   const generatedExcerpt = excerpt || fullText.split("\n").slice(0, 2).join("\n")
   const tagsArray = tagsString.split(',').map(t => t.trim()).filter(Boolean)
 
+  const imageFiles = formData.getAll("images").filter(f => f && f.size > 0)
+  const uploadedImages = []
+  
+  for (const file of imageFiles) {
+    try {
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+      const ext = file.name.split('.').pop()
+      const filename = `poem-${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`
+      const url = await uploadFileToS3(buffer, filename, file.type)
+      uploadedImages.push({ url, alt: file.name })
+    } catch (e) {
+      console.error("Error uploading poem image:", e)
+    }
+  }
+
+  const updateData = {
+    title,
+    excerpt: generatedExcerpt,
+    fullText,
+    status,
+    isPrivate,
+    vibeConfig,
+    tags: {
+      set: [], // clear existing tags
+      connectOrCreate: tagsArray.map(tag => ({
+        where: { name: tag },
+        create: { name: tag }
+      }))
+    }
+  }
+
+  if (uploadedImages.length > 0) {
+    updateData.images = {
+      create: uploadedImages
+    }
+  }
+
   await prisma.poem.update({
     where: { id: poemId },
-    data: {
-      title,
-      excerpt: generatedExcerpt,
-      fullText,
-      status,
-      isPrivate,
-      vibeConfig,
-      tags: {
-        set: [], // clear existing tags
-        connectOrCreate: tagsArray.map(tag => ({
-          where: { name: tag },
-          create: { name: tag }
-        }))
-      }
-    }
+    data: updateData
   })
 
   revalidatePath(`/poem/${poemId}`)
@@ -182,7 +226,7 @@ export async function searchPoems(query) {
         { author: { name: { contains: q } } }
       ]
     },
-    select: { id: true, title: true, status: true, author: { select: { name: true } } },
+    select: { id: true, title: true, status: true, images: true, author: { select: { name: true } } },
     take: 10
   })
 
@@ -234,6 +278,7 @@ export async function getPaginatedPoems({ cursor, limit = 6, activeTag = "all" }
     include: {
       author: true,
       tags: true,
+      images: true,
       _count: {
         select: { likes: true }
       }

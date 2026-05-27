@@ -105,6 +105,34 @@ export default function ProfileEditor({ user }) {
       </div>
 
       <div className="form-group">
+        <label htmlFor="username" className="form-label">Username</label>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <span style={{ padding: "0 12px", backgroundColor: "var(--bg-secondary)", border: "1px solid var(--border)", borderRight: "none", borderRadius: "8px 0 0 8px", color: "var(--text-tertiary)", height: "42px", display: "flex", alignItems: "center" }}>@</span>
+          <input 
+            type="text" 
+            id="username" 
+            name="username" 
+            className="input" 
+            defaultValue={user.username || ""}
+            placeholder="username"
+            style={{ borderRadius: "0 8px 8px 0" }}
+          />
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="website" className="form-label">Website</label>
+        <input 
+          type="url" 
+          id="website" 
+          name="website" 
+          className="input" 
+          defaultValue={user.website || ""}
+          placeholder="https://yourwebsite.com"
+        />
+      </div>
+
+      <div className="form-group">
         <label htmlFor="location" className="form-label">Location</label>
         <input 
           type="text" 

@@ -12,6 +12,8 @@ export async function updateProfile(formData) {
   }
 
   const name = formData.get("name")
+  const username = formData.get("username")
+  const website = formData.get("website")
   const bio = formData.get("bio")
   const location = formData.get("location")
   const avatarFile = formData.get("avatar")
@@ -38,12 +40,23 @@ export async function updateProfile(formData) {
   try {
     const dataToUpdate = {
       name: name || null,
+      username: username || null,
+      website: website || null,
       bio: bio || null,
       location: location || null,
     }
     
     if (imagePath) {
       dataToUpdate.image = imagePath
+    }
+
+    if (username) {
+      const existingUser = await prisma.user.findUnique({
+        where: { username }
+      })
+      if (existingUser && existingUser.id !== session.user.id) {
+        return { error: "Username is already taken" }
+      }
     }
 
     await prisma.user.update({
@@ -86,5 +99,31 @@ export async function updateAccountSettings(formData) {
   } catch (error) {
     console.error("Error updating account settings:", error)
     return { error: "Failed to update account settings" }
+  }
+}
+
+export async function updatePreferences(formData) {
+  const session = await auth()
+  if (!session?.user) {
+    return { error: "You must be logged in to update preferences" }
+  }
+
+  const theme = formData.get("theme")
+  const immersiveMode = formData.get("immersiveMode") === "true"
+
+  try {
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        theme,
+        immersiveMode
+      }
+    })
+
+    revalidatePath("/settings/preferences")
+    return { success: true }
+  } catch (error) {
+    console.error("Error updating preferences:", error)
+    return { error: "Failed to update preferences" }
   }
 }

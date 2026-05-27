@@ -11,6 +11,10 @@ generator client {
 model User {
   id            String          @id @default(cuid())
   name          String?
+  username      String?         @unique
+  website       String?
+  theme         String          @default("system")
+  immersiveMode Boolean         @default(false)
   email         String?         @unique
   emailVerified DateTime?
   password      String?
@@ -83,6 +87,7 @@ model Poem {
   excerpt   String
   fullText  String
   featured  Boolean  @default(false)
+  images    PoemImage[]
   status    String   @default("PUBLISHED")
   isPrivate Boolean  @default(false)
   vibeConfig Json?
@@ -94,6 +99,15 @@ model Poem {
   collections Collection[] @relation("CollectionPoems")
   notifications Notification[] @relation("poemNotifications")
   reports   Report[] @relation("reportedPoem")
+  createdAt DateTime @default(now())
+}
+
+model PoemImage {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  poemId    String
+  poem      Poem     @relation(fields: [poemId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
 

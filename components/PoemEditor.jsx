@@ -176,6 +176,25 @@ export default function PoemEditor({ initialPoem = null, allTags = [] }) {
       </div>
 
       <div className="form-group" style={{ marginBottom: "24px" }}>
+        <label htmlFor="images" className="form-label">
+          Illustrations <span className="form-hint">(Optional - Upload multiple images)</span>
+        </label>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "8px" }}>
+          <input 
+            type="file" 
+            id="images" 
+            name="images" 
+            className="input" 
+            accept="image/*"
+            multiple
+          />
+          <p style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>
+            Upload images to accompany your poem. These will be displayed as a swipeable carousel.
+          </p>
+        </div>
+      </div>
+
+      <div className="form-group" style={{ marginBottom: "24px" }}>
         <label className="form-label">
           Immersive Layout Modules <span className="form-hint">(Optional - Select to display in Immersive Mode)</span>
         </label>

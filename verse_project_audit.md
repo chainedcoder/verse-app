@@ -278,12 +278,11 @@ The design system requires standardization.
 ---
 
 ## Next Priority Items
-1. **Settings**
+- [x] **Settings**
     * profile settings - name, bio, url/website, public, location
     * account settings - emails, username, names, link accounts
-    * notification settings
-    * authentication settings - 2fa, passkey, sms, auth app, recovery keys
+    * notification settings (UI implemented)
+    * authentication settings - 2fa, passkey, sms, auth app, recovery keys (UI implemented)
     * sessions - list of sessions and ability to end them
     * save user preferences such as theme immerssive mode, theme presets
-2. Allow to attach images to poems (a poem can have multiple images). images go under illustration section in immerssive mode. for non immersive add the illustration section when images are present and display the. Images swipe left and right when there are multiple.
-Maintain pem card aspect ratio(i.e width x height ). exception is for the wide featured cards that should be 16:9
+- [x] Allow to attach images to poems (a poem can have multiple images). images go under illustration section in immerssive mode. for non immersive add the illustration section when images are present and display the. Images swipe left and right when there are multiple. Maintain pem card aspect ratio(i.e width x height ). exception is for the wide featured cards that should be 16:9
