@@ -87,9 +87,9 @@ export default class ErrorBoundary extends Component {
                   Error details (dev only)
                 </summary>
                 <pre style={{ whiteSpace: "pre-wrap", wordBreak: "break-all", margin: 0 }}>
-                  {this.state.error.message}
+                  {this.state.error?.message || String(this.state.error)}
                   {"\n\n"}
-                  {this.state.error.stack}
+                  {this.state.error?.stack}
                 </pre>
               </details>
             )}

@@ -46,6 +46,18 @@ To get the project running locally on your machine, follow these steps:
    ```
    The app will be running at [http://localhost:3000](http://localhost:3000).
 
+### Admin & Moderator Setup
+Verse has built-in moderation and administrative capabilities. By default, all new sign-ups are given the `USER` role. To test admin features (e.g., reports queue, user banning, and role management) locally, you can promote an account using our built-in CLI script.
+
+1. Sign up for a new account locally (or use an existing test account).
+2. Run the following command in your terminal, replacing the email with your account's email:
+   ```bash
+   npm run set-role <your_email@example.com> ADMIN
+   ```
+3. Refresh the page. You will now have access to the Admin Dashboard at [http://localhost:3000/admin](http://localhost:3000/admin).
+You can also assign the `MODERATOR` role for testing limited privileges.
+
+
 ## 📁 Project Structure
 
 Familiarize yourself with the core directories:

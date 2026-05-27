@@ -67,7 +67,7 @@ export async function updateReportStatus(reportId, status) {
       where: { id: reportId },
       data: { status }
     })
-    revalidatePath("/admin")
+    revalidatePath("/admin/reports")
     return { success: true }
   } catch (error) {
     console.error("Error updating report status:", error)
@@ -147,10 +147,121 @@ export async function deletePoemAdmin(poemId) {
       where: { id: poemId },
       data: { status: "DELETED" }
     })
-    revalidatePath("/admin")
+    revalidatePath("/admin/content")
     return { success: true }
   } catch (error) {
     console.error("Error deleting poem:", error)
     return { error: "Failed to delete poem" }
+  }
+}
+
+export async function fetchDashboardMetrics() {
+  if (!(await verifyAdminOrMod())) return { error: "Unauthorized" }
+
+  try {
+    const totalUsers = await prisma.user.count()
+    const activeUsers = await prisma.user.count({ where: { status: "ACTIVE" } })
+    const totalPoems = await prisma.poem.count({ where: { status: "PUBLISHED" } })
+    const pendingReports = await prisma.report.count({ where: { status: "PENDING" } })
+    const recentSignups = await prisma.user.findMany({
+      take: 5,
+      orderBy: { createdAt: "desc" },
+      select: { id: true, name: true, email: true, createdAt: true, image: true }
+    })
+
+    return { 
+      success: true, 
+      metrics: { totalUsers, activeUsers, totalPoems, pendingReports },
+      recentSignups 
+    }
+  } catch (error) {
+    console.error("Error fetching metrics:", error)
+    return { error: "Failed to fetch metrics" }
+  }
+}
+
+export async function fetchAllPoems(searchTerm = "") {
+  if (!(await verifyAdminOrMod())) return { error: "Unauthorized" }
+
+  try {
+    const poems = await prisma.poem.findMany({
+      where: {
+        OR: [
+          { title: { contains: searchTerm } },
+          { excerpt: { contains: searchTerm } }
+        ]
+      },
+      include: {
+        author: { select: { id: true, name: true, image: true } }
+      },
+      orderBy: { createdAt: "desc" }
+    })
+    return { success: true, poems }
+  } catch (error) {
+    console.error("Error fetching poems:", error)
+    return { error: "Failed to fetch poems" }
+  }
+}
+
+export async function deleteUserNuclear(userId) {
+  if (!(await verifyAdmin())) return { error: "Only administrators can permanently delete users" }
+
+  try {
+    await prisma.user.delete({
+      where: { id: userId }
+    })
+    revalidatePath("/admin/users")
+    return { success: true }
+  } catch (error) {
+    console.error("Error deleting user:", error)
+    return { error: "Failed to delete user" }
+  }
+}
+
+export async function fetchTagsAdmin() {
+  if (!(await verifyAdminOrMod())) return { error: "Unauthorized" }
+
+  try {
+    const tags = await prisma.tag.findMany({
+      include: {
+        _count: { select: { poems: true } }
+      },
+      orderBy: { poems: { _count: "desc" } }
+    })
+    return { success: true, tags }
+  } catch (error) {
+    console.error("Error fetching tags:", error)
+    return { error: "Failed to fetch tags" }
+  }
+}
+
+export async function renameTagAdmin(tagId, newName) {
+  if (!(await verifyAdminOrMod())) return { error: "Unauthorized" }
+
+  try {
+    await prisma.tag.update({
+      where: { id: tagId },
+      data: { name: newName }
+    })
+    revalidatePath("/admin/tags")
+    return { success: true }
+  } catch (error) {
+    console.error("Error renaming tag:", error)
+    return { error: "Failed to rename tag" }
+  }
+}
+
+export async function deleteTagAdmin(tagId) {
+  if (!(await verifyAdminOrMod())) return { error: "Unauthorized" }
+
+  try {
+    await prisma.tag.delete({
+      where: { id: tagId }
+    })
+    revalidatePath("/admin/tags")
+    return { success: true }
+  } catch (error) {
+    console.error("Error deleting tag:", error)
+    return { error: "Failed to delete tag" }
   }
 }

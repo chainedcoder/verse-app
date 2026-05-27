@@ -10,7 +10,8 @@
     "lint": "eslint",
     "vercel-build": "prisma generate && prisma migrate deploy && next build",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "set-role": "node --env-file=.env scripts/set-role.mjs"
   },
   "prisma": {
     "seed": "node prisma/seed.mjs"

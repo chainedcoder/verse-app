@@ -31,7 +31,7 @@ export default async function AdminUsersPage() {
       <h2 style={{ fontSize: "20px", marginBottom: "24px", borderBottom: "1px solid var(--border-secondary)", paddingBottom: "12px" }}>
         User Management
       </h2>
-      <AdminUsersClient initialUsers={users} currentUserRole={currentUser.role} />
+      <AdminUsersClient initialUsers={JSON.parse(JSON.stringify(users || []))} currentUserRole={currentUser.role} />
     </div>
   )
 }

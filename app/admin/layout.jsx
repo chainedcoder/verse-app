@@ -57,10 +57,37 @@ export default async function AdminLayout({ children }) {
           flexShrink: 0
         }}>
           <Link href="/admin" className="btn btn-ghost" style={{ justifyContent: "flex-start" }}>
+            <i className="ti ti-dashboard"></i> Dashboard
+          </Link>
+          <div style={{ fontSize: "11px", fontWeight: "600", color: "var(--text-tertiary)", letterSpacing: "0.5px", margin: "16px 0 4px 8px" }}>CONTENT & USERS</div>
+          <Link href="/admin/content" className="btn btn-ghost" style={{ justifyContent: "flex-start" }}>
+            <i className="ti ti-file-text"></i> Content
+          </Link>
+          <Link href="/admin/moderation" className="btn btn-ghost" style={{ justifyContent: "flex-start" }}>
+            <i className="ti ti-shield"></i> Moderation Hub
+          </Link>
+          <Link href="/admin/reports" className="btn btn-ghost" style={{ justifyContent: "flex-start" }}>
             <i className="ti ti-flag"></i> Reports Queue
           </Link>
           <Link href="/admin/users" className="btn btn-ghost" style={{ justifyContent: "flex-start" }}>
-            <i className="ti ti-users"></i> User Management
+            <i className="ti ti-users"></i> Users
+          </Link>
+          <Link href="/admin/tags" className="btn btn-ghost" style={{ justifyContent: "flex-start" }}>
+            <i className="ti ti-tag"></i> Tags
+          </Link>
+          
+          <div style={{ fontSize: "11px", fontWeight: "600", color: "var(--text-tertiary)", letterSpacing: "0.5px", margin: "16px 0 4px 8px" }}>SYSTEM & GROWTH</div>
+          <Link href="/admin/discovery" className="btn btn-ghost" style={{ justifyContent: "flex-start" }}>
+            <i className="ti ti-compass"></i> Discovery Algorithm
+          </Link>
+          <Link href="/admin/ads" className="btn btn-ghost" style={{ justifyContent: "flex-start" }}>
+            <i className="ti ti-ad"></i> Ads Campaigns
+          </Link>
+          <Link href="/admin/revenue" className="btn btn-ghost" style={{ justifyContent: "flex-start" }}>
+            <i className="ti ti-coin"></i> Revenue
+          </Link>
+          <Link href="/admin/roles" className="btn btn-ghost" style={{ justifyContent: "flex-start" }}>
+            <i className="ti ti-lock"></i> Roles & Permissions
           </Link>
         </nav>
         

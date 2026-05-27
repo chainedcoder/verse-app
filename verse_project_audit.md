@@ -11,7 +11,7 @@ Verse has recently undergone a major architectural migration from a **static, cl
 ### Major Achievements:
 - ✅ **Full-Stack Architecture:** Migrated to React Server Components.
 - ✅ **Authentication:** Auth.js v5 (NextAuth) integrated with credentials provider (bcrypt).
-- ✅ **Database:** Prisma 7 with `better-sqlite3` driver implemented.
+- ✅ **Database:** Prisma 7 
 - ✅ **Testing Suite:** Jest, RTL, and Playwright integrated and passing.
 - ✅ **Export System:** Canvas-based image export system implemented.
 
@@ -271,11 +271,19 @@ The design system requires standardization.
 2. **Infrastructure & Analytics:** ✅ (Done) GA4 scaffold, ErrorBoundary + error API, Web Vitals, SW + offline page.
 3. **Advanced Features:** ✅ (Done) PWA manifest, Web Share API, Embed code generation.
 4. **SEO, Pagination, Social & PWA Branding:** ✅ (Done) sitemap.xml, robots.txt, infinite scroll, intent sharing, branded PWA logo.
+5. **Cloud Storage Integration:** ✅ (Done) Replaced local file system uploads with AWS S3 for scalable image hosting.
+6. **Advanced Social Integration:** ✅ (Done) Implemented native Twitter/X, IG, TikTok sharing capabilities beyond the Web Share API.
+7. **Accessibility Audit:** ✅ (Done) Performed a comprehensive screen reader test pass, added ARIA landmarks (`role="main"`, `role="navigation"`), and ensured keyboard support for template card selection.
 
 ---
 
 ## Next Priority Items
-
-1. **Cloud Storage Integration:** ✅ (Done) Replaced local file system uploads with AWS S3 for scalable image hosting.
-2. **Advanced Social Integration:** ✅ (Done) Implemented native Twitter/X, IG, TikTok sharing capabilities beyond the Web Share API.
-3. **Accessibility Audit:** ✅ (Done) Performed a comprehensive screen reader test pass, added ARIA landmarks (`role="main"`, `role="navigation"`), and ensured keyboard support for template card selection.
+1. **Settings**
+    * profile settings - name, bio, url/website, public, location
+    * account settings - emails, username, names, link accounts
+    * notification settings
+    * authentication settings - 2fa, passkey, sms, auth app, recovery keys
+    * sessions - list of sessions and ability to end them
+    * save user preferences such as theme immerssive mode, theme presets
+2. Allow to attach images to poems (a poem can have multiple images). images go under illustration section in immerssive mode. for non immersive add the illustration section when images are present and display the. Images swipe left and right when there are multiple.
+Maintain pem card aspect ratio(i.e width x height ). exception is for the wide featured cards that should be 16:9
