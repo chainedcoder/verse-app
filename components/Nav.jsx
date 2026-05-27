@@ -24,6 +24,7 @@ export default function Nav() {
   // Theme state
   const [theme, setTheme] = useState("light")
   const [accent, setAccent] = useState("indigo")
+  const [isImmersive, setIsImmersive] = useState(false)
   const accents = ["indigo", "rose", "emerald", "amber", "violet", "ocean"]
   const themeIcon = theme === "dark" ? "ti-sun" : "ti-moon"
 
@@ -74,21 +75,34 @@ export default function Nav() {
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setTheme(document.documentElement.getAttribute("data-theme") || "light")
+      setIsImmersive(document.documentElement.getAttribute("data-immersive") === "true")
     })
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] })
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-immersive"] })
     Promise.resolve().then(() => {
       setTheme(document.documentElement.getAttribute("data-theme") || "light")
       setAccent(getAccent())
+      setIsImmersive(document.documentElement.getAttribute("data-immersive") === "true")
     })
     
     const handleAccentChange = (e) => setAccent(e.detail.accent)
     window.addEventListener("accentchange", handleAccentChange)
+
+    const handleImmersiveChange = (e) => setIsImmersive(e.detail.isImmersive)
+    window.addEventListener("immersivechange", handleImmersiveChange)
     
     return () => {
       observer.disconnect()
       window.removeEventListener("accentchange", handleAccentChange)
+      window.removeEventListener("immersivechange", handleImmersiveChange)
     }
   }, [])
+
+  const toggleImmersive = (val) => {
+    const nextVal = typeof val === "boolean" ? val : !isImmersive
+    setIsImmersive(nextVal)
+    document.documentElement.setAttribute("data-immersive", nextVal ? "true" : "false")
+    window.dispatchEvent(new CustomEvent("immersivechange", { detail: { isImmersive: nextVal } }))
+  }
 
   const toggleDrawer = () => setDrawerOpen(!drawerOpen)
   const closeDrawer = () => setDrawerOpen(false)
@@ -186,6 +200,10 @@ export default function Nav() {
                 </div>
               )}
             </div>
+
+            <Button variant="ghost" size="sm" id="immerse-toggle" aria-label={isImmersive ? "Exit Immersive Mode" : "Enter Immersive Mode"} onClick={toggleImmersive}>
+              <i className={`ti ${isImmersive ? "ti-minimize" : "ti-maximize"}`} aria-hidden="true"></i>
+            </Button>
 
             <Button variant="ghost" size="sm" id="theme-toggle" aria-label="Toggle theme" onClick={togglePanel}>
               <i className={`ti ${themeIcon}`} aria-hidden="true"></i>
@@ -348,6 +366,21 @@ export default function Nav() {
               onClick={() => setAppTheme("dark")}
             >
               <i className="ti ti-moon" style={{ fontSize: "14px" }} aria-hidden="true"></i> Dark
+            </button>
+          </div>
+          <div style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "12px", fontWeight: "600" }}>Immersive Mode</div>
+          <div className="theme-mode-toggle" style={{ marginBottom: "16px" }}>
+            <button 
+              className={`theme-mode-option ${!isImmersive ? "active" : ""}`} 
+              onClick={() => toggleImmersive(false)}
+            >
+              <i className="ti ti-minimize" style={{ fontSize: "14px" }} aria-hidden="true"></i> Standard
+            </button>
+            <button 
+              className={`theme-mode-option ${isImmersive ? "active" : ""}`} 
+              onClick={() => toggleImmersive(true)}
+            >
+              <i className="ti ti-maximize" style={{ fontSize: "14px" }} aria-hidden="true"></i> Immersive
             </button>
           </div>
           <div style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "12px", fontWeight: "600" }}>Accent Color</div>

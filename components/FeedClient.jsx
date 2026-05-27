@@ -53,6 +53,25 @@ export default function FeedClient({
   const [loadingTag, setLoadingTag] = useState(false)
   const observerTarget = useRef(null)
 
+  useEffect(() => {
+    const handleImmersiveChange = (e) => {
+      setIsImmersive(e.detail.isImmersive)
+    }
+    window.addEventListener("immersivechange", handleImmersiveChange)
+    setIsImmersive(document.documentElement.getAttribute("data-immersive") === "true")
+
+    return () => {
+      window.removeEventListener("immersivechange", handleImmersiveChange)
+    }
+  }, [])
+
+  const toggleImmersive = () => {
+    const nextVal = !isImmersive
+    setIsImmersive(nextVal)
+    document.documentElement.setAttribute("data-immersive", nextVal ? "true" : "false")
+    window.dispatchEvent(new CustomEvent("immersivechange", { detail: { isImmersive: nextVal } }))
+  }
+
   const likedSet    = new Set(initialLikedPoemIds)
   const followedSet = new Set(initialFollowedAuthorIds)
 
@@ -150,7 +169,7 @@ export default function FeedClient({
           ))}
           </div>
           <button 
-             onClick={() => setIsImmersive(!isImmersive)} 
+             onClick={toggleImmersive} 
              className="btn btn-ghost"
              style={{ padding: "8px", flexShrink: 0, borderRadius: "50%", width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-secondary)", border: "1px solid var(--border-secondary)" }}
              title={isImmersive ? "Exit Immersive Mode" : "Enter Immersive Mode"}
