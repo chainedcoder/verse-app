@@ -302,8 +302,8 @@
    LARGE SCREENS & ULTRAWIDE
    ============================================ */
 
-/* Large desktops (1280px+): start columning the feed to avoid over-stretched cards */
-@media (min-width: 1280px) {
+/* Large tablets and desktops (1024px+): start columning the feed to avoid over-stretched cards */
+@media (min-width: 1024px) {
   .regular-poem-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);

@@ -368,8 +368,8 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* Large desktops (1280px+): 2-column regular poem grid */
-@media (min-width: 1280px) {
+/* Large tablets and desktops (1024px+): 2-column regular poem grid */
+@media (min-width: 1024px) {
   .regular-poem-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;

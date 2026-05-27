@@ -22,27 +22,27 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
   const router = useRouter()
   // poem.author is included from Prisma query
   const author = poem.author
-  
+
   const [copied, setCopied] = useState(false)
   const [shareMenuOpen, setShareMenuOpen] = useState(false)
   const [exportModalOpen, setExportModalOpen] = useState(false)
-  
+
   const [liked, setLiked] = useState(initialLiked)
   const [likeCount, setLikeCount] = useState(poem._count?.likes || 0)
   const [isPending, startTransition] = useTransition()
-  
+
   const shareMenuRef = useRef(null)
   const readTime = estimateReadTime(poem.fullText || poem.excerpt)
 
   const handleLike = (e) => {
     e.preventDefault()
     e.stopPropagation()
-    
+
     // Optimistic UI update
     const newLiked = !liked
     setLiked(newLiked)
     setLikeCount(prev => newLiked ? prev + 1 : prev - 1)
-    
+
     startTransition(async () => {
       await toggleLike(poem.id)
     })
@@ -97,7 +97,7 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
       await navigator.clipboard.writeText(url)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
-    } catch (err) {}
+    } catch (err) { }
     window.open('https://instagram.com', '_blank')
     setShareMenuOpen(false)
   }
@@ -166,7 +166,7 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
         </div>
         <h2 className={`serif ${styles['poem-card__title--clamp']} poem-card__title--clamp`} style={{ fontSize: "22px", marginBottom: "12px", letterSpacing: "-0.3px" }} title={poem.title}>{poem.title}</h2>
         <div className={`${styles['poem-excerpt']} poem-excerpt`} style={{ fontSize: "15px" }} dangerouslySetInnerHTML={{ __html: poem.excerpt.replace(/\n/g, "<br>") }} />
-        
+
         <div className={`${styles['card-footer']} card-footer`}>
           <div className={styles['author-info']}>
             {hideAuthor ? (
@@ -187,7 +187,7 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
               </Link>
             )}
           </div>
-          
+
           <div className="action-icons">
             <button className={`action-icon ${liked ? "liked" : ""}`} onClick={handleLike} aria-label="Like">
               <i className={`ti ${liked ? "ti-heart-filled" : "ti-heart"}`} style={{ fontSize: "16px" }} aria-hidden="true"></i>
