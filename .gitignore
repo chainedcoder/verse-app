@@ -54,3 +54,6 @@ playwright/.cache/
 
 *storybook.log
 storybook-static
+
+# database backup
+db_backup/
