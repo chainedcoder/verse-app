@@ -205,6 +205,7 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
 
   useEffect(() => {
     Promise.resolve().then(() => fetchComments())
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [poem.id])
 
   const tagsList = poem.tags ? poem.tags.map(t => t.name) : []

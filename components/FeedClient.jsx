@@ -58,6 +58,7 @@ export default function FeedClient({
       setIsImmersive(e.detail.isImmersive)
     }
     window.addEventListener("immersivechange", handleImmersiveChange)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsImmersive(document.documentElement.getAttribute("data-immersive") === "true")
 
     return () => {

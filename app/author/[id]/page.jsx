@@ -105,6 +105,9 @@ export default async function AuthorPage(props) {
     url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/author/${author.id}`
   }
 
+  const safeAuthor = JSON.parse(JSON.stringify(author))
+  const safePoems = JSON.parse(JSON.stringify(author.poems || []))
+
   return (
     <>
       <script
@@ -112,8 +115,8 @@ export default async function AuthorPage(props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <AuthorPageClient 
-        author={author} 
-        poems={author.poems} 
+        author={safeAuthor} 
+        poems={safePoems} 
         initialFollowing={isFollowing} 
         initialLikedPoemIds={likedPoemIds} 
       />

@@ -45,12 +45,15 @@ export default async function CollectionDetailPage(props) {
 
   let allUserPoems = []
   if (isAuthor) {
-    allUserPoems = await prisma.poem.findMany({
+    const rawUserPoems = await prisma.poem.findMany({
       where: { authorId: session.user.id },
       orderBy: { createdAt: 'desc' },
       select: { id: true, title: true, status: true }
     })
+    allUserPoems = JSON.parse(JSON.stringify(rawUserPoems))
   }
+
+  const collectionData = JSON.parse(JSON.stringify(collection))
 
   return (
     <div className="container" style={{ padding: "40px 0" }}>
@@ -67,7 +70,7 @@ export default async function CollectionDetailPage(props) {
       </div>
 
       {isAuthor && (
-        <CollectionManager collection={collection} allUserPoems={allUserPoems} />
+        <CollectionManager collection={collectionData} allUserPoems={allUserPoems} />
       )}
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px" }}>

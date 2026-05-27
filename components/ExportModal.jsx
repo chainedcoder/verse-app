@@ -100,7 +100,7 @@ export default function ExportModal({ poem, author, onClose }) {
     setColorIndex(0)
   }
 
-  const generateCanvas = useCallback(() => {
+  const generateCanvas = () => {
     const canvas = document.createElement("canvas")
     const ctx = canvas.getContext("2d")
     const c = currentColors
@@ -242,7 +242,7 @@ export default function ExportModal({ poem, author, onClose }) {
     }
 
     return canvas
-  }, [selectedTemplate, currentColors, poem, author])
+  }
 
   const handlePreview = () => {
     const canvas = generateCanvas()

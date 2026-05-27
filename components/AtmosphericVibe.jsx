@@ -1,51 +1,46 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import Link from 'next/link'
 
 export default function AtmosphericVibe({ poem, config, isFeatured = false }) {
-  const [options, setOptions] = useState([])
-
-  useEffect(() => {
-    let selected = [];
-    
-    if (config && Array.isArray(config) && config.length > 0) {
-      // Strictly respect author preferences if provided
-      selected = [...config];
-    } else {
-      // Smart fallback based on poem excerpt length for poems without specific vibe config
-      const numLines = (poem.excerpt || '').split('\n').length;
-      
-      if (numLines <= 6) {
-        // Plenty of space: show all three to fill the void
-        selected = ['reflection', 'related', 'illustration'];
-      } else if (numLines <= 12) {
-        // Medium space: ideally 2 items
-        const textOption = Math.random() > 0.5 ? 'reflection' : 'related';
-        selected = [textOption, 'illustration'];
-      } else {
-        // Little space: fallback to 1
-        const allOptions = ['illustration', 'reflection', 'related'];
-        selected = [allOptions[Math.floor(Math.random() * allOptions.length)]];
-      }
+  let selected = [];
+  
+  if (config && Array.isArray(config) && config.length > 0) {
+    selected = [...config];
+  } else {
+    const numLines = (poem.excerpt || '').split('\n').length;
+    let charSum = 0;
+    if (poem.id) {
+      for (let i = 0; i < poem.id.length; i++) charSum += poem.id.charCodeAt(i);
     }
+    const pseudoRandom = (charSum % 100) / 100;
     
-    selected = selected.map(opt => {
-      if (opt === 'A') return 'related';
-      if (opt === 'B') return 'illustration';
-      if (opt === 'C') return 'reflection';
-      return opt;
-    });
-    
-    selected = Array.from(new Set(selected));
-    
-    const sortedSelected = selected.sort((a, b) => {
-      const orderA = a === 'reflection' ? 1 : a === 'related' ? 2 : 3;
-      const orderB = b === 'reflection' ? 1 : b === 'related' ? 2 : 3;
-      return orderA - orderB;
-    });
-    setOptions(sortedSelected);
-  }, [poem.id, config, poem.excerpt])
+    if (numLines <= 6) {
+      selected = ['reflection', 'related', 'illustration'];
+    } else if (numLines <= 12) {
+      const textOption = pseudoRandom > 0.5 ? 'reflection' : 'related';
+      selected = [textOption, 'illustration'];
+    } else {
+      const allOptions = ['illustration', 'reflection', 'related'];
+      selected = [allOptions[Math.floor(pseudoRandom * allOptions.length)]];
+    }
+  }
+  
+  selected = selected.map(opt => {
+    if (opt === 'A') return 'related';
+    if (opt === 'B') return 'illustration';
+    if (opt === 'C') return 'reflection';
+    return opt;
+  });
+  
+  selected = Array.from(new Set(selected));
+  
+  const options = selected.sort((a, b) => {
+    const orderA = a === 'reflection' ? 1 : a === 'related' ? 2 : 3;
+    const orderB = b === 'reflection' ? 1 : b === 'related' ? 2 : 3;
+    return orderA - orderB;
+  });
 
   if (!options || options.length === 0) return null
 
