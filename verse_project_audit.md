@@ -26,11 +26,11 @@ The navbar renders top-level links which have been partially addressed:
 | Link | Route | Status |
 |------|-------|--------|
 | **Discover** | `/` | ✅ Working — renders home feed |
-| **Collections** | `/collections` | ⚠️ **Stub Page** — Route exists but lacks actual collection features. |
-| **Authors** | `/authors` | ✅ ~~⚠️ **Stub Page** — Route exists but lacks browse functionality.~~ Working — renders author profiles. |
+| **Collections** | `/collections` | ✅ Working — renders public collections. |
+| **Authors** | `/authors` | ✅ Working — renders author profiles. |
 
 ### Tasks:
-- [ ] Build `/collections` data fetching and listing
+- [x] Build `/collections` data fetching and listing
 - [x] ~~Build `/authors` browse/listing functionality with pagination~~ (Implemented)
 
 ---
@@ -61,7 +61,7 @@ The database infrastructure (Prisma + SQLite) is now active for both **Users/Aut
 - [x] ~~Migrate poems from `lib/data.js` to Prisma SQLite schema~~
 - [x] ~~Migrate authors from `lib/data.js` to Prisma SQLite schema~~
 - [x] ~~Replace hardcoded data with Server Component DB fetch calls~~
-- [ ] Implement pagination or infinite scroll for the feed
+- [x] Implement pagination or infinite scroll for the feed
 - [x] Add loading states / skeleton screens with React Suspense
 
 ---
@@ -71,8 +71,8 @@ The database infrastructure (Prisma + SQLite) is now active for both **Users/Aut
 Users have **no way to create content**. There is no poem editor, no form, no submission flow.
 
 ### Tasks:
-- [ ] Build poem creation/editor page (`/create` or `/write`)
-- [ ] Add "Write" or "Create" CTA button to navbar
+- [x] Build poem creation/editor page (`/create` or `/write`)
+- [x] Add "Write" or "Create" CTA button to navbar
 - [x] Build a rich poem editor with title, body (multiline), tags selection
 - [x] Add draft saving (autosave to DB)
 - [x] Add poem editing for own poems
@@ -149,7 +149,7 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 ### 8.2 Sharing
 - **Current**: ✅ Web Share API implemented (native sheet on mobile, clipboard fallback on desktop). ✅ Export generates Canvas. ✅ Embed code modal added.
 - [x] Implement Web Share API for native sharing on mobile
-- [ ] Add Twitter/X and Facebook share integration
+- [x] Add Twitter/X and Facebook share integration
 - [x] Add embed code generation for poems
 
 ### 8.3 Comments & Notifications
@@ -177,9 +177,9 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 
 ### Tasks:
 - [x] ~~Configure standard static metadata (favicons, manifest) in root layout~~
-- [ ] Add dynamic `generateMetadata` for Poem and Author pages (Open Graph, Twitter Cards)
-- [ ] Add structured data (JSON-LD) for poems and authors
-- [ ] Generate sitemap.xml and robots.txt
+- [x] Add dynamic `generateMetadata` for Poem and Author pages (Open Graph, Twitter Cards)
+- [x] Add structured data (JSON-LD) for poems and authors
+- [x] Generate sitemap.xml and robots.txt
 
 ---
 
