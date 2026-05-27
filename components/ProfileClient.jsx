@@ -85,7 +85,7 @@ export default function ProfileClient({ user, poems, likedPoems, collections, in
             ) : (
               poems.map(poem => {
                 const p = { ...poem, author: user }
-                return <PoemCard key={p.id} poem={p} initialLiked={likedSet.has(p.id)} isMine={true} />
+                return <PoemCard key={p.id} poem={p} initialLiked={likedSet.has(p.id)} isMine={true} hideAuthor={true} />
               })
             )}
           </div>

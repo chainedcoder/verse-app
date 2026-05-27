@@ -150,7 +150,6 @@
 /* Poem card: share popup menu */
 .poem-card-share-menu-wrap {
   position: relative;
-  display: none; /* hidden by default; shown only at ≤320px */
 }
 
 .poem-card-share-dropdown {
@@ -213,13 +212,3 @@
   overflow: hidden;
 }
 
-@media (max-width: 320px) {
-  .poem-card-download-btn,
-  .poem-card-share-btn {
-    display: none !important;
-  }
-
-  .poem-card-share-menu-wrap {
-    display: block !important;
-  }
-}

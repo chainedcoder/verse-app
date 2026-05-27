@@ -46,28 +46,58 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
     })
   }
 
-  const handleShare = async (e) => {
+  const getPoemUrl = () => `${window.location.origin}/poem/${poem.id}`
+
+  const handleCopyLink = async (e) => {
     e.preventDefault()
     e.stopPropagation()
-    const url = `${window.location.origin}/poem/${poem.id}`
+    const url = getPoemUrl()
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setShareMenuOpen(false)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.warn("Failed to copy link: ", err)
+    }
+  }
+
+  const handleShareSystem = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const url = getPoemUrl()
     if (typeof navigator.share === "function") {
       try {
         await navigator.share({ title: poem.title, url })
         setShareMenuOpen(false)
-        return
       } catch {
-        // cancelled or unsupported — fall through
+        // cancelled or unsupported
       }
+    } else {
+      handleCopyLink(e)
     }
-    navigator.clipboard.writeText(url)
-      .then(() => {
-        setCopied(true)
-        setShareMenuOpen(false)
-        setTimeout(() => setCopied(false), 2000)
-      })
-      .catch((err) => {
-        console.warn("Failed to copy link: ", err)
-      })
+  }
+
+  const handleShareX = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const url = getPoemUrl()
+    const text = encodeURIComponent(`Check out "${poem.title}"`)
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`, '_blank')
+    setShareMenuOpen(false)
+  }
+
+  const handleShareInstagram = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const url = getPoemUrl()
+    try {
+      await navigator.clipboard.writeText(url)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {}
+    window.open('https://instagram.com', '_blank')
+    setShareMenuOpen(false)
   }
 
   const handleShareMenuToggle = (e) => {
@@ -138,7 +168,7 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
           <div className={styles['author-info']}>
             {hideAuthor ? (
               <div style={{ fontSize: "11px", color: "var(--text-tertiary)", whiteSpace: "nowrap" }}>
-                <span suppressHydrationWarning>{poem.createdAt ? new Date(poem.createdAt).toLocaleDateString('en-US', { timeZone: 'UTC' }) : 'Recently'}</span> · {readTime} m read
+                {readTime} m read
               </div>
             ) : (
               <Link href={`/author/${poem.authorId}`} className={styles['author-info']} style={{ textDecoration: "none", color: "inherit" }} onClick={e => e.stopPropagation()}>
@@ -148,7 +178,7 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
                     {isMine ? (<><i className="ti ti-pencil" style={{ fontSize: "11px", marginRight: "4px", opacity: 0.7 }} aria-hidden="true" />{author.name} (You)</>) : author.name}
                   </div>
                   <div style={{ fontSize: "11px", color: "var(--text-tertiary)" }}>
-                    <span suppressHydrationWarning>{poem.createdAt ? new Date(poem.createdAt).toLocaleDateString('en-US', { timeZone: 'UTC' }) : 'Recently'}</span> · {readTime} m read
+                    {readTime} m read
                   </div>
                 </div>
               </Link>
@@ -161,17 +191,12 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
               <span className="like-count" style={{ marginLeft: "4px" }}>{likeCount}</span>
             </button>
 
-            {/* Download — hidden on very small screens (320px), shown via share menu */}
-            <Link href={`/export/${poem.id}`} className={`action-icon ${styles['poem-card-download-btn']} poem-card-download-btn`} onClick={e => e.stopPropagation()} aria-label="Download">
-              <i className="ti ti-download" style={{ fontSize: "16px" }} aria-hidden="true"></i>
-            </Link>
-
-            {/* Share — hidden on very small screens (320px) */}
-            <button className={`action-icon ${styles['poem-card-share-btn']} poem-card-share-btn`} onClick={handleShare} aria-label="Share">
-              <i className={`ti ${copied ? "ti-check" : "ti-share"}`} style={{ fontSize: "16px", color: copied ? "var(--primary)" : "inherit" }} aria-hidden="true"></i>
+            <button className={`action-icon`} onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} aria-label="Repost">
+              <i className="ti ti-repeat" style={{ fontSize: "16px" }} aria-hidden="true"></i>
+              <span className="like-count" style={{ marginLeft: "4px" }}>0</span>
             </button>
 
-            {/* Combined share menu trigger — visible only on very small screens */}
+            {/* Combined share menu trigger */}
             <div className={`${styles['poem-card-share-menu-wrap']} poem-card-share-menu-wrap`} ref={shareMenuRef}>
               <button
                 className={`action-icon ${styles['poem-card-share-menu-btn']} poem-card-share-menu-btn ${copied ? "liked" : ""}`}
@@ -195,11 +220,35 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
                   </Link>
                   <button
                     className={`${styles['poem-card-share-dropdown-item']} poem-card-share-dropdown-item`}
-                    onClick={handleShare}
+                    onClick={handleShareX}
                     role="menuitem"
                   >
-                    <i className="ti ti-share" aria-hidden="true" />
-                    Share link
+                    <i className="ti ti-brand-x" aria-hidden="true" />
+                    Share to X
+                  </button>
+                  <button
+                    className={`${styles['poem-card-share-dropdown-item']} poem-card-share-dropdown-item`}
+                    onClick={handleShareInstagram}
+                    role="menuitem"
+                  >
+                    <i className="ti ti-brand-instagram" aria-hidden="true" />
+                    Instagram
+                  </button>
+                  <button
+                    className={`${styles['poem-card-share-dropdown-item']} poem-card-share-dropdown-item`}
+                    onClick={handleCopyLink}
+                    role="menuitem"
+                  >
+                    <i className="ti ti-copy" aria-hidden="true" />
+                    Copy link
+                  </button>
+                  <button
+                    className={`${styles['poem-card-share-dropdown-item']} poem-card-share-dropdown-item`}
+                    onClick={handleShareSystem}
+                    role="menuitem"
+                  >
+                    <i className="ti ti-dots" aria-hidden="true" />
+                    Others
                   </button>
                 </div>
               )}

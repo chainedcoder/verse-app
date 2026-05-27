@@ -72,17 +72,9 @@ describe('FeaturedPoemCard', () => {
     expect(readTimeEl.textContent).not.toMatch(/min read/)
   })
 
-  it('renders individual share and download buttons (visible on larger screens)', () => {
+  it('renders the share options and repost buttons', () => {
     render(<FeaturedPoemCard poem={mockPoem} />)
-    // Download is a Link - mock strips aria-label, check by href
-    expect(screen.getAllByRole('link', { name: '' }).some(el => el.href?.includes('/export/'))).toBe(true)
-    // Share button has aria-label
-    expect(screen.getByLabelText('Share')).toBeInTheDocument()
-    expect(screen.getByLabelText('Share options')).toBeInTheDocument()
-  })
-
-  it('renders the combined share menu trigger for small screens', () => {
-    render(<FeaturedPoemCard poem={mockPoem} />)
+    expect(screen.getByLabelText('Repost')).toBeInTheDocument()
     expect(screen.getByLabelText('Share options')).toBeInTheDocument()
   })
 
@@ -95,19 +87,19 @@ describe('FeaturedPoemCard', () => {
     })
 
     expect(screen.getByRole('menu')).toBeInTheDocument()
-    // Items are queried by text since Link mock strips role prop
     const dropdown = screen.getByRole('menu')
     expect(dropdown).toHaveTextContent('Download')
-    expect(dropdown).toHaveTextContent('Share link')
+    expect(dropdown).toHaveTextContent('Copy link')
+    expect(dropdown).toHaveTextContent('Others')
   })
 
-  it('copies the link and closes dropdown after "Share link" is clicked', async () => {
+  it('copies the link and closes dropdown after "Copy link" is clicked', async () => {
     render(<FeaturedPoemCard poem={mockPoem} />)
     const menuBtn = screen.getByLabelText('Share options')
 
     await act(async () => { fireEvent.click(menuBtn) })
 
-    const shareLinkBtn = screen.getByRole('menuitem', { name: /Share link/ })
+    const shareLinkBtn = screen.getByRole('menuitem', { name: /Copy link/ })
     await act(async () => { fireEvent.click(shareLinkBtn) })
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()

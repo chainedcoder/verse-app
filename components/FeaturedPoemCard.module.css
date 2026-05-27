@@ -125,21 +125,11 @@
   .featured-poem-card__meta :global(.category-label) {
     display: none !important;
   }
-
-  .poem-card-download-btn,
-  .poem-card-share-btn {
-    display: none !important;
-  }
-
-  .poem-card-share-menu-wrap {
-    display: block !important;
-  }
 }
 
 /* Share popup menu */
 .poem-card-share-menu-wrap {
   position: relative;
-  display: none; /* hidden by default; shown only at ≤320px */
 }
 
 .poem-card-share-dropdown {

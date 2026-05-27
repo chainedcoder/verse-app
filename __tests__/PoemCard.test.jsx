@@ -71,17 +71,13 @@ describe('PoemCard', () => {
 
   it('renders the author name and metadata', () => {
     render(<PoemCard poem={mockPoem} />)
-    
     expect(screen.getByText('Emily Dickinson')).toBeInTheDocument()
-    expect(screen.getByText(/1891/)).toBeInTheDocument()
     expect(screen.getByText('42')).toBeInTheDocument() // Like count
   })
 
   it('does not render the author name and avatar when hideAuthor is true', () => {
     render(<PoemCard poem={mockPoem} hideAuthor={true} />)
-    
     expect(screen.queryByText('Emily Dickinson')).not.toBeInTheDocument()
-    expect(screen.getByText(/1891/)).toBeInTheDocument()
     expect(screen.getByText('42')).toBeInTheDocument()
   })
 
@@ -100,20 +96,10 @@ describe('PoemCard', () => {
     })
   })
 
-  it('renders individual share and download buttons (visible on larger screens)', () => {
+  it('renders the share options and repost buttons', () => {
     render(<PoemCard poem={mockPoem} />)
-    // Download is a Link - mock strips aria-label, check by href
-    expect(screen.getAllByRole('link', { name: '' }).some(el => el.href?.includes('/export/'))).toBe(true)
-    // Share button has aria-label
-    expect(screen.getByLabelText('Share')).toBeInTheDocument()
+    expect(screen.getByLabelText('Repost')).toBeInTheDocument()
     expect(screen.getByLabelText('Share options')).toBeInTheDocument()
-  })
-
-  it('renders the combined share menu trigger for small screens', () => {
-    render(<PoemCard poem={mockPoem} />)
-    const trigger = screen.getByLabelText('Share options')
-    expect(trigger).toBeInTheDocument()
-    expect(trigger).toHaveAttribute('aria-haspopup', 'true')
   })
 
   it('opens the share dropdown when the combined share menu trigger is clicked', async () => {
@@ -125,13 +111,13 @@ describe('PoemCard', () => {
     })
 
     expect(screen.getByRole('menu')).toBeInTheDocument()
-    // Items are queried by text since Link mock strips role prop
     const dropdown = screen.getByRole('menu')
     expect(dropdown).toHaveTextContent('Download')
-    expect(dropdown).toHaveTextContent('Share link')
+    expect(dropdown).toHaveTextContent('Copy link')
+    expect(dropdown).toHaveTextContent('Others')
   })
 
-  it('closes the share dropdown after selecting "Share link"', async () => {
+  it('closes the share dropdown after selecting "Copy link"', async () => {
     render(<PoemCard poem={mockPoem} />)
     const menuBtn = screen.getByLabelText('Share options')
 
@@ -139,8 +125,8 @@ describe('PoemCard', () => {
       fireEvent.click(menuBtn)
     })
 
-    // Find the "Share link" button within the dropdown (role="menuitem" on button)
-    const shareLinkBtn = screen.getByRole('menuitem', { name: /Share link/ })
+    // Find the "Copy link" button within the dropdown (role="menuitem" on button)
+    const shareLinkBtn = screen.getByRole('menuitem', { name: /Copy link/ })
     await act(async () => {
       fireEvent.click(shareLinkBtn)
     })
