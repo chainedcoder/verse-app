@@ -808,3 +808,11 @@
   }
 }
 
+/* --- Immersive Mode --- */
+.poem-layout.immersive-mode .poem-side {
+  display: none;
+}
+.poem-layout.immersive-mode .poem-main {
+  margin: 0 auto;
+  max-width: 800px;
+}

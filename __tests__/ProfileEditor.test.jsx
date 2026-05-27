@@ -28,13 +28,15 @@ describe('ProfileEditor', () => {
   const mockUser = {
     id: 'user1',
     name: 'Emily Dickinson',
+    username: 'emilyd',
+    website: 'https://emilydickinson.com',
     bio: 'I am nobody! Who are you?',
     location: 'Amherst, MA',
     image: null
   }
 
   beforeEach(() => {
-    mockUpdateProfile.mockClear()
+    mockUpdateProfile.mockReset()
     // Mock URL.createObjectURL for the image preview feature
     global.URL.createObjectURL = jest.fn(() => 'mock-url')
   })
@@ -43,16 +45,20 @@ describe('ProfileEditor', () => {
     render(<ProfileEditor user={mockUser} />)
     
     expect(screen.getByLabelText('Display Name')).toHaveValue('Emily Dickinson')
+    expect(screen.getByLabelText('Username')).toHaveValue('emilyd')
+    expect(screen.getByLabelText('Website')).toHaveValue('https://emilydickinson.com')
     expect(screen.getByLabelText('Location')).toHaveValue('Amherst, MA')
     expect(screen.getByLabelText('Bio')).toHaveValue('I am nobody! Who are you?')
   })
 
   it('submits updated profile data', async () => {
-    mockUpdateProfile.mockResolvedValueOnce({ success: true })
+    mockUpdateProfile.mockResolvedValue({ success: true })
     
     render(<ProfileEditor user={mockUser} />)
     
     fireEvent.change(screen.getByLabelText('Display Name'), { target: { value: 'Emily D.' } })
+    fireEvent.change(screen.getByLabelText('Username'), { target: { value: 'emily_new' } })
+    fireEvent.change(screen.getByLabelText('Website'), { target: { value: 'https://newsite.com' } })
     fireEvent.change(screen.getByLabelText('Location'), { target: { value: 'Boston, MA' } })
     
     fireEvent.click(screen.getByRole('button', { name: /save profile/i }))
@@ -63,11 +69,13 @@ describe('ProfileEditor', () => {
     
     const submittedData = mockUpdateProfile.mock.calls[0][0]
     expect(submittedData.get('name')).toBe('Emily D.')
+    expect(submittedData.get('username')).toBe('emily_new')
+    expect(submittedData.get('website')).toBe('https://newsite.com')
     expect(submittedData.get('location')).toBe('Boston, MA')
   })
 
   it('displays success message on successful update', async () => {
-    mockUpdateProfile.mockResolvedValueOnce({ success: true })
+    mockUpdateProfile.mockResolvedValue({ success: true })
     
     render(<ProfileEditor user={mockUser} />)
     
@@ -79,7 +87,7 @@ describe('ProfileEditor', () => {
   })
 
   it('displays error message if update fails', async () => {
-    mockUpdateProfile.mockResolvedValueOnce({ error: 'Server error occurred' })
+    mockUpdateProfile.mockResolvedValue({ error: 'Server error occurred' })
     
     render(<ProfileEditor user={mockUser} />)
     

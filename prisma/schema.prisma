@@ -23,6 +23,9 @@ model User {
   location           String?
   isPrivateAccount   Boolean @default(false)
   mfaEnabled         Boolean @default(false)
+  twoFactorSecret    String?
+  twoFactorMethod    String?
+  currentChallenge   String?
   emailNotifications Boolean @default(true)
   role               String  @default("USER") // USER, MODERATOR, ADMIN
   status             String  @default("ACTIVE") // ACTIVE, SUSPENDED, BANNED
@@ -42,6 +45,8 @@ model User {
   reportsSubmitted   Report[] @relation("reporter")
   reportsReceived    Report[] @relation("reportedUser")
    
+  authenticators     Authenticator[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -196,4 +201,19 @@ model Report {
   status            String   @default("PENDING") // PENDING, RESOLVED, DISMISSED
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+}
+
+model Authenticator {
+  credentialID         String  @id
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, credentialID])
 }

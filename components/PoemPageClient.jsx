@@ -11,8 +11,10 @@ import AuthorCard from "@/components/AuthorCard"
 import ReportButton from "@/components/ReportButton"
 import Avatar from "@/components/Avatar"
 import ExportModal from "@/components/ExportModal"
+import PoemImageCarousel from "@/components/PoemImageCarousel"
+import AtmosphericVibe from "@/components/AtmosphericVibe"
 
-export default function PoemPageClient({ poem, initialLiked = false, initialFollowingAuthor = false, userCollections = [], userId = null }) {
+export default function PoemPageClient({ poem, initialLiked = false, initialFollowingAuthor = false, userCollections = [], userId = null, initialImmersive = false }) {
   const router = useRouter()
   const author = poem.author
   const [liked, setLiked] = useState(initialLiked)
@@ -211,7 +213,7 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
   const tagsList = poem.tags ? poem.tags.map(t => t.name) : []
 
   return (
-    <div className="poem-layout">
+    <div className={`poem-layout ${initialImmersive ? 'immersive-mode' : ''}`}>
       {/* Main poem */}
       <div className="poem-main">
         <div style={{ marginBottom: "24px" }}>
@@ -234,6 +236,15 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
         <div className="poem-body">
           <div className="poem-viewer-text" dangerouslySetInnerHTML={{ __html: poem.fullText.replace(/\n/g, "<br>") }} />
         </div>
+        
+        {poem.images && poem.images.length > 0 && (!initialImmersive || (poem.vibeConfig && poem.vibeConfig.includes('illustration'))) && (
+          <div style={{ marginTop: "24px" }}>
+            <PoemImageCarousel images={poem.images} featured={poem.featured} />
+          </div>
+        )}
+
+        {initialImmersive && <hr className="divider" style={{ margin: "24px 0 0 0" }} />}
+        {initialImmersive && <AtmosphericVibe poem={poem} config={poem.vibeConfig} />}
 
         {/* Poem footer */}
         <div className="poem-footer" style={{ marginTop: "32px", paddingTop: "20px", borderTop: "1px solid var(--border-tertiary)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>

@@ -15,6 +15,10 @@ jest.mock("@/app/actions/profile", () => ({
   updateAccountSettings: (...args) => mockUpdateAccountSettings(...args)
 }))
 
+jest.mock("next-auth/react", () => ({
+  signIn: jest.fn()
+}))
+
 describe("AccountSettingsClient", () => {
   const mockUser = {
     isPrivateAccount: false,

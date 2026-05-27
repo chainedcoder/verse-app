@@ -6,6 +6,8 @@ import { ToastProvider } from "@/components/ToastProvider"
 import ErrorBoundary from "@/components/ErrorBoundary"
 import { WebVitals } from "@/components/WebVitals"
 import Script from "next/script"
+import { auth } from "@/auth"
+import { prisma } from "@/lib/prisma"
 
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID
 
@@ -23,9 +25,19 @@ export const metadata = {
   manifest: '/favicon/site.webmanifest'
 }
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const session = await auth()
+  let dbTheme = null
+  if (session?.user?.id) {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { theme: true }
+    })
+    dbTheme = user?.theme
+  }
+
   return (
-    <html lang="en" data-theme="light" data-accent="indigo" suppressHydrationWarning>
+    <html lang="en" data-theme={dbTheme === 'dark' || dbTheme === 'light' ? dbTheme : 'light'} data-accent="indigo" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -37,9 +49,13 @@ export default function RootLayout({ children }) {
           dangerouslySetInnerHTML={{
             __html: `
               try {
+                ${dbTheme ? `localStorage.setItem('verse_theme', '${dbTheme}');` : ''}
                 var theme = localStorage.getItem('verse_theme');
                 var accent = localStorage.getItem('verse_accent');
-                if (theme) document.documentElement.setAttribute('data-theme', theme);
+                if (theme && theme !== 'system') document.documentElement.setAttribute('data-theme', theme);
+                else if (theme === 'system') {
+                  document.documentElement.setAttribute('data-theme', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                }
                 if (accent) document.documentElement.setAttribute('data-accent', accent);
               } catch (e) {}
             `

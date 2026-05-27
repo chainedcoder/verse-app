@@ -75,11 +75,12 @@ export default async function PoemPage(props) {
   let isFollowingAuthor = false
   let userCollections = []
   let userId = null
+  let isImmersiveMode = false
 
   if (session?.user?.id) {
     userId = session.user.id
     
-    const [likeRecord, followRecord, collections] = await Promise.all([
+    const [likeRecord, followRecord, collections, userRecord] = await Promise.all([
       prisma.like.findUnique({
         where: { poemId_userId: { poemId, userId } }
       }),
@@ -89,6 +90,10 @@ export default async function PoemPage(props) {
       prisma.collection.findMany({
         where: { authorId: userId },
         include: { poems: { select: { id: true } } }
+      }),
+      prisma.user.findUnique({
+        where: { id: userId },
+        select: { immersiveMode: true }
       })
     ])
 
@@ -98,6 +103,7 @@ export default async function PoemPage(props) {
       ...c,
       hasPoem: c.poems.some(p => p.id === poemId)
     }))
+    isImmersiveMode = !!userRecord?.immersiveMode
   }
 
   const jsonLd = {
@@ -124,6 +130,7 @@ export default async function PoemPage(props) {
         initialFollowingAuthor={isFollowingAuthor} 
         userCollections={userCollections}
         userId={userId}
+        initialImmersive={isImmersiveMode}
       />
     </>
   )
