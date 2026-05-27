@@ -18,6 +18,17 @@ jest.mock('@/app/actions/interactions', () => ({
   toggleLike: jest.fn()
 }));
 
+// Mock ExportModal to avoid canvas/theme dependencies in PoemCard tests
+jest.mock('../components/ExportModal', () => {
+  return function MockExportModal({ onClose }) {
+    return (
+      <div data-testid="export-modal">
+        <button onClick={onClose} aria-label="Close export modal">Close</button>
+      </div>
+    )
+  }
+});
+
 // Mock navigator.clipboard
 Object.assign(navigator, {
   clipboard: {
@@ -102,19 +113,36 @@ describe('PoemCard', () => {
     expect(screen.getByLabelText('Share options')).toBeInTheDocument()
   })
 
-  it('opens the share dropdown when the combined share menu trigger is clicked', async () => {
+  it('clicking "Download" in the share dropdown opens the ExportModal instead of navigating', async () => {
     render(<PoemCard poem={mockPoem} />)
     const menuBtn = screen.getByLabelText('Share options')
-    
+
     await act(async () => {
       fireEvent.click(menuBtn)
     })
 
-    expect(screen.getByRole('menu')).toBeInTheDocument()
-    const dropdown = screen.getByRole('menu')
-    expect(dropdown).toHaveTextContent('Download')
-    expect(dropdown).toHaveTextContent('Copy link')
-    expect(dropdown).toHaveTextContent('Others')
+    // Dropdown is open — click Download
+    const downloadBtn = screen.getByRole('menuitem', { name: /Download/i })
+    await act(async () => {
+      fireEvent.click(downloadBtn)
+    })
+
+    // Dropdown should close
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    // ExportModal should open
+    expect(screen.getByTestId('export-modal')).toBeInTheDocument()
+  })
+
+  it('ExportModal can be closed from PoemCard', async () => {
+    render(<PoemCard poem={mockPoem} />)
+    const menuBtn = screen.getByLabelText('Share options')
+
+    await act(async () => { fireEvent.click(menuBtn) })
+    await act(async () => { fireEvent.click(screen.getByRole('menuitem', { name: /Download/i })) })
+
+    // Modal is open — close it
+    await act(async () => { fireEvent.click(screen.getByLabelText('Close export modal')) })
+    expect(screen.queryByTestId('export-modal')).not.toBeInTheDocument()
   })
 
   it('closes the share dropdown after selecting "Copy link"', async () => {

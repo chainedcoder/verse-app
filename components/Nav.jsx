@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
 import { getNotifications, markNotificationsAsRead } from "@/app/actions/notifications"
 import { searchPoems } from "@/app/actions/poems"
+import { getTheme, getAccent, setTheme as setAppTheme, setAccent as setAppAccent, getAccents } from "@/lib/theme"
 import Avatar from "./Avatar"
 import Button from "./Button"
 import styles from "./Nav.module.css"
@@ -22,6 +23,8 @@ export default function Nav() {
 
   // Theme state
   const [theme, setTheme] = useState("light")
+  const [accent, setAccent] = useState("indigo")
+  const accents = ["indigo", "rose", "emerald", "amber", "violet", "ocean"]
   const themeIcon = theme === "dark" ? "ti-sun" : "ti-moon"
 
   // Search autocomplete state
@@ -75,8 +78,16 @@ export default function Nav() {
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] })
     Promise.resolve().then(() => {
       setTheme(document.documentElement.getAttribute("data-theme") || "light")
+      setAccent(getAccent())
     })
-    return () => observer.disconnect()
+    
+    const handleAccentChange = (e) => setAccent(e.detail.accent)
+    window.addEventListener("accentchange", handleAccentChange)
+    
+    return () => {
+      observer.disconnect()
+      window.removeEventListener("accentchange", handleAccentChange)
+    }
   }, [])
 
   const toggleDrawer = () => setDrawerOpen(!drawerOpen)
@@ -313,18 +324,49 @@ export default function Nav() {
           <i className="ti ti-users" aria-hidden="true"></i> Authors
         </Link>
         <hr className={styles.mobileDrawerDivider} />
-        <div className={styles.mobileDrawerLink} style={{ cursor: "pointer" }} onClick={(e) => { togglePanel(e); closeDrawer(); }}>
-          <i className={`ti ${themeIcon}`} aria-hidden="true"></i> Appearance
-        </div>
-        <hr className={styles.mobileDrawerDivider} />
-        
-        {session ? (
+
+        {session && (
           <>
             <Button href="/write" variant="primary" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Write</Button>
             <Button href="/profile" variant="ghost" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Profile</Button>
             <Button href="/settings/profile" variant="ghost" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Settings</Button>
-            <Button variant="ghost" full onClick={() => { signOut(); closeDrawer(); }}>Sign out</Button>
+            <hr className={styles.mobileDrawerDivider} />
           </>
+        )}
+
+        <div style={{ padding: "4px 16px 8px" }}>
+          <div style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "12px", fontWeight: "600" }}>Appearance</div>
+          <div className="theme-mode-toggle" style={{ marginBottom: "16px" }}>
+            <button 
+              className={`theme-mode-option ${theme === "light" ? "active" : ""}`} 
+              onClick={() => setAppTheme("light")}
+            >
+              <i className="ti ti-sun" style={{ fontSize: "14px" }} aria-hidden="true"></i> Light
+            </button>
+            <button 
+              className={`theme-mode-option ${theme === "dark" ? "active" : ""}`} 
+              onClick={() => setAppTheme("dark")}
+            >
+              <i className="ti ti-moon" style={{ fontSize: "14px" }} aria-hidden="true"></i> Dark
+            </button>
+          </div>
+          <div style={{ fontSize: "11px", color: "var(--text-tertiary)", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "12px", fontWeight: "600" }}>Accent Color</div>
+          <div className="accent-swatches">
+            {accents.map((a) => (
+              <button
+                key={a}
+                className={`accent-swatch accent-swatch-${a} ${accent === a ? "active" : ""}`}
+                title={a.charAt(0).toUpperCase() + a.slice(1)}
+                aria-label={`Set accent color to ${a}`}
+                onClick={() => setAppAccent(a)}
+              ></button>
+            ))}
+          </div>
+        </div>
+        <hr className={styles.mobileDrawerDivider} />
+        
+        {session ? (
+          <Button variant="ghost" full onClick={() => { signOut(); closeDrawer(); }}>Sign out</Button>
         ) : (
           <>
             <Button href="/login" variant="ghost" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Log in</Button>

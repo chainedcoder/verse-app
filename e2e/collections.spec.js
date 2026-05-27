@@ -46,12 +46,12 @@ test.describe('Collections Flow', () => {
     // Go to a poem and add it to the collection
     await page.goto('/');
     
-    // Get the first poem card link
-    const firstPoemLink = page.locator('.card-clickable').first();
+    // Get the first poem card
+    const firstPoemCard = page.locator('[data-testid="poem-card"]').first();
     
     await Promise.all([
-      page.waitForURL(/.*\/poem\/.+/),
-      firstPoemLink.click()
+      page.waitForURL('**/poem/**'),
+      firstPoemCard.click()
     ]);
 
     // Click "Save"

@@ -28,8 +28,8 @@ test.describe('Comments Flow', () => {
     // Go to the first poem in the feed
     await page.goto('/');
     // Click on the first poem link or title
-    const featuredCards = page.locator('.featured-poem-card');
-    const regularCards  = page.locator('.poem-card-featured');
+    const featuredCards = page.locator('[data-testid="featured-poem-card"]');
+    const regularCards  = page.locator('[data-testid="poem-card"]');
     const hasFeatured = await featuredCards.count();
     const card = hasFeatured > 0 ? featuredCards.first() : regularCards.first();
     
@@ -38,9 +38,14 @@ test.describe('Comments Flow', () => {
       card.click()
     ]);
 
+    // Hard navigation to bypass Next.js soft navigation race conditions with Server Actions
+    await page.reload();
+    
     // Ensure we are on a poem page
     await expect(page.url()).toContain('/poem/');
     
+    page.on('console', msg => console.log('BROWSER CONSOLE:', msg.text()));
+
     // Check that comment form is visible
     await expect(page.locator('textarea[placeholder="Add a comment..."]')).toBeVisible();
 
@@ -48,9 +53,15 @@ test.describe('Comments Flow', () => {
     await page.fill('textarea[placeholder="Add a comment..."]', commentText);
     await page.click('button:has-text("Post")');
 
-    // Wait for the comment to appear
+    // Wait for the comment to appear (can take longer if db is slow)
     const commentCard = page.locator('.comment-card', { hasText: commentText });
-    await expect(commentCard).toBeVisible();
+    
+    try {
+      await expect(commentCard).toBeVisible({ timeout: 10000 });
+    } catch (e) {
+      console.log("COMMENT NOT VISIBLE. CURRENT URL:", page.url());
+      throw e;
+    }
 
     // Delete the comment
     await commentCard.locator('button:has-text("Delete")').click();

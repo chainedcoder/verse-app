@@ -614,3 +614,179 @@
   white-space: nowrap;
 }
 
+/* ── Poem Action Buttons Mobile Layout ── */
+@media (max-width: 1023px) {
+  .poem-action-btn span {
+    display: none;
+  }
+  .poem-action-btn.btn {
+    padding: 4px 8px;
+  }
+}
+
+/* Share Dropdown for Poem Page */
+.poem-page-share-dropdown {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  min-width: 148px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-secondary);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  z-index: 200;
+  overflow: hidden;
+  animation: shareMenuIn 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.poem-page-share-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 11px 14px;
+  font-size: 13px;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border-tertiary);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease;
+  text-align: left;
+  line-height: 1;
+}
+
+.poem-page-share-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.poem-page-share-dropdown-item:hover {
+  background: var(--bg-secondary);
+}
+
+.poem-page-share-dropdown-item i {
+  font-size: 14px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+/* ── Export Modal ───────────────────────────────────────────── */
+.export-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-overlay, rgba(0, 0, 0, 0.55));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  animation: fadeIn 0.18s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.export-modal-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border-secondary);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  animation: slideUp 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.export-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border-tertiary);
+  flex-shrink: 0;
+}
+
+.export-modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  color: var(--text-primary);
+  margin: 0 0 2px;
+  letter-spacing: -0.01em;
+}
+
+.export-modal-subtitle {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin: 0;
+}
+
+.export-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 18px;
+  padding: 4px;
+  border-radius: 6px;
+  line-height: 1;
+  transition: color 0.15s ease, background 0.15s ease;
+  flex-shrink: 0;
+}
+
+.export-modal-close:hover {
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+}
+
+.export-modal-body {
+  padding: 20px 24px 8px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.export-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px 20px;
+  border-top: 1px solid var(--border-tertiary);
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .export-modal-panel {
+    max-height: 95vh;
+    border-radius: 12px;
+  }
+
+  .export-modal-header,
+  .export-modal-body,
+  .export-modal-footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .export-modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .export-modal-footer .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

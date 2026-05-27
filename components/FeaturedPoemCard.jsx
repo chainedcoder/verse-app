@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { toggleLike } from "@/app/actions/interactions"
 import Avatar from "./Avatar"
 import Badge from "./Badge"
+import ExportModal from "./ExportModal"
 import styles from "./FeaturedPoemCard.module.css"
 
 function estimateReadTime(text) {
@@ -24,6 +25,7 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
   const [isPending, startTransition] = useTransition()
   const [copied, setCopied] = useState(false)
   const [shareMenuOpen, setShareMenuOpen] = useState(false)
+  const [exportModalOpen, setExportModalOpen] = useState(false)
 
   const shareMenuRef = useRef(null)
   const readTime = estimateReadTime(poem.fullText || poem.excerpt)
@@ -125,10 +127,12 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
     : '?'
 
   return (
+    <>
     <article
-      className={`${styles['featured-poem-card']} featured-poem-card ${isMine ? styles['poem-card--mine'] : ""}`}
+      className={`${styles['featured-poem-card']} ${isMine ? styles['poem-card--mine'] : ""}`}
       onClick={() => router.push(`/poem/${poem.id}`)}
       aria-label={`Featured poem: ${poem.title}`}
+      data-testid="featured-poem-card"
     >
       {/* Accent bar */}
       <div className={styles['featured-poem-card__accent']} aria-hidden="true" />
@@ -215,15 +219,14 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
               </button>
               {shareMenuOpen && (
                 <div className={`${styles['poem-card-share-dropdown']} poem-card-share-dropdown`} role="menu">
-                  <Link
-                    href={`/export/${poem.id}`}
+                  <button
                     className={`${styles['poem-card-share-dropdown-item']} poem-card-share-dropdown-item`}
-                    onClick={e => { e.stopPropagation(); setShareMenuOpen(false) }}
+                    onClick={e => { e.preventDefault(); e.stopPropagation(); setShareMenuOpen(false); setExportModalOpen(true) }}
                     role="menuitem"
                   >
                     <i className="ti ti-download" aria-hidden="true" />
                     Download
-                  </Link>
+                  </button>
                   <button
                     className={`${styles['poem-card-share-dropdown-item']} poem-card-share-dropdown-item`}
                     onClick={handleShareX}
@@ -263,5 +266,13 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
         </div>
       </div>
     </article>
+    {exportModalOpen && (
+      <ExportModal
+        poem={poem}
+        author={author}
+        onClose={() => setExportModalOpen(false)}
+      />
+    )}
+  </>
   )
 }

@@ -4,7 +4,7 @@ import { useState, useTransition } from "react"
 import { submitReport } from "@/app/actions/reports"
 import { useSession } from "next-auth/react"
 
-export default function ReportButton({ type, targetId, buttonStyle = "ghost" }) {
+export default function ReportButton({ type, targetId, buttonStyle = "ghost", className = "" }) {
   const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const [reason, setReason] = useState("")
@@ -48,11 +48,11 @@ export default function ReportButton({ type, targetId, buttonStyle = "ghost" }) 
   return (
     <>
       <button 
-        className={`btn btn-${buttonStyle} btn-sm`} 
+        className={`btn btn-${buttonStyle} btn-sm ${className}`} 
         onClick={() => setIsOpen(true)}
         title={`Report this ${getTargetName().toLowerCase()}`}
       >
-        <i className="ti ti-flag"></i> {buttonStyle !== "icon-only" && "Report"}
+        <i className="ti ti-flag"></i> {buttonStyle !== "icon-only" && <span>Report</span>}
       </button>
 
       {isOpen && (

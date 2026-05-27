@@ -38,6 +38,17 @@ jest.mock('@/components/ReportButton', () => {
   }
 })
 
+// Mock ExportModal to avoid canvas/theme dependencies
+jest.mock('@/components/ExportModal', () => {
+  return function MockExportModal({ onClose }) {
+    return (
+      <div data-testid="export-modal">
+        <button onClick={onClose} aria-label="Close export modal">Close</button>
+      </div>
+    )
+  }
+})
+
 const mockPoem = {
   id: 'p1',
   title: 'Test Poem Title',
@@ -74,18 +85,57 @@ describe('PoemPageClient', () => {
     expect(screen.getByText('Full poem body content')).toBeInTheDocument()
   })
 
-  it('renders standard social share intent buttons with correct urls', async () => {
+  it('renders share dropdown with options when share button is clicked', async () => {
     const { act } = require('react')
     await act(async () => {
       render(<PoemPageClient {...defaultProps} />)
     })
     
-    const twitterLink = screen.getByLabelText('Share on Twitter/X')
-    expect(twitterLink).toBeInTheDocument()
-    expect(twitterLink).toHaveAttribute('href', 'https://twitter.com/intent/tweet?text=%22Test%20Poem%20Title%22%20by%20Author%20Name%20on%20Verse&url=http%3A%2F%2Flocalhost%2Fpoem%2Fp1')
+    // Find the main Share button
+    const shareButton = screen.getByRole('button', { name: /Share/i })
+    expect(shareButton).toBeInTheDocument()
     
-    const facebookLink = screen.getByLabelText('Share on Facebook')
-    expect(facebookLink).toBeInTheDocument()
-    expect(facebookLink).toHaveAttribute('href', 'https://www.facebook.com/sharer/sharer.php?u=http%3A%2F%2Flocalhost%2Fpoem%2Fp1')
+    // Click it to open the dropdown
+    await act(async () => {
+      fireEvent.click(shareButton)
+    })
+    
+    // Now the dropdown options should be visible
+    expect(screen.getByText('Share to X')).toBeInTheDocument()
+    expect(screen.getByText('Instagram')).toBeInTheDocument()
+    expect(screen.getByText('Copy link')).toBeInTheDocument()
+    expect(screen.getByText('Others')).toBeInTheDocument()
+  })
+
+  it('clicking "Download" in the share dropdown opens the ExportModal', async () => {
+    const { act } = require('react')
+    await act(async () => {
+      render(<PoemPageClient {...defaultProps} />)
+    })
+
+    const shareButton = screen.getByRole('button', { name: /Share/i })
+    await act(async () => { fireEvent.click(shareButton) })
+
+    const downloadBtn = screen.getByRole('menuitem', { name: /Download/i })
+    await act(async () => { fireEvent.click(downloadBtn) })
+
+    // Share dropdown should close
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    // ExportModal should be visible
+    expect(screen.getByTestId('export-modal')).toBeInTheDocument()
+  })
+
+  it('ExportModal can be closed from PoemPageClient', async () => {
+    const { act } = require('react')
+    await act(async () => {
+      render(<PoemPageClient {...defaultProps} />)
+    })
+
+    const shareButton = screen.getByRole('button', { name: /Share/i })
+    await act(async () => { fireEvent.click(shareButton) })
+    await act(async () => { fireEvent.click(screen.getByRole('menuitem', { name: /Download/i })) })
+    await act(async () => { fireEvent.click(screen.getByLabelText('Close export modal')) })
+
+    expect(screen.queryByTestId('export-modal')).not.toBeInTheDocument()
   })
 })

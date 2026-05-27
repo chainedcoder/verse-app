@@ -10,6 +10,7 @@ import { toggleFeatured } from "@/app/actions/poems"
 import AuthorCard from "@/components/AuthorCard"
 import ReportButton from "@/components/ReportButton"
 import Avatar from "@/components/Avatar"
+import ExportModal from "@/components/ExportModal"
 
 export default function PoemPageClient({ poem, initialLiked = false, initialFollowingAuthor = false, userCollections = [], userId = null }) {
   const router = useRouter()
@@ -29,19 +30,10 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
   const [likersModalOpen, setLikersModalOpen] = useState(false)
   const [likers, setLikers] = useState([])
   const [likersLoading, setLikersLoading] = useState(false)
-  const [shareUrls, setShareUrls] = useState({ twitter: "", facebook: "" })
+  const [shareMenuOpen, setShareMenuOpen] = useState(false)
+  const [exportModalOpen, setExportModalOpen] = useState(false)
+  const shareMenuRef = useRef(null)
   const collectionsDropdownRef = useRef(null)
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const url = `${window.location.origin}/poem/${poem.id}`
-      const text = `"${poem.title}" by ${poem.author.name} on Verse`
-      Promise.resolve().then(() => setShareUrls({
-        twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`,
-        facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`
-      }))
-    }
-  }, [poem.id, poem.title, poem.author.name])
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -103,26 +95,74 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
     })
   }
 
-  const handleShare = async () => {
+  const handleCopyLink = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const url = `${window.location.origin}/poem/${poem.id}`
+    try {
+      await navigator.clipboard.writeText(url)
+      showToast("Link copied!")
+      setShareMenuOpen(false)
+    } catch (err) {
+      console.warn("Failed to copy link: ", err)
+    }
+  }
+
+  const handleShareSystem = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
     const url = `${window.location.origin}/poem/${poem.id}`
     if (typeof navigator.share === "function") {
       try {
-        await navigator.share({
-          title: poem.title,
-          text: poem.excerpt?.replace(/<[^>]+>/g, "").slice(0, 120) + "…",
-          url,
-        })
-        return
+        await navigator.share({ title: poem.title, url })
+        setShareMenuOpen(false)
       } catch {
-        // User cancelled or share failed — fall through to clipboard
+        // cancelled or unsupported
+      }
+    } else {
+      handleCopyLink(e)
+    }
+  }
+
+  const handleShareX = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const url = `${window.location.origin}/poem/${poem.id}`
+    const text = encodeURIComponent(`Check out "${poem.title}"`)
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`, '_blank')
+    setShareMenuOpen(false)
+  }
+
+  const handleShareInstagram = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const url = `${window.location.origin}/poem/${poem.id}`
+    try {
+      await navigator.clipboard.writeText(url)
+      showToast("Link copied! Open Instagram to share.")
+    } catch (err) {}
+    window.open('https://instagram.com', '_blank')
+    setShareMenuOpen(false)
+  }
+
+  const handleShareMenuToggle = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setShareMenuOpen(prev => !prev)
+  }
+
+  useEffect(() => {
+    if (!shareMenuOpen) return
+    const onOutside = (e) => {
+      if (shareMenuRef.current && !shareMenuRef.current.contains(e.target)) {
+        e.stopPropagation()
+        e.preventDefault()
+        setShareMenuOpen(false)
       }
     }
-    navigator.clipboard.writeText(url)
-      .then(() => showToast("Link copied!"))
-      .catch((err) => {
-        console.warn("Failed to copy link: ", err)
-      })
-  }
+    document.addEventListener("click", onOutside, true)
+    return () => document.removeEventListener("click", onOutside, true)
+  }, [shareMenuOpen])
 
   const fetchComments = async () => {
     const result = await getCommentsForPoem(poem.id)
@@ -139,11 +179,13 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
     
     setCommentPending(true)
     const result = await createComment(poem.id, commentInput)
+    console.log("CREATE COMMENT RESULT:", result)
     if (result.success) {
       setCommentInput("")
       fetchComments()
       showToast("Comment posted!")
     } else {
+      console.error("CREATE COMMENT ERROR:", result)
       showToast(result.error || "Failed to post comment")
     }
     setCommentPending(false)
@@ -205,32 +247,54 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", position: "relative" }} ref={collectionsDropdownRef}>
             {userId === author.id && (
               <>
-                <Link href={`/edit/${poem.id}`} className="btn btn-ghost btn-sm">
-                  <i className="ti ti-edit" style={{ fontSize: "14px" }} aria-hidden="true"></i> Edit
+                <Link href={`/edit/${poem.id}`} className="btn btn-ghost btn-sm poem-action-btn">
+                  <i className="ti ti-edit" style={{ fontSize: "14px" }} aria-hidden="true"></i> <span>Edit</span>
                 </Link>
-                <button className={`btn btn-ghost btn-sm ${poem.featured ? "text-primary" : ""}`} onClick={() => {
+                <button className={`btn btn-ghost btn-sm poem-action-btn ${poem.featured ? "text-primary" : ""}`} onClick={() => {
                   startTransition(async () => {
                     await toggleFeatured(poem.id)
                     showToast(poem.featured ? "Unfeatured poem" : "Featured poem")
                   })
                 }}>
-                  <i className={`ti ${poem.featured ? "ti-star-filled" : "ti-star"}`} style={{ fontSize: "14px", color: poem.featured ? "var(--primary)" : "inherit" }} aria-hidden="true"></i> Feature
+                  <i className={`ti ${poem.featured ? "ti-star-filled" : "ti-star"}`} style={{ fontSize: "14px", color: poem.featured ? "var(--primary)" : "inherit" }} aria-hidden="true"></i> <span>Feature</span>
                 </button>
               </>
             )}
-            <button className="btn btn-ghost btn-sm" onClick={() => setCollectionsModalOpen(!collectionsModalOpen)}>
-              <i className="ti ti-bookmark" style={{ fontSize: "14px" }} aria-hidden="true"></i> Save
+            <button className="btn btn-ghost btn-sm poem-action-btn" onClick={() => setCollectionsModalOpen(!collectionsModalOpen)}>
+              <i className="ti ti-bookmark" style={{ fontSize: "14px" }} aria-hidden="true"></i> <span>Save</span>
             </button>
-            <button className="btn btn-ghost btn-sm" onClick={handleShare} aria-label="Share poem">
-              <i className="ti ti-share" style={{ fontSize: "14px" }} aria-hidden="true"></i> Share
+              <div style={{ position: "relative" }} ref={shareMenuRef}>
+              <button className="btn btn-ghost btn-sm poem-action-btn" onClick={handleShareMenuToggle} aria-label="Share poem">
+                <i className="ti ti-share" style={{ fontSize: "14px" }} aria-hidden="true"></i> <span>Share</span>
+              </button>
+              {shareMenuOpen && (
+                <div className="poem-page-share-dropdown" role="menu">
+                  <button
+                    className="poem-page-share-dropdown-item"
+                    role="menuitem"
+                    onClick={() => { setShareMenuOpen(false); setExportModalOpen(true) }}
+                  >
+                    <i className="ti ti-download" aria-hidden="true" /> Download
+                  </button>
+                  <button className="poem-page-share-dropdown-item" onClick={handleShareX} role="menuitem">
+                    <i className="ti ti-brand-x" aria-hidden="true" /> Share to X
+                  </button>
+                  <button className="poem-page-share-dropdown-item" onClick={handleShareInstagram} role="menuitem">
+                    <i className="ti ti-brand-instagram" aria-hidden="true" /> Instagram
+                  </button>
+                  <button className="poem-page-share-dropdown-item" onClick={handleCopyLink} role="menuitem">
+                    <i className="ti ti-copy" aria-hidden="true" /> Copy link
+                  </button>
+                  <button className="poem-page-share-dropdown-item" onClick={handleShareSystem} role="menuitem">
+                    <i className="ti ti-dots" aria-hidden="true" /> Others
+                  </button>
+                </div>
+              )}
+            </div>
+            <button className="btn btn-ghost btn-sm poem-action-btn" onClick={() => setEmbedModalOpen(true)} aria-label="Get embed code">
+              <i className="ti ti-code" style={{ fontSize: "14px" }} aria-hidden="true"></i> <span>Embed</span>
             </button>
-            <button className="btn btn-ghost btn-sm" onClick={() => setEmbedModalOpen(true)} aria-label="Get embed code">
-              <i className="ti ti-code" style={{ fontSize: "14px" }} aria-hidden="true"></i> Embed
-            </button>
-            <Link href={`/export/${poem.id}`} className="btn btn-primary btn-sm">
-              <i className="ti ti-download" style={{ fontSize: "14px" }} aria-hidden="true"></i> Download
-            </Link>
-            <ReportButton type="POEM" targetId={poem.id} buttonStyle="ghost" />
+            <ReportButton type="POEM" targetId={poem.id} buttonStyle="ghost" className="poem-action-btn" />
 
             {collectionsModalOpen && (
               <div style={{
@@ -270,57 +334,7 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
         {/* We reuse AuthorCard, but note that AuthorCard also expects author.poems and author.readers count if available */}
         <AuthorCard author={author} initialFollowing={initialFollowingAuthor} />
 
-        <hr className="divider" style={{ marginBottom: "20px" }} />
 
-        {/* Download formats */}
-        <div className="section-title">Download as</div>
-        <div className="download-options">
-          {[
-            { id: "siteview", title: "Site view", desc: "As seen on Verse, with your theme" },
-            { id: "minimal", title: "Minimal poster", desc: "Clean white, typography only" },
-            { id: "dark", title: "Dark cinematic", desc: "Deep navy, serif layout" },
-            { id: "love", title: "Love letter", desc: "Cream + floral illustration" },
-            { id: "story", title: "Instagram story", desc: "9:16 vertical format" },
-          ].map(opt => (
-            <Link key={opt.id} href={`/export/${poem.id}?template=${opt.id}`} className="download-option">
-              <div>
-                <div className="download-option-title">{opt.title}</div>
-                <div className="download-option-desc">{opt.desc}</div>
-              </div>
-              <i className="ti ti-download" style={{ fontSize: "16px", color: "var(--text-tertiary)" }} aria-hidden="true"></i>
-            </Link>
-          ))}
-        </div>
-
-        <hr className="divider" style={{ margin: "20px 0" }} />
-        <div className="section-title">Share</div>
-        <div className="share-buttons" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "8px" }}>
-          <button className="btn btn-ghost btn-sm" onClick={handleShare} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", width: "100%" }}>
-            <i className="ti ti-copy" style={{ fontSize: "13px" }} aria-hidden="true"></i> Copy Link
-          </button>
-          <a href={shareUrls.twitter} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", textDecoration: "none", color: "inherit", width: "100%" }} aria-label="Share on Twitter/X">
-            <i className="ti ti-brand-x" style={{ fontSize: "13px" }} aria-hidden="true"></i> Twitter/X
-          </a>
-          <a href={shareUrls.facebook} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", textDecoration: "none", color: "inherit", width: "100%" }} aria-label="Share on Facebook">
-            <i className="ti ti-brand-facebook" style={{ fontSize: "13px" }} aria-hidden="true"></i> Facebook
-          </a>
-          <button className="btn btn-ghost btn-sm" onClick={() => {
-            navigator.clipboard.writeText(`${window.location.origin}/poem/${poem.id}`).then(() => {
-              showToast("Link copied! Open Instagram to share.");
-              window.open("https://instagram.com", "_blank");
-            });
-          }} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", width: "100%" }}>
-            <i className="ti ti-brand-instagram" style={{ fontSize: "13px" }} aria-hidden="true"></i> Instagram
-          </button>
-          <button className="btn btn-ghost btn-sm" onClick={() => {
-            navigator.clipboard.writeText(`${window.location.origin}/poem/${poem.id}`).then(() => {
-              showToast("Link copied! Open TikTok to share.");
-              window.open("https://tiktok.com", "_blank");
-            });
-          }} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", width: "100%" }}>
-            <i className="ti ti-brand-tiktok" style={{ fontSize: "13px" }} aria-hidden="true"></i> TikTok
-          </button>
-        </div>
 
         {/* Comments Section */}
         <hr className="divider" style={{ margin: "24px 0" }} />
@@ -514,6 +528,13 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
             </div>
           </div>
         </div>
+      )}
+      {exportModalOpen && (
+        <ExportModal
+          poem={poem}
+          author={author}
+          onClose={() => setExportModalOpen(false)}
+        />
       )}
     </div>
   )

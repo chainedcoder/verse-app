@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toggleLike } from "@/app/actions/interactions"
 import Avatar from "./Avatar"
+import ExportModal from "./ExportModal"
 
 import styles from "./PoemCard.module.css"
 import Card from "./Card"
@@ -24,6 +25,7 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
   
   const [copied, setCopied] = useState(false)
   const [shareMenuOpen, setShareMenuOpen] = useState(false)
+  const [exportModalOpen, setExportModalOpen] = useState(false)
   
   const [liked, setLiked] = useState(initialLiked)
   const [likeCount, setLikeCount] = useState(poem._count?.likes || 0)
@@ -133,12 +135,13 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
   const initials = author.name ? author.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?'
 
   return (
-    <div onClick={() => router.push(`/poem/${poem.id}`)} style={{ cursor: "pointer", display: "block", position: "relative" }} className={`${styles['poem-card-container']} poem-card-container`}>
+    <div onClick={() => router.push(`/poem/${poem.id}`)} style={{ cursor: "pointer", display: "block", position: "relative" }} className={styles['poem-card-container']} data-testid="poem-card-container">
       {customRemoveButton}
       <Card
         as="article"
         clickable
-        className={`${styles['poem-card-featured']} poem-card-featured ${isMine ? styles['poem-card--mine'] : ""}`}
+        className={`${styles['poem-card-featured']} ${isMine ? styles['poem-card--mine'] : ""}`}
+        data-testid="poem-card"
         style={{ marginBottom: "16px" }}
         aria-label={`Poem: ${poem.title}`}
       >
@@ -209,15 +212,14 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
               </button>
               {shareMenuOpen && (
                 <div className={`${styles['poem-card-share-dropdown']} poem-card-share-dropdown`} role="menu">
-                  <Link
-                    href={`/export/${poem.id}`}
+                  <button
                     className={`${styles['poem-card-share-dropdown-item']} poem-card-share-dropdown-item`}
-                    onClick={e => { e.stopPropagation(); setShareMenuOpen(false) }}
+                    onClick={e => { e.preventDefault(); e.stopPropagation(); setShareMenuOpen(false); setExportModalOpen(true) }}
                     role="menuitem"
                   >
                     <i className="ti ti-download" aria-hidden="true" />
                     Download
-                  </Link>
+                  </button>
                   <button
                     className={`${styles['poem-card-share-dropdown-item']} poem-card-share-dropdown-item`}
                     onClick={handleShareX}
@@ -256,6 +258,13 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
           </div>
         </div>
       </Card>
+      {exportModalOpen && (
+        <ExportModal
+          poem={poem}
+          author={author}
+          onClose={() => setExportModalOpen(false)}
+        />
+      )}
     </div>
   )
 }

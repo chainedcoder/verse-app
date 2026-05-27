@@ -108,7 +108,7 @@
   background: var(--accent);
 }
 
-.featured-poem-card .author-name {
+.author-name {
   font-size: 13px;
   font-weight: 500;
 }

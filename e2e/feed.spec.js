@@ -9,8 +9,8 @@ test.describe('Feed and Navigation', () => {
     await expect(page.locator('text=Discover').first()).toBeVisible();
 
     // Feed content: either featured cards or regular cards should exist
-    const featuredCards = page.locator('.featured-poem-card');
-    const regularCards  = page.locator('.poem-card-featured');
+    const featuredCards = page.locator('[data-testid="featured-poem-card"]');
+    const regularCards  = page.locator('[data-testid="poem-card"]');
     const hasFeatured   = await featuredCards.count();
     const hasRegular    = await regularCards.count();
     expect(hasFeatured + hasRegular).toBeGreaterThan(0);
@@ -23,7 +23,7 @@ test.describe('Feed and Navigation', () => {
   test('featured poems appear before regular poems', async ({ page }) => {
     await page.goto('/');
 
-    const featuredCards = page.locator('.featured-poem-card');
+    const featuredCards = page.locator('[data-testid="featured-poem-card"]');
     const featuredCount = await featuredCards.count();
 
     if (featuredCount > 0) {
@@ -49,8 +49,8 @@ test.describe('Feed and Navigation', () => {
   test('clicking a featured poem navigates to the poem details page', async ({ page }) => {
     await page.goto('/');
 
-    const featuredCards = page.locator('.featured-poem-card');
-    const regularCards  = page.locator('.poem-card-featured');
+    const featuredCards = page.locator('[data-testid="featured-poem-card"]');
+    const regularCards  = page.locator('[data-testid="poem-card"]');
 
     const hasFeatured = await featuredCards.count();
     const card = hasFeatured > 0 ? featuredCards.first() : regularCards.first();
@@ -65,7 +65,8 @@ test.describe('Feed and Navigation', () => {
     await expect(page.locator('.poem-viewer-title')).toContainText(
       poemTitle.replace(/…$/, '').trim().substring(0, 20)
     );
-    await expect(page.locator('text=Download as')).toBeVisible();
+    // Share button is visible in the poem action bar
+    await expect(page.locator('button[aria-label="Share poem"]')).toBeVisible();
   });
 
   test('regular poem grid uses 2-column layout at large viewport (1280px+)', async ({ page }) => {
@@ -107,7 +108,7 @@ test.describe('Feed and Navigation', () => {
     await page.goto('/');
 
     // Check featured cards
-    const featuredCards = page.locator('.featured-poem-card');
+    const featuredCards = page.locator('[data-testid="featured-poem-card"]');
     const featuredCount = await featuredCards.count();
     if (featuredCount > 0) {
       const readTimeEl = featuredCards.first().locator('.featured-poem-card__read-time');
@@ -117,7 +118,7 @@ test.describe('Feed and Navigation', () => {
     }
 
     // Check regular poem cards — read time in the author-info footer
-    const regularCards = page.locator('.poem-card-featured');
+    const regularCards = page.locator('[data-testid="poem-card"]');
     const regularCount = await regularCards.count();
     if (regularCount > 0) {
       const footerText = await regularCards.first().locator('.card-footer').innerText();
@@ -130,7 +131,7 @@ test.describe('Feed and Navigation', () => {
     await page.goto('/');
 
     const featuredStrip = page.locator('.featured-strip');
-    const featuredCount = await page.locator('.featured-poem-card').count();
+    const featuredCount = await page.locator('[data-testid="featured-poem-card"]').count();
 
     if (featuredCount > 0) {
       await expect(featuredStrip).toBeVisible();
@@ -149,33 +150,31 @@ test.describe('Feed and Navigation', () => {
     }
   });
 
-  test('at 320px viewport, individual share/download buttons are hidden and combined trigger is shown', async ({ page }) => {
+  test('at 320px viewport, combined share trigger is visible on regular poem cards', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 700 });
     await page.goto('/');
 
-    // Get the first poem card (featured or regular)
-    const regularCards = page.locator('.poem-card-featured');
+    const regularCards = page.locator('[data-testid="poem-card"]');
     const regularCount = await regularCards.count();
 
     if (regularCount > 0) {
       const card = regularCards.first();
 
-      // Individual download and share buttons should be visually hidden (CSS display:none)
-      const downloadBtn = card.locator('.poem-card-download-btn');
-      const shareBtn    = card.locator('.poem-card-share-btn');
-      const menuWrap    = card.locator('.poem-card-share-menu-wrap');
-
-      await expect(downloadBtn).toHaveCSS('display', 'none');
-      await expect(shareBtn).toHaveCSS('display', 'none');
+      // The combined share menu trigger wraps all share options
+      const menuWrap = card.locator('.poem-card-share-menu-wrap');
       await expect(menuWrap).not.toHaveCSS('display', 'none');
+
+      // The share trigger button itself should be visible
+      const menuBtn = card.locator('.poem-card-share-menu-btn');
+      await expect(menuBtn).toBeVisible();
     }
   });
 
-  test('at 320px, clicking combined share trigger reveals download and share link options', async ({ page }) => {
+  test('at 320px, clicking combined share trigger reveals download and share options', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 700 });
     await page.goto('/');
 
-    const regularCards = page.locator('.poem-card-featured');
+    const regularCards = page.locator('[data-testid="poem-card"]');
     const regularCount = await regularCards.count();
 
     if (regularCount > 0) {
@@ -186,8 +185,10 @@ test.describe('Feed and Navigation', () => {
 
       const dropdown = card.locator('.poem-card-share-dropdown');
       await expect(dropdown).toBeVisible();
+      // First item should be Download
       await expect(dropdown.locator('[role="menuitem"]').nth(0)).toContainText('Download');
-      await expect(dropdown.locator('[role="menuitem"]').nth(1)).toContainText('Share link');
+      // Second item should be Share to X
+      await expect(dropdown.locator('[role="menuitem"]').nth(1)).toContainText('Share to X');
     }
   });
 
@@ -249,14 +250,14 @@ test.describe('Feed and Navigation', () => {
     await page.goto('/');
 
     // Regular poem cards
-    const regularCards = page.locator('.poem-card-featured');
+    const regularCards = page.locator('[data-testid="poem-card"]');
     if (await regularCards.count() > 0) {
       const titleEl = regularCards.first().locator('h2.poem-card__title--clamp');
       await expect(titleEl).toBeAttached();
     }
 
     // Featured poem cards
-    const featuredCards = page.locator('.featured-poem-card');
+    const featuredCards = page.locator('[data-testid="featured-poem-card"]');
     if (await featuredCards.count() > 0) {
       const titleEl = featuredCards.first().locator('h2.poem-card__title--clamp-2');
       await expect(titleEl).toBeAttached();
@@ -268,7 +269,7 @@ test.describe('Feed and Navigation', () => {
     await page.waitForLoadState('networkidle');
 
     // Count initial regular poem cards
-    const initialCount = await page.locator('.poem-card-featured').count();
+    const initialCount = await page.locator('[data-testid="poem-card"]').count();
     expect(initialCount).toBeGreaterThan(0);
 
     // Scroll to the bottom to trigger the Intersection Observer
@@ -276,7 +277,7 @@ test.describe('Feed and Navigation', () => {
 
     // Assert that the number of poem cards increases
     await expect(async () => {
-      const currentCount = await page.locator('.poem-card-featured').count();
+      const currentCount = await page.locator('[data-testid="poem-card"]').count();
       expect(currentCount).toBeGreaterThan(initialCount);
     }).toPass({ timeout: 5000 });
   });

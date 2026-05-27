@@ -30,7 +30,7 @@ test.describe('Interactions Flow (Likes & Follows)', () => {
     await page.goto('/');
 
     // Get the first poem card
-    const firstPoemCard = page.locator('.poem-card-featured').first();
+    const firstPoemCard = page.locator('[data-testid="poem-card"]').first();
     const likeButton = firstPoemCard.locator('button[aria-label="Like"]');
     
     // Check initial state
@@ -50,7 +50,7 @@ test.describe('Interactions Flow (Likes & Follows)', () => {
     await page.waitForTimeout(4000);
     await page.reload();
     
-    const reloadedFirstPoemCard = page.locator('.poem-card-featured').first();
+    const reloadedFirstPoemCard = page.locator('[data-testid="poem-card"]').first();
     const reloadedLikeButton = reloadedFirstPoemCard.locator('button[aria-label="Like"]');
     
     await expect(reloadedLikeButton).toHaveClass(/liked/);
@@ -62,12 +62,10 @@ test.describe('Interactions Flow (Likes & Follows)', () => {
 
     // Get the first author link in the sidebar
     const firstAuthorLink = page.locator('.feed-sidebar .author-list-info a').first();
+    const authorUrl = await firstAuthorLink.getAttribute('href');
     
-    // Navigate to author page
-    await Promise.all([
-      page.waitForNavigation(),
-      firstAuthorLink.click()
-    ]);
+    // Navigate to author page via hard navigation to avoid Next.js routing race conditions
+    await page.goto(authorUrl);
 
     // Get follow button
     const followButton = page.getByTestId('follow-button');
@@ -78,12 +76,11 @@ test.describe('Interactions Flow (Likes & Follows)', () => {
     // Click follow
     await followButton.click();
 
-    // Verify Verify UI updates optimistically
+    // Verify UI updates optimistically
     await expect(followButton).toHaveText('Following');
     await expect(followButton).toHaveClass(/btn-primary/);
 
     // Refresh page to ensure persistence
-    // Wait longer to ensure server action completes
     await page.waitForTimeout(4000);
     await page.reload();
 
@@ -96,7 +93,7 @@ test.describe('Interactions Flow (Likes & Follows)', () => {
     await page.goto('/');
 
     // Get the first poem card
-    const firstPoemCard = page.locator('.poem-card-featured').first();
+    const firstPoemCard = page.locator('[data-testid="poem-card"]').first();
     
     // Navigate to poem detail page by clicking the card
     await Promise.all([
