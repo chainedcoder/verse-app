@@ -189,4 +189,10 @@ describe('PoemCard', () => {
     const heading = screen.getByRole('heading', { name: /Hope is the thing with feathers/ })
     expect(heading).toHaveClass('poem-card__title--clamp')
   })
+
+  it('renders divider when in immersive mode', () => {
+    const { container } = render(<PoemCard poem={mockPoem} isImmersive={true} />)
+    const divider = container.querySelector('hr.divider')
+    expect(divider).toBeInTheDocument()
+  })
 })

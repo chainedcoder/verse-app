@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
 
 export default function AtmosphericVibe({ poem, config, isFeatured = false }) {
   const [options, setOptions] = useState([])
@@ -50,13 +51,13 @@ export default function AtmosphericVibe({ poem, config, isFeatured = false }) {
 
   const renderOption = (opt, index) => {
     const isLast = index === options.length - 1;
-    const borderStyle = { borderTop: "0.5px solid var(--color-border-tertiary)" };
+    const borderStyle = index === 0 ? {} : { borderTop: "0.5px solid var(--border-tertiary)" };
 
     if (opt === 'A' || opt === 'related') {
       return (
-        <div key={opt} className="related-section" style={{ padding: "16px 0", overflowY: "auto", ...borderStyle }}>
-          <div className="related-title" style={{ fontSize: "11px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "12px", textTransform: "uppercase" }}>More from {poem.author?.name}</div>
-          <div className="related-item" style={{ display: "flex", gap: "10px", alignItems: "flex-start", padding: "8px 0", borderBottom: isLast ? "none" : "0.5px solid var(--color-border-tertiary)" }}>
+        <div key={opt} className="related-section" style={{ padding: "16px 0", overflowY: "auto", ...borderStyle }} onClick={(e) => e.stopPropagation()}>
+          <Link href={`/author/${poem.authorId}`} className="related-title" style={{ display: "block", fontSize: "11px", fontWeight: 500, color: "var(--text-secondary)", marginBottom: "12px", textTransform: "uppercase", textDecoration: "none" }}>More from {poem.author?.name}</Link>
+          <Link href={`/author/${poem.authorId}`} className="related-item" style={{ display: "flex", gap: "10px", alignItems: "flex-start", padding: "8px 0", borderBottom: "none", textDecoration: "none", color: "inherit" }}>
             <div className="rel-dot" style={{ width: "28px", height: "28px", borderRadius: "8px", background: "var(--bg-secondary)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
               <i className="ti ti-feather" aria-hidden="true" style={{ fontSize: "14px", color: "var(--text-secondary)" }}></i>
             </div>
@@ -64,7 +65,7 @@ export default function AtmosphericVibe({ poem, config, isFeatured = false }) {
               <div className="rel-name" style={{ color: "var(--text-primary)", fontFamily: "var(--font-serif)", fontStyle: "italic", lineHeight: 1.4 }}>Because I could not stop for Death —</div>
               <div className="rel-meta" style={{ color: "var(--text-secondary)", fontSize: "11px", marginTop: "2px" }}>#MORTALITY · 2m read</div>
             </div>
-          </div>
+          </Link>
         </div>
       )
     }
@@ -93,13 +94,13 @@ export default function AtmosphericVibe({ poem, config, isFeatured = false }) {
 
     if (opt === 'C' || opt === 'reflection') {
       return (
-        <div key={opt} className="reflection" style={{ padding: "20px 0", ...borderStyle, display: "flex", flexDirection: "column" }}>
+        <div key={opt} className="reflection" style={{ padding: "20px 0", ...borderStyle, display: "flex", flexDirection: "column" }} onClick={(e) => e.stopPropagation()}>
           <p className="reflection-q" style={{ fontSize: "13px", color: "var(--text-secondary)", marginBottom: "12px", fontStyle: "italic", textAlign: "left" }}>What does this poem bring up for you?</p>
           <div className="reflection-chips" style={{ display: "flex", flexWrap: "wrap", gap: "8px", justifyContent: "flex-start" }}>
-            <span className="chip" style={{ fontSize: "11px", padding: "6px 12px", border: "0.5px solid var(--border-secondary)", borderRadius: "20px", color: "var(--text-secondary)", background: "var(--bg-secondary)", cursor: "pointer" }}>Comfort</span>
-            <span className="chip" style={{ fontSize: "11px", padding: "6px 12px", border: "0.5px solid var(--border-secondary)", borderRadius: "20px", color: "var(--text-secondary)", background: "var(--bg-secondary)", cursor: "pointer" }}>Longing</span>
-            <span className="chip" style={{ fontSize: "11px", padding: "6px 12px", border: "0.5px solid var(--border-secondary)", borderRadius: "20px", color: "var(--text-secondary)", background: "var(--bg-secondary)", cursor: "pointer" }}>Resilience</span>
-            <span className="chip" style={{ fontSize: "11px", padding: "6px 12px", border: "0.5px solid var(--border-secondary)", borderRadius: "20px", color: "var(--text-secondary)", background: "var(--bg-secondary)", cursor: "pointer" }}>Peace</span>
+            <span className="tag" style={{ fontSize: "10px", padding: "2px 8px" }}>Comfort</span>
+            <span className="tag" style={{ fontSize: "10px", padding: "2px 8px" }}>Longing</span>
+            <span className="tag" style={{ fontSize: "10px", padding: "2px 8px" }}>Resilience</span>
+            <span className="tag" style={{ fontSize: "10px", padding: "2px 8px" }}>Peace</span>
           </div>
         </div>
       )

@@ -177,6 +177,7 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
             dangerouslySetInnerHTML={{ __html: ((isImmersive && poem.fullText) ? poem.fullText : poem.excerpt).replace(/\n/g, "<br>") }}
           />
           
+          {isImmersive && <hr className="divider" style={{ margin: "16px 0 0 0" }} />}
           {isImmersive && <AtmosphericVibe poem={poem} config={poem.vibeConfig} isFeatured={true} />}
 
           {/* Footer */}

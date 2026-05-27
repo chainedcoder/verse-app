@@ -168,6 +168,7 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
         <h2 className={`serif ${styles['poem-card__title--clamp']} poem-card__title--clamp`} style={{ fontSize: "22px", marginBottom: "12px", letterSpacing: "-0.3px" }} title={poem.title}>{poem.title}</h2>
         <div className={`${styles['poem-excerpt']} poem-excerpt ${isImmersive ? styles['immersive-excerpt'] : ''}`} style={isImmersive ? { fontSize: "15px", flexShrink: 0 } : { fontSize: "15px" }} dangerouslySetInnerHTML={{ __html: ((isImmersive && poem.fullText) ? poem.fullText : poem.excerpt).replace(/\n/g, "<br>") }} />
         
+        {isImmersive && <hr className="divider" style={{ margin: "16px 0 0 0" }} />}
         {isImmersive && <AtmosphericVibe poem={poem} config={poem.vibeConfig} />}
 
         <div className={`${styles['card-footer']} card-footer`} style={isImmersive ? { marginTop: 0 } : {}}>

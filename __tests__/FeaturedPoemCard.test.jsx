@@ -154,4 +154,10 @@ describe('FeaturedPoemCard', () => {
     const heading = screen.getByRole('heading', { name: /The Road Not Taken/ })
     expect(heading).toHaveClass('poem-card__title--clamp-2')
   })
+
+  it('renders divider when in immersive mode', () => {
+    const { container } = render(<FeaturedPoemCard poem={mockPoem} isImmersive={true} />)
+    const divider = container.querySelector('hr.divider')
+    expect(divider).toBeInTheDocument()
+  })
 })
