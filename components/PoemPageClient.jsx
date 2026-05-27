@@ -304,8 +304,21 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
           <a href={shareUrls.facebook} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", textDecoration: "none", color: "inherit", width: "100%" }} aria-label="Share on Facebook">
             <i className="ti ti-brand-facebook" style={{ fontSize: "13px" }} aria-hidden="true"></i> Facebook
           </a>
-          <button className="btn btn-ghost btn-sm" onClick={() => showToast("Open Instagram and paste your poem image!")} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", width: "100%" }}>
+          <button className="btn btn-ghost btn-sm" onClick={() => {
+            navigator.clipboard.writeText(`${window.location.origin}/poem/${poem.id}`).then(() => {
+              showToast("Link copied! Open Instagram to share.");
+              window.open("https://instagram.com", "_blank");
+            });
+          }} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", width: "100%" }}>
             <i className="ti ti-brand-instagram" style={{ fontSize: "13px" }} aria-hidden="true"></i> Instagram
+          </button>
+          <button className="btn btn-ghost btn-sm" onClick={() => {
+            navigator.clipboard.writeText(`${window.location.origin}/poem/${poem.id}`).then(() => {
+              showToast("Link copied! Open TikTok to share.");
+              window.open("https://tiktok.com", "_blank");
+            });
+          }} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "5px", width: "100%" }}>
+            <i className="ti ti-brand-tiktok" style={{ fontSize: "13px" }} aria-hidden="true"></i> TikTok
           </button>
         </div>
 
