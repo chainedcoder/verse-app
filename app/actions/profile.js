@@ -3,8 +3,7 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
-import { writeFile, mkdir } from "fs/promises"
-import path from "path"
+import { uploadFileToS3 } from "@/lib/s3"
 
 export async function updateProfile(formData) {
   const session = await auth()
@@ -24,18 +23,12 @@ export async function updateProfile(formData) {
       const bytes = await avatarFile.arrayBuffer()
       const buffer = Buffer.from(bytes)
 
-      // Ensure directory exists
-      const uploadDir = path.join(process.cwd(), "public/uploads/avatars")
-      await mkdir(uploadDir, { recursive: true })
-
       // Generate unique filename
       const ext = avatarFile.name.split('.').pop()
       const filename = `${session.user.id}-${Date.now()}.${ext}`
-      const filepath = path.join(uploadDir, filename)
 
-      // Save file
-      await writeFile(filepath, buffer)
-      imagePath = `/uploads/avatars/${filename}`
+      // Upload to S3
+      imagePath = await uploadFileToS3(buffer, filename, avatarFile.type)
     } catch (e) {
       console.error("Error saving avatar:", e)
       return { error: "Failed to upload avatar image" }
