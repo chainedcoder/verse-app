@@ -85,6 +85,7 @@ model Poem {
   featured  Boolean  @default(false)
   status    String   @default("PUBLISHED")
   isPrivate Boolean  @default(false)
+  vibeConfig Json?
   authorId  String
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   likes     Like[]

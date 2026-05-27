@@ -46,6 +46,7 @@ export default function FeedClient({
   initialNextCursor = null
 }) {
   const [activeTag, setActiveTag] = useState("all")
+  const [isImmersive, setIsImmersive] = useState(false)
   const [poems, setPoems] = useState(initialPoems)
   const [nextCursor, setNextCursor] = useState(initialNextCursor)
   const [loading, setLoading] = useState(false)
@@ -118,11 +119,12 @@ export default function FeedClient({
   const allEmpty = poems.length === 0 && filteredFeatured.length === 0
 
   return (
-    <div className="feed-layout">
+    <div className={`feed-layout ${isImmersive ? 'immersive-feed-mode' : 'standard-feed-mode'}`}>
       <div className="feed-main">
 
-        {/* Tag filter strip */}
-        <div className="tag-row-scroll" style={{ marginBottom: "20px" }}>
+        {/* Tag filter strip and Immersion Toggle */}
+        <div style={isImmersive ? { display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px", scrollSnapAlign: "start", scrollSnapStop: "always" } : { display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
+          <div className="tag-row-scroll" style={{ flex: 1, minWidth: 0, display: "flex", overflowX: "auto", gap: "8px", paddingBottom: "4px" }}>
           <span
             className={`tag ${activeTag === "all" ? "active" : ""}`}
             onClick={() => handleTagClick("all")}
@@ -146,6 +148,15 @@ export default function FeedClient({
               {tag}
             </span>
           ))}
+          </div>
+          <button 
+             onClick={() => setIsImmersive(!isImmersive)} 
+             className="btn btn-ghost"
+             style={{ padding: "8px", flexShrink: 0, borderRadius: "50%", width: "40px", height: "40px", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--bg-secondary)", border: "1px solid var(--border-secondary)" }}
+             title={isImmersive ? "Exit Immersive Mode" : "Enter Immersive Mode"}
+          >
+             <i className={`ti ${isImmersive ? "ti-minimize" : "ti-maximize"}`} style={{ fontSize: "18px", color: "var(--text-secondary)" }}></i>
+          </button>
         </div>
 
         {/* Feed content */}
@@ -162,12 +173,14 @@ export default function FeedClient({
               {filteredFeatured.length > 0 && (
                 <section className="featured-strip" aria-label="Featured poems">
                   {filteredFeatured.map(poem => (
-                    <FeaturedPoemCard
-                      key={poem.id}
-                      poem={poem}
-                      initialLiked={likedSet.has(poem.id)}
-                      isMine={currentUserId && poem.authorId === currentUserId}
-                    />
+                    <div key={`featured-${poem.id}`} className={isImmersive ? "immersive-snap-item" : ""}>
+                      <FeaturedPoemCard
+                        poem={poem}
+                        initialLiked={likedSet.has(poem.id)}
+                        isMine={currentUserId && poem.authorId === currentUserId}
+                        isImmersive={isImmersive}
+                      />
+                    </div>
                   ))}
                 </section>
               )}
@@ -225,12 +238,14 @@ export default function FeedClient({
               {poems.length > 0 && (
                 <div className="regular-poem-grid">
                   {poems.map(poem => (
-                    <PoemCard
-                      key={poem.id}
-                      poem={poem}
-                      initialLiked={likedSet.has(poem.id)}
-                      isMine={currentUserId && poem.authorId === currentUserId}
-                    />
+                    <div key={`poem-${poem.id}`} className={isImmersive ? "immersive-snap-item" : ""}>
+                      <PoemCard
+                        poem={poem}
+                        initialLiked={likedSet.has(poem.id)}
+                        isMine={currentUserId && poem.authorId === currentUserId}
+                        isImmersive={isImmersive}
+                      />
+                    </div>
                   ))}
                 </div>
               )}

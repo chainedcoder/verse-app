@@ -86,6 +86,22 @@
   margin-bottom: 28px;
 }
 
+/* Immersive snap item wrapper for Feed items */
+.immersive-snap-item {
+  height: clamp(500px, 92vh, 1200px);
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto 32px auto;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  display: flex;
+  flex-direction: column;
+}
+
+.immersive-snap-item:last-child {
+  margin-bottom: 0;
+}
+
 /* --- Poem Viewer --- */
 .poem-viewer-back {
   display: flex;
@@ -371,9 +387,9 @@
 /* Large tablets and desktops (1024px+): 2-column regular poem grid */
 @media (min-width: 1024px) {
   .regular-poem-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-    align-items: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 }
 
@@ -505,6 +521,8 @@
 .mobile-feed-interrupt {
   display: none; /* hidden by default; revealed below 768px */
   margin-bottom: 28px;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 @media (max-width: 767px) {

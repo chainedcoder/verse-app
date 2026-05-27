@@ -19,6 +19,14 @@
   min-width: 0;
 }
 
+.immersive-feed-mode .feed-main {
+  height: calc(100dvh - 68px);
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scroll-padding-top: 16px;
+  scroll-behavior: smooth;
+}
+
 .feed-sidebar {
   padding: 24px;
   min-width: 0;
@@ -164,6 +172,11 @@
     border-bottom: 1px solid var(--border-tertiary);
   }
 
+  .immersive-feed-mode .feed-main {
+    height: calc(100dvh - 60px);
+    scroll-padding-top: 8px;
+  }
+
   .poem-layout {
     grid-template-columns: 1fr;
   }
@@ -304,11 +317,17 @@
 
 /* Large tablets and desktops (1024px+): start columning the feed to avoid over-stretched cards */
 @media (min-width: 1024px) {
-  .regular-poem-grid {
+  .standard-feed-mode .regular-poem-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
     align-items: start;
+  }
+  
+  .immersive-feed-mode .regular-poem-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 }
 
@@ -323,9 +342,16 @@
   }
 
   /* 2-column regular grid at this width */
-  .regular-poem-grid {
+  .standard-feed-mode .regular-poem-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
+  }
+
+  /* Single column immersive feed at this width */
+  .immersive-feed-mode .regular-poem-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   /* Constrain and center single poem content for readability */
@@ -350,9 +376,15 @@
     grid-template-columns: 1fr 480px;
   }
 
-  .regular-poem-grid {
+  .standard-feed-mode .regular-poem-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 32px;
+  }
+
+  .immersive-feed-mode .regular-poem-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .poem-main > * {

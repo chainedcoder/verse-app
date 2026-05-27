@@ -7,6 +7,7 @@ import { toggleLike } from "@/app/actions/interactions"
 import Avatar from "./Avatar"
 import Badge from "./Badge"
 import ExportModal from "./ExportModal"
+import AtmosphericVibe from "./AtmosphericVibe"
 import styles from "./FeaturedPoemCard.module.css"
 
 function estimateReadTime(text) {
@@ -15,7 +16,7 @@ function estimateReadTime(text) {
   return Math.max(1, Math.ceil(words / 200))
 }
 
-export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = false }) {
+export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = false, hideAuthor = false, isImmersive = false }) {
   const router = useRouter()
   // poem.author is included from Prisma query
   const author = poem.author
@@ -129,7 +130,7 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
   return (
     <>
       <article
-        className={`${styles['featured-poem-card']} ${isMine ? styles['poem-card--mine'] : ""}`}
+        className={`${styles['featured-poem-card']} ${isMine ? styles['poem-card--mine'] : ""} ${isImmersive ? styles['immersive-card'] : ""}`}
         onClick={() => router.push(`/poem/${poem.id}`)}
         aria-label={`Featured poem: ${poem.title}`}
         data-testid="featured-poem-card"
@@ -172,12 +173,14 @@ export default function FeaturedPoemCard({ poem, initialLiked = false, isMine = 
 
           {/* Excerpt */}
           <div
-            className={`${styles['featured-poem-card__excerpt']} poem-excerpt`}
-            dangerouslySetInnerHTML={{ __html: poem.excerpt.replace(/\n/g, "<br>") }}
+            className={`${styles['featured-poem-card__excerpt']} poem-excerpt ${isImmersive ? styles['immersive-excerpt'] : ''}`} style={isImmersive ? { flexShrink: 0 } : {}}
+            dangerouslySetInnerHTML={{ __html: ((isImmersive && poem.fullText) ? poem.fullText : poem.excerpt).replace(/\n/g, "<br>") }}
           />
+          
+          {isImmersive && <AtmosphericVibe poem={poem} config={poem.vibeConfig} isFeatured={true} />}
 
           {/* Footer */}
-          <div className={styles['featured-poem-card__footer']}>
+          <div className={styles['featured-poem-card__footer']} style={isImmersive ? { marginTop: 0 } : {}}>
             <Link
               href={`/author/${poem.authorId}`}
               className={styles['featured-poem-card__author']}

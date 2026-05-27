@@ -17,6 +17,12 @@ export async function createPoem(formData) {
   const tagsString = formData.get("tags")?.toString().trim() || ""
   const status = formData.get("status")?.toString() === "DRAFT" ? "DRAFT" : "PUBLISHED"
   const isPrivate = formData.get("isPrivate") === "true"
+  let vibeConfig = []
+  try {
+    vibeConfig = JSON.parse(formData.get("vibeConfig")?.toString() || "[]")
+  } catch (e) {
+    vibeConfig = []
+  }
 
   if (!title || !fullText) {
     return { error: "Title and body are required." }
@@ -32,6 +38,7 @@ export async function createPoem(formData) {
       fullText,
       status,
       isPrivate,
+      vibeConfig,
       tags: {
         connectOrCreate: tagsArray.map(tag => ({
           where: { name: tag },
@@ -62,6 +69,12 @@ export async function updatePoem(poemId, formData) {
   const tagsString = formData.get("tags")?.toString().trim() || ""
   const status = formData.get("status")?.toString() === "DRAFT" ? "DRAFT" : "PUBLISHED"
   const isPrivate = formData.get("isPrivate") === "true"
+  let vibeConfig = []
+  try {
+    vibeConfig = JSON.parse(formData.get("vibeConfig")?.toString() || "[]")
+  } catch (e) {
+    vibeConfig = []
+  }
 
   if (!title || !fullText) {
     return { error: "Title and body are required." }
@@ -78,6 +91,7 @@ export async function updatePoem(poemId, formData) {
       fullText,
       status,
       isPrivate,
+      vibeConfig,
       tags: {
         set: [], // clear existing tags
         connectOrCreate: tagsArray.map(tag => ({

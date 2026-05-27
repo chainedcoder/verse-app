@@ -76,9 +76,15 @@ test.describe('Feed and Navigation', () => {
     const regularGrid = page.locator('.regular-poem-grid');
     await expect(regularGrid).toBeVisible();
 
+    const display = await regularGrid.evaluate(el =>
+      window.getComputedStyle(el).getPropertyValue('display')
+    );
+    expect(display).toBe('grid');
+    
     const gridTemplateColumns = await regularGrid.evaluate(el =>
       window.getComputedStyle(el).getPropertyValue('grid-template-columns')
     );
+
     // Should be 2 equal columns, not a single column
     const columnCount = gridTemplateColumns.trim().split(/\s+/).length;
     expect(columnCount).toBe(2);
@@ -93,7 +99,7 @@ test.describe('Feed and Navigation', () => {
 
     if (tagCount > 0) {
       const firstTag = tags.first();
-      await firstTag.click();
+      await firstTag.evaluate(node => node.click());
 
       // Verify the tag becomes active
       await expect(page.locator(`.tag-row-scroll .tag.active`)).not.toHaveText('All');

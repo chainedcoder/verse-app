@@ -18,6 +18,18 @@ export default function PoemEditor({ initialPoem = null, allTags = [] }) {
   // Tags need to be a comma-separated string if initialPoem has tags relation
   const initialTagsStr = initialPoem?.tags ? initialPoem.tags.map(t => t.name).join(", ") : ""
   const [currentTags, setCurrentTags] = useState(initialTagsStr)
+  
+  // Vibe configuration for immersive mode
+  const [vibeConfig, setVibeConfig] = useState(
+    Array.isArray(initialPoem?.vibeConfig) ? initialPoem.vibeConfig : []
+  )
+
+  const handleVibeChange = (opt) => {
+    setVibeConfig(prev => {
+      if (prev.includes(opt)) return prev.filter(x => x !== opt)
+      return [...prev, opt]
+    })
+  }
 
   const handleTagClick = (tag) => {
     const tagsArray = currentTags.split(',').map(t => t.trim()).filter(Boolean)
@@ -38,6 +50,8 @@ export default function PoemEditor({ initialPoem = null, allTags = [] }) {
     } else {
       formData.set("status", "PUBLISHED")
     }
+
+    formData.set("vibeConfig", JSON.stringify(vibeConfig))
 
     startTransition(async () => {
       let result
@@ -159,6 +173,24 @@ export default function PoemEditor({ initialPoem = null, allTags = [] }) {
           />
           <span style={{ fontSize: "14px" }}>Keep Private (Only you can see this)</span>
         </label>
+      </div>
+
+      <div className="form-group" style={{ marginBottom: "24px" }}>
+        <label className="form-label">
+          Immersive Layout Modules <span className="form-hint">(Optional - Select to display in Immersive Mode)</span>
+        </label>
+        <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginTop: "8px" }}>
+          {['related', 'illustration', 'reflection'].map(opt => (
+            <label key={opt} style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer", fontSize: "13px", color: "var(--text-secondary)", textTransform: "capitalize" }}>
+              <input 
+                type="checkbox" 
+                checked={vibeConfig.includes(opt)}
+                onChange={() => handleVibeChange(opt)}
+              />
+              {opt.replace('-', ' ')}
+            </label>
+          ))}
+        </div>
       </div>
 
       <div className="form-actions" style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>

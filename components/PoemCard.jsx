@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { toggleLike } from "@/app/actions/interactions"
 import Avatar from "./Avatar"
 import ExportModal from "./ExportModal"
+import AtmosphericVibe from "./AtmosphericVibe"
 
 import styles from "./PoemCard.module.css"
 import Card from "./Card"
@@ -18,7 +19,7 @@ function estimateReadTime(text) {
   return minutes < 1 ? 1 : minutes
 }
 
-export default function PoemCard({ poem, initialLiked = false, onRemove = null, customRemoveButton = null, isMine = false, hideAuthor = false }) {
+export default function PoemCard({ poem, initialLiked = false, onRemove = null, customRemoveButton = null, isMine = false, hideAuthor = false, isImmersive = false }) {
   const router = useRouter()
   // poem.author is included from Prisma query
   const author = poem.author
@@ -135,12 +136,12 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
   const initials = author.name ? author.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : '?'
 
   return (
-    <div onClick={() => router.push(`/poem/${poem.id}`)} style={{ cursor: "pointer", display: "block", position: "relative" }} className={styles['poem-card-container']} data-testid="poem-card-container">
+    <div onClick={() => router.push(`/poem/${poem.id}`)} style={{ cursor: "pointer", display: "block", position: "relative" }} className={`${styles['poem-card-container']} ${isImmersive ? styles['immersive-card-wrapper'] : ''}`} data-testid="poem-card-container">
       {customRemoveButton}
       <Card
         as="article"
         clickable
-        className={`${styles['poem-card-featured']} ${isMine ? styles['poem-card--mine'] : ""}`}
+        className={`${styles['poem-card-featured']} ${isMine ? styles['poem-card--mine'] : ""} ${isImmersive ? styles['immersive-card'] : ""}`}
         data-testid="poem-card"
         style={{ marginBottom: "16px" }}
         aria-label={`Poem: ${poem.title}`}
@@ -165,9 +166,11 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
           )}
         </div>
         <h2 className={`serif ${styles['poem-card__title--clamp']} poem-card__title--clamp`} style={{ fontSize: "22px", marginBottom: "12px", letterSpacing: "-0.3px" }} title={poem.title}>{poem.title}</h2>
-        <div className={`${styles['poem-excerpt']} poem-excerpt`} style={{ fontSize: "15px" }} dangerouslySetInnerHTML={{ __html: poem.excerpt.replace(/\n/g, "<br>") }} />
+        <div className={`${styles['poem-excerpt']} poem-excerpt ${isImmersive ? styles['immersive-excerpt'] : ''}`} style={isImmersive ? { fontSize: "15px", flexShrink: 0 } : { fontSize: "15px" }} dangerouslySetInnerHTML={{ __html: ((isImmersive && poem.fullText) ? poem.fullText : poem.excerpt).replace(/\n/g, "<br>") }} />
+        
+        {isImmersive && <AtmosphericVibe poem={poem} config={poem.vibeConfig} />}
 
-        <div className={`${styles['card-footer']} card-footer`}>
+        <div className={`${styles['card-footer']} card-footer`} style={isImmersive ? { marginTop: 0 } : {}}>
           <div className={styles['author-info']}>
             {hideAuthor ? (
               <div style={{ fontSize: "11px", color: "var(--text-tertiary)", whiteSpace: "nowrap" }}>
