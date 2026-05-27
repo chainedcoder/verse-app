@@ -108,7 +108,7 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
       <Card
         as="article"
         clickable
-        className={`${styles['poem-card-featured']} ${isMine ? styles['poem-card--mine'] : ""}`}
+        className={`${styles['poem-card-featured']} poem-card-featured ${isMine ? styles['poem-card--mine'] : ""}`}
         style={{ marginBottom: "16px" }}
         aria-label={`Poem: ${poem.title}`}
       >
@@ -132,7 +132,7 @@ export default function PoemCard({ poem, initialLiked = false, onRemove = null, 
           )}
         </div>
         <h2 className={`serif ${styles['poem-card__title--clamp']} poem-card__title--clamp`} style={{ fontSize: "22px", marginBottom: "12px", letterSpacing: "-0.3px" }} title={poem.title}>{poem.title}</h2>
-        <div className={styles['poem-excerpt']} style={{ fontSize: "15px" }} dangerouslySetInnerHTML={{ __html: poem.excerpt.replace(/\n/g, "<br>") }} />
+        <div className={`${styles['poem-excerpt']} poem-excerpt`} style={{ fontSize: "15px" }} dangerouslySetInnerHTML={{ __html: poem.excerpt.replace(/\n/g, "<br>") }} />
         
         <div className={`${styles['card-footer']} card-footer`}>
           <div className={styles['author-info']}>

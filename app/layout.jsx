@@ -90,7 +90,7 @@ export default function RootLayout({ children }) {
             <div id="app">
               <Nav />
               <ThemePanel />
-              <main id="main-content" className="page-enter">
+              <main id="main-content" className="page-enter" role="main">
                 <ErrorBoundary>
                   {children}
                 </ErrorBoundary>

@@ -41,7 +41,7 @@ export function ToastProvider({ children }) {
       {children}
       
       {/* Toast Container */}
-      <div style={{
+      <div aria-live="polite" style={{
         position: "fixed",
         bottom: "24px",
         left: "50%",
@@ -53,7 +53,7 @@ export function ToastProvider({ children }) {
         pointerEvents: "none"
       }}>
         {toasts.map(toast => (
-          <div key={toast.id} style={{
+          <div key={toast.id} role="alert" style={{
             background: "var(--bg-card)",
             color: "var(--text-primary)",
             padding: "12px 20px",

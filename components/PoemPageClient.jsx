@@ -382,7 +382,7 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
       </div>
       
       {toastMessage && (
-        <div style={{ 
+        <div role="alert" aria-live="polite" style={{ 
           position: "fixed", bottom: "30px", left: "50%", transform: "translateX(-50%)", 
           backgroundColor: "var(--bg-card)", color: "var(--text-primary)", 
           padding: "12px 24px", borderRadius: "100px", boxShadow: "0 10px 30px rgba(0,0,0,0.15)",

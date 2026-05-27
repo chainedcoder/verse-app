@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 import Link from "next/link"
+import Card from "@/components/Card"
 
 export const metadata = {
   title: "Collections | Verse",
@@ -35,7 +36,7 @@ export default async function Collections() {
         <div className="collections-grid">
           {collections.map(collection => (
             <Link href={`/collections/${collection.id}`} key={collection.id} style={{ display: "block", textDecoration: "none", color: "inherit" }}>
-              <div className={`card${session?.user?.id === collection.authorId ? " poem-card--mine" : ""}`} style={{ padding: "24px", height: "100%", display: "flex", flexDirection: "column", position: "relative" }}>
+              <Card isMine={session?.user?.id === collection.authorId} style={{ padding: "24px", height: "100%", display: "flex", flexDirection: "column" }}>
                 <h3 className="serif" style={{ fontSize: "22px", marginBottom: "8px" }}>{collection.name}</h3>
                 <p style={{ color: "var(--text-secondary)", marginBottom: "16px", flexGrow: 1, overflow: "hidden", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical" }}>
                   {collection.description || "No description provided."}
@@ -49,7 +50,7 @@ export default async function Collections() {
                   </span>
                   <span>{collection._count.poems} {collection._count.poems === 1 ? "poem" : "poems"}</span>
                 </div>
-              </div>
+              </Card>
             </Link>
           ))}
         </div>

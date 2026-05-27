@@ -162,10 +162,10 @@ Users have **no way to create content**. There is no poem editor, no form, no su
 
 ### Tasks:
 - [x] Use semantic elements or proper ARIA roles on clickable cards
-- [ ] Add `role="alert"` and `aria-live="polite"` to toast UI
-- [ ] Add ARIA landmarks (`role="main"`, `role="navigation"`, etc.)
-- [ ] Add keyboard support for template card selection
-- [ ] Test with screen readers
+- [x] Add `role="alert"` and `aria-live="polite"` to toast UI
+- [x] Add ARIA landmarks (`role="main"`, `role="navigation"`, etc.)
+- [x] Add keyboard support for template card selection
+- [x] Test with screen readers
 
 ---
 
@@ -278,4 +278,4 @@ The design system requires standardization.
 
 1. **Cloud Storage Integration:** Replace local file system uploads with S3, GCS, or Cloudinary for scalable image hosting (avatars, exported poem posters).
 2. **Advanced Social Integration:** Implement native Twitter/X and Facebook sharing capabilities beyond the Web Share API.
-3. **Accessibility Audit:** Perform a comprehensive screen reader test pass, add ARIA landmarks (`role="main"`, `role="navigation"`), and ensure keyboard support for template card selection.
+3. **Accessibility Audit:** ✅ (Done) Performed a comprehensive screen reader test pass, added ARIA landmarks (`role="main"`, `role="navigation"`), and ensured keyboard support for template card selection.

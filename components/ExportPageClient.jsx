@@ -328,7 +328,7 @@ export default function ExportPageClient({ poem, author }) {
           const previewColors = isSelected ? currentColors : templateColors[tmpl.id][0]
           
           return (
-            <div key={tmpl.id} className={`template-card ${isSelected ? "selected" : ""}`} onClick={() => handleTemplateSelect(tmpl.id)} style={{ flex: "0 0 280px", scrollSnapAlign: "start" }}>
+            <div key={tmpl.id} className={`template-card ${isSelected ? "selected" : ""}`} onClick={() => handleTemplateSelect(tmpl.id)} tabIndex={0} role="button" aria-pressed={isSelected} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleTemplateSelect(tmpl.id); } }} style={{ flex: "0 0 280px", scrollSnapAlign: "start" }}>
               {tmpl.content(previewColors)}
               <div className="template-info">
                 <div>

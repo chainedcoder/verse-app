@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/prisma"
 import Link from "next/link"
+import Avatar from "@/components/Avatar"
+import Card from "@/components/Card"
+import styles from "./authors.module.css"
 
 export const metadata = {
   title: "Authors | Verse",
@@ -33,13 +36,13 @@ export default async function Authors() {
       <div className="author-list-grid">
         {authorsList.map(author => (
           <Link key={author.id} href={`/author/${author.id}`} style={{ textDecoration: "none", color: "inherit" }}>
-            <div className="card card-clickable" style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              <div className={`avatar avatar-lg ${author.image}`}>{author.initials}</div>
+            <Card clickable style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              <Avatar image={author.image} name={author.name} size="lg" />
               <div>
-                <div style={{ fontSize: "16px", fontWeight: "500" }}>{author.name}</div>
+                <div className={`${styles['author-name']} author-name`}>{author.name}</div>
                 <div style={{ fontSize: "12px", color: "var(--text-tertiary)", marginTop: "4px" }}>{author.poemsCount} poems</div>
               </div>
-            </div>
+            </Card>
           </Link>
         ))}
       </div>

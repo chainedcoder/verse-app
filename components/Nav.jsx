@@ -110,7 +110,7 @@ export default function Nav() {
 
   return (
     <>
-      <nav className={styles.navbar} id="navbar">
+      <nav className={styles.navbar} id="navbar" role="navigation">
         <Link className={`${styles.navbarLogo} navbar-logo`} href="/" onClick={closeDrawer}>verse</Link>
 
         <div className={styles.navbarLinks} id="nav-links">
