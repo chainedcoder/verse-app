@@ -15,6 +15,22 @@ jest.mock("@/app/actions/profile", () => ({
   updateAccountSettings: (...args) => mockUpdateAccountSettings(...args)
 }))
 
+jest.mock("@/app/actions/2fa", () => ({
+  setupTOTP: jest.fn(),
+  verifyTOTP: jest.fn(),
+  disable2FA: jest.fn(),
+  setupEmailOTP: jest.fn()
+}))
+
+jest.mock("@/app/actions/webauthn", () => ({
+  getRegistrationOptions: jest.fn(),
+  verifyRegistration: jest.fn()
+}))
+
+jest.mock("@simplewebauthn/browser", () => ({
+  startRegistration: jest.fn()
+}))
+
 jest.mock("next-auth/react", () => ({
   signIn: jest.fn()
 }))
@@ -34,7 +50,10 @@ describe("AccountSettingsClient", () => {
     render(<AccountSettingsClient user={mockUser} />)
     expect(screen.getByLabelText(/Private Account/i)).not.toBeChecked()
     expect(screen.getByLabelText(/Email Notifications/i)).toBeChecked()
-    expect(screen.getByLabelText(/Two-Factor Authentication/i)).not.toBeChecked()
+    // 2FA is not enabled initially in mockUser
+    expect(screen.getByText(/Setup Authenticator App/i)).toBeInTheDocument()
+    expect(screen.getByText(/Setup Passkey/i)).toBeInTheDocument()
+    expect(screen.getByText(/Setup Email OTP/i)).toBeInTheDocument()
   })
 
   it("updates state when toggles are clicked", () => {

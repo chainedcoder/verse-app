@@ -19,11 +19,13 @@ export default function Offline() {
           It looks like you&apos;ve lost your connection. Check your network and try again.
         </p>
         <button
+          id="retry-btn"
           className="btn btn-primary btn-md"
           onClick={() => window.location.reload()}
         >
           <i className="ti ti-refresh" aria-hidden="true" /> Retry
         </button>
+        <script dangerouslySetInnerHTML={{ __html: `document.getElementById('retry-btn').onclick = function() { window.location.reload(); }` }} />
       </div>
     </div>
   )

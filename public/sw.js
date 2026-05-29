@@ -1,7 +1,7 @@
 // Verse — Service Worker
 // Caches the app shell for offline support
 
-const CACHE_NAME = "verse-v1"
+const CACHE_NAME = "verse-v2"
 const APP_SHELL = [
   "/",
   "/offline",
@@ -36,11 +36,14 @@ self.addEventListener("fetch", (event) => {
   const { request } = event
   const url = new URL(request.url)
 
-  // Skip non-GET and cross-origin requests
-  if (request.method !== "GET" || url.origin !== self.location.origin) return
+  // Skip non-GET requests
+  if (request.method !== "GET") return
 
-  // Skip API routes and Next.js internal routes
-  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/_next/")) return
+  // Skip API routes
+  if (url.pathname.startsWith("/api/")) return
+
+  // Skip Next.js hot module reloading and data requests
+  if (url.pathname.startsWith("/_next/webpack-hmr") || url.pathname.startsWith("/_next/data/")) return
 
   if (request.mode === "navigate") {
     // Network-first for page navigation
@@ -53,12 +56,15 @@ self.addEventListener("fetch", (event) => {
       })
     )
   } else {
-    // Stale-while-revalidate for assets (fonts, icons, images)
+    // Stale-while-revalidate for assets (fonts, icons, images, CSS, JS)
     event.respondWith(
       caches.open(CACHE_NAME).then(async (cache) => {
         const cached = await cache.match(request)
         const networkFetch = fetch(request).then((response) => {
-          if (response.ok) cache.put(request, response.clone())
+          // Store a copy in cache if request is successful (or opaque for cross-origin)
+          if (response.ok || response.type === 'opaque') {
+            cache.put(request, response.clone())
+          }
           return response
         }).catch(() => cached)
         return cached || networkFetch

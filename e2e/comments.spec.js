@@ -47,11 +47,11 @@ test.describe('Comments Flow', () => {
     page.on('console', msg => console.log('BROWSER CONSOLE:', msg.text()));
 
     // Check that comment form is visible
-    await expect(page.locator('textarea[placeholder="Add a comment..."]')).toBeVisible();
+    await expect(page.locator('textarea[placeholder="Add a comment..."]').first()).toBeVisible();
 
     // Post a comment
-    await page.fill('textarea[placeholder="Add a comment..."]', commentText);
-    await page.click('button:has-text("Post")');
+    await page.locator('textarea[placeholder="Add a comment..."]').first().fill(commentText);
+    await page.locator('button:has-text("Post")').first().click();
 
     // Wait for the comment to appear (can take longer if db is slow)
     const commentCard = page.locator('.comment-card', { hasText: commentText });
