@@ -1,0 +1,43 @@
+<journey name="Verse Feed Browsing">
+  <description>
+    Test the core feed browsing flow: launch the app, verify the feed screen loads with bottom navigation, check tag filter strip, and try navigating to other tabs.
+  </description>
+  <actions>
+    <action>
+      Verify that the app is showing the Discover tab with "All" and "Following" tag chips visible
+    </action>
+    <action>
+      Verify that the bottom navigation bar is visible with "Discover", "Collections", and "Profile" tabs
+    </action>
+    <action>
+      Tap the "Following" tag chip
+    </action>
+    <action>
+      Tap the "All" tag chip
+    </action>
+    <action>
+      Tap the "Collections" tab in the bottom navigation
+    </action>
+    <action>
+      Verify that a Collections screen is shown
+    </action>
+    <action>
+      Tap the "Profile" tab in the bottom navigation
+    </action>
+    <action>
+      Verify that a Profile screen is shown with a "Log in" button
+    </action>
+    <action>
+      Tap the "Log in" button
+    </action>
+    <action>
+      Verify that a login screen is shown with "Email" and "Password" fields and a "Log in" button
+    </action>
+    <action>
+      Tap the "Discover" tab in the bottom navigation
+    </action>
+    <action>
+      Verify that the app returns to the feed screen with the tag chips visible
+    </action>
+  </actions>
+</journey>

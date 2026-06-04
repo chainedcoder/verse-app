@@ -1,9 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { getTheme, getAccent } from "@/lib/theme"
+import { toJpeg, toSvg } from "html-to-image"
+import { jsPDF } from "jspdf"
+import { ExportNode, SIZE_PRESETS } from "./ExportEngine"
 
 const accentDefs = {
   indigo: { h: 235, s: 45 },
@@ -25,9 +28,15 @@ export default function ExportPageClient({ poem, author }) {
   const initialTemplate = searchParams.get("template") || "siteview"
   const [selectedTemplate, setSelectedTemplate] = useState(initialTemplate)
   const [colorIndex, setColorIndex] = useState(0)
-  const [previewImage, setPreviewImage] = useState(null)
+  
+  const [selectedSizeId, setSelectedSizeId] = useState(initialTemplate === "story" ? "story" : "portrait")
+  const defaultSize = SIZE_PRESETS.find(s => s.id === (initialTemplate === "story" ? "story" : "portrait"))
+  const [customWidth, setCustomWidth] = useState(defaultSize.w.toString())
 
-  // Force re-render when theme changes so we pick up the new siteview colors
+  const [isExporting, setIsExporting] = useState(false)
+  const [previewImage, setPreviewImage] = useState(null)
+  
+  const exportContainerRef = useRef(null)
   const [tick, setTick] = useState(0)
   
   useEffect(() => {
@@ -78,175 +87,101 @@ export default function ExportPageClient({ poem, author }) {
   }
 
   const currentColors = templateColors[selectedTemplate][colorIndex] || templateColors[selectedTemplate][0]
+  
+  // If custom size is empty or invalid, fallback to something reasonable
+  const numericWidth = parseInt(customWidth, 10) || 1080
+  const sizePreset = SIZE_PRESETS.find(s => s.id === selectedSizeId)
+  
+  // Keep height dynamic or enforce a proportion if needed?
+  // Let's keep height dynamic by passing null, except for 'story' maybe we want a fixed minHeight.
+  // Actually, 'story' has fixed aspect ratio 9:16. So we can calculate height based on width.
+  let numericHeight = null;
+  if (selectedTemplate === "story" || selectedSizeId === "story" || selectedSizeId === "mobile") {
+    numericHeight = Math.round(numericWidth * (16 / 9))
+  } else if (selectedSizeId === "square") {
+    numericHeight = numericWidth;
+  } else if (selectedSizeId === "portrait") {
+    numericHeight = Math.round(numericWidth * (5 / 4))
+  } else if (selectedSizeId === "tablet") {
+    numericHeight = Math.round(numericWidth * (4 / 3))
+  }
 
   const handleTemplateSelect = (tmpl) => {
     if (tmpl === selectedTemplate) return
     setSelectedTemplate(tmpl)
     setColorIndex(0)
+    if (tmpl === "story") {
+      setSelectedSizeId("story")
+      setCustomWidth(SIZE_PRESETS.find(s => s.id === "story").w.toString())
+    }
   }
 
-  const generateCanvas = () => {
-    const canvas = document.createElement("canvas")
-    const ctx = canvas.getContext("2d")
-    const c = currentColors
-
-    const cfg = {
-      w: 1080,
-      h: selectedTemplate === "story" ? 1920 : 1350,
-      bg: c.bg,
-      textColor: c.text,
-      accent: c.accent
+  const handleSizePresetSelect = (presetId) => {
+    setSelectedSizeId(presetId)
+    const preset = SIZE_PRESETS.find(s => s.id === presetId)
+    if (preset) {
+      setCustomWidth(preset.w.toString())
     }
+  }
 
-    canvas.width = cfg.w
-    canvas.height = cfg.h
+  const getExportNode = () => {
+    return exportContainerRef.current
+  }
 
-    ctx.fillStyle = cfg.bg
-    ctx.fillRect(0, 0, cfg.w, cfg.h)
-
-    if (selectedTemplate === "love") {
-      ctx.fillStyle = c.accent
-      ctx.globalAlpha = 0.15
-      ctx.font = "200px serif"
-      ctx.fillText("❧", cfg.w - 260, 220)
-      ctx.globalAlpha = 1.0
+  const handlePreview = async () => {
+    const node = getExportNode()
+    if (!node) return
+    try {
+      const dataUrl = await toJpeg(node, { quality: 0.95, backgroundColor: currentColors.bg, fontEmbedCSS: `
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap');
+` })
+      setPreviewImage(dataUrl)
+    } catch (err) {
+      console.error("Failed to generate preview", err)
     }
+  }
 
-    const padding = 100
-    let y = selectedTemplate === "story" ? 400 : 200
-    const x = selectedTemplate === "story" ? cfg.w / 2 : padding
-
-    function wrapText(context, text, px, py, maxWidth, lineHeight) {
-      const words = text.split(" ")
-      let line = ""
-      let currentY = py
-
-      for (let n = 0; n < words.length; n++) {
-        const testLine = line + words[n] + " "
-        const metrics = context.measureText(testLine)
-        if (metrics.width > maxWidth && n > 0) {
-          context.fillText(line.trim(), px, currentY)
-          line = words[n] + " "
-          currentY += lineHeight
-        } else {
-          line = testLine
-        }
+  const handleDownloadFormat = async (format) => {
+    const node = getExportNode()
+    if (!node) return
+    
+    setIsExporting(true)
+    try {
+      const fileName = `verse-${poem.id}-${selectedTemplate}`
+      
+      if (format === "jpeg") {
+        const dataUrl = await toJpeg(node, { quality: 1, backgroundColor: currentColors.bg, fontEmbedCSS: `
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap');
+` })
+        const a = document.createElement("a")
+        a.href = dataUrl
+        a.download = `${fileName}.jpg`
+        a.click()
+      } else if (format === "svg") {
+        const dataUrl = await toSvg(node, { backgroundColor: currentColors.bg, fontEmbedCSS: `
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap');
+` })
+        const a = document.createElement("a")
+        a.href = dataUrl
+        a.download = `${fileName}.svg`
+        a.click()
+      } else if (format === "pdf") {
+        const dataUrl = await toJpeg(node, { quality: 1, backgroundColor: currentColors.bg, fontEmbedCSS: `
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap');
+` })
+        const pdf = new jsPDF({
+          orientation: numericWidth > (numericHeight || numericWidth) ? "landscape" : "portrait",
+          unit: "px",
+          format: [numericWidth, numericHeight || numericWidth]
+        })
+        pdf.addImage(dataUrl, "JPEG", 0, 0, numericWidth, numericHeight || numericWidth)
+        pdf.save(`${fileName}.pdf`)
       }
-      context.fillText(line.trim(), px, currentY)
-      return currentY
+    } catch (err) {
+      console.error("Export failed", err)
+    } finally {
+      setIsExporting(false)
     }
-
-    if (selectedTemplate === "siteview") {
-      ctx.fillStyle = cfg.accent
-      const borderStartY = y - 10
-      ctx.textAlign = "left"
-      ctx.fillStyle = cfg.textColor
-      ctx.font = "bold 42px Playfair Display, serif"
-      const maxTitleWidth = cfg.w - (padding * 2)
-      y = wrapText(ctx, poem.title, padding, y, maxTitleWidth, 64)
-      y += 100
-
-      ctx.fillStyle = cfg.textColor
-      ctx.font = "italic 20px Playfair Display, serif"
-      const poemBorderStartY = y - 50
-      
-      const lines = poem.fullText.split("\n")
-      lines.forEach(line => {
-        if (line.trim() === "") y += 30
-        else {
-          ctx.fillText(line, padding + 30, y)
-          y += 50
-        }
-      })
-
-      ctx.fillStyle = cfg.accent
-      ctx.fillRect(padding - 20, poemBorderStartY, 5, y - poemBorderStartY - 20)
-
-      y += 40
-      ctx.fillStyle = cfg.textColor
-      ctx.globalAlpha = 0.6
-      ctx.font = "24px Inter, sans-serif"
-      ctx.fillText(`— ${author.name}`, padding, y)
-      
-      return canvas
-    }
-
-    ctx.textAlign = selectedTemplate === "story" ? "center" : "left"
-    const maxTitleWidth = cfg.w - (padding * 2)
-    
-    if (selectedTemplate === "love") {
-      ctx.fillStyle = cfg.accent
-      ctx.font = "bold 72px Playfair Display, serif"
-      y = wrapText(ctx, poem.title.toUpperCase(), padding, y, maxTitleWidth, 80)
-      y += 80
-    } else {
-      ctx.fillStyle = cfg.textColor
-      ctx.font = selectedTemplate === "story" ? "italic 46px Playfair Display, serif" : "bold 52px Playfair Display, serif"
-      const lineHeight = selectedTemplate === "story" ? 50 : 64
-      y = wrapText(ctx, poem.title, x, y, maxTitleWidth, lineHeight)
-      y += selectedTemplate === "story" ? 80 : 100
-    }
-
-    ctx.fillStyle = cfg.textColor
-    ctx.font = `italic ${selectedTemplate === "story" ? "32" : "30"}px Playfair Display, serif`
-    ctx.textAlign = selectedTemplate === "story" ? "center" : "left"
-
-    if (selectedTemplate === "minimal" || selectedTemplate === "dark") {
-      const borderStartY = y - 10
-      ctx.fillStyle = cfg.textColor
-      const lines = poem.fullText.split("\n")
-
-      lines.forEach(line => {
-        if (line.trim() === "") y += 30
-        else {
-          ctx.fillText(line, padding + 10, y)
-          y += 50
-        }
-      })
-      ctx.fillStyle = cfg.accent
-      ctx.fillRect(padding - 20, borderStartY, 4, y - borderStartY - 20)
-    } else {
-      const lines = poem.fullText.split("\n")
-      lines.forEach(line => {
-        if (line.trim() === "") y += 30
-        else {
-          ctx.fillText(line, x, y)
-          y += 50
-        }
-      })
-    }
-
-    y += 40
-    ctx.fillStyle = cfg.textColor
-    ctx.globalAlpha = 0.6
-    ctx.font = "24px Inter, sans-serif"
-    ctx.fillText(`— ${author.name}`, x, y)
-    
-    if (selectedTemplate === "story") {
-      ctx.fillText("verse.app", cfg.w / 2, cfg.h - 100)
-    }
-
-    return canvas
-  }
-
-  const handlePreview = () => {
-    const canvas = generateCanvas()
-    const url = canvas.toDataURL()
-    setPreviewImage(url)
-  }
-
-  const handleDownload = () => {
-    const canvas = generateCanvas()
-    canvas.toBlob((blob) => {
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `verse-${poem.id}-${selectedTemplate}.png`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-    }, "image/png")
   }
 
   return (
@@ -262,7 +197,7 @@ export default function ExportPageClient({ poem, author }) {
           Choose a layout for "{poem.title}"
         </h2>
         <p style={{ fontSize: "13px", color: "var(--text-secondary)", margin: "0" }}>
-          Pick a style to download or share
+          Pick a style and export format to download
         </p>
       </div>
 
@@ -276,7 +211,6 @@ export default function ExportPageClient({ poem, author }) {
         WebkitOverflowScrolling: "touch"
       }}>
         
-        {/* Template List */}
         {[
           { id: "siteview", title: "Site view", desc: "As seen on Verse", content: (c) => (
             <div className="template-preview template-preview-siteview" style={{ background: c.bg, color: c.text }}>
@@ -356,13 +290,63 @@ export default function ExportPageClient({ poem, author }) {
 
       </div>
 
-      <div className="export-actions" style={{ position: "relative", display: "flex", justifyContent: "center", gap: "10px", marginTop: "24px" }}>
+      <div style={{ marginTop: "24px", padding: "16px", background: "var(--bg-card)", borderRadius: "12px", border: "1px solid var(--border-color)" }}>
+        <h3 style={{ fontSize: "14px", marginBottom: "12px", fontFamily: "'Inter', sans-serif" }}>Dimensions / Viewport (px)</h3>
+        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "12px" }}>
+          {SIZE_PRESETS.map(preset => (
+            <button 
+              key={preset.id}
+              onClick={() => handleSizePresetSelect(preset.id)}
+              className={`btn ${selectedSizeId === preset.id ? "btn-primary" : "btn-ghost"}`}
+              style={{ fontSize: "13px", padding: "6px 12px", minHeight: "32px" }}
+            >
+              {preset.name}
+            </button>
+          ))}
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <label style={{ fontSize: "13px", color: "var(--text-secondary)" }}>Width:</label>
+          <input 
+            type="number" 
+            value={customWidth} 
+            onChange={(e) => {
+              setCustomWidth(e.target.value)
+              setSelectedSizeId("custom")
+            }}
+            className="input-field"
+            style={{ width: "100px", padding: "6px 8px", fontSize: "13px", minHeight: "32px" }}
+          />
+          <span style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>px</span>
+        </div>
+      </div>
+
+      <div className="export-actions" style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "10px", marginTop: "24px" }}>
         <button className="btn btn-ghost" onClick={handlePreview} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
           <i className="ti ti-eye" style={{ fontSize: "14px" }} aria-hidden="true"></i> Preview
         </button>
-        <button className="btn btn-primary" onClick={handleDownload} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <i className="ti ti-download" style={{ fontSize: "14px" }} aria-hidden="true"></i> Download
+        <button className="btn btn-primary" onClick={() => handleDownloadFormat("jpeg")} disabled={isExporting} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <i className="ti ti-photo" style={{ fontSize: "14px" }} aria-hidden="true"></i> JPEG
         </button>
+        <button className="btn btn-primary" onClick={() => handleDownloadFormat("svg")} disabled={isExporting} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <i className="ti ti-vector" style={{ fontSize: "14px" }} aria-hidden="true"></i> SVG
+        </button>
+        <button className="btn btn-secondary" onClick={() => handleDownloadFormat("pdf")} disabled={isExporting} style={{ display: "flex", alignItems: "center", gap: "6px", backgroundColor: "var(--bg-elevated)" }}>
+          <i className="ti ti-file-text" style={{ fontSize: "14px" }} aria-hidden="true"></i> PDF
+        </button>
+      </div>
+
+      {/* Hidden container for rendering exact DOM to image */}
+      <div style={{ position: "fixed", top: "-10000px", left: "-10000px", zIndex: -1 }}>
+        <div ref={exportContainerRef}>
+          <ExportNode 
+            poem={poem} 
+            author={author} 
+            template={selectedTemplate} 
+            colors={currentColors} 
+            width={numericWidth}
+            height={numericHeight}
+          />
+        </div>
       </div>
 
       {previewImage && (
@@ -371,9 +355,9 @@ export default function ExportPageClient({ poem, author }) {
           onClick={() => setPreviewImage(null)} 
           style={{ 
             position: "fixed", top: 0, left: 0, right: 0, bottom: 0, 
-            backgroundColor: "rgba(0,0,0,0.8)", display: "flex", 
+            backgroundColor: "rgba(0,0,0,0.85)", display: "flex", 
             justifyContent: "center", alignItems: "center", 
-            zIndex: 1000, padding: "40px", cursor: "zoom-out" 
+            zIndex: 10001, padding: "40px", cursor: "zoom-out" 
           }}
         >
           <div style={{ position: "relative", maxHeight: "100%", maxWidth: "100%", display: "flex", justifyContent: "center", alignItems: "center" }}>
