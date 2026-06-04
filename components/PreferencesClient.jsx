@@ -64,6 +64,7 @@ export default function PreferencesClient({ user }) {
         </div>
       </div>
 
+      
       <div className="form-group" style={{ padding: "16px", backgroundColor: "var(--bg-secondary)", borderRadius: "8px", border: "1px solid var(--border-secondary)" }}>
         <label style={{ display: "flex", alignItems: "flex-start", gap: "12px", cursor: "pointer" }}>
           <input 
@@ -83,6 +84,43 @@ export default function PreferencesClient({ user }) {
           </div>
         </label>
       </div>
+
+      <div className="form-group" style={{ padding: "16px", backgroundColor: "var(--bg-secondary)", borderRadius: "8px", border: "1px solid var(--border-secondary)" }}>
+        <h3 style={{ fontSize: "15px", marginBottom: "16px", display: "flex", alignItems: "center", gap: "8px" }}>
+          <i className="ti ti-photo"></i> Export Preferences
+        </h3>
+        
+        <div style={{ marginBottom: "12px", fontSize: "13px", color: "var(--text-secondary)" }}>Watermark Position</div>
+        <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "16px" }}>
+          {["none", "bottom-left", "bottom-right"].map((pos) => (
+            <label key={pos} style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", padding: "8px 12px", border: "1px solid var(--border)", borderRadius: "8px", backgroundColor: "var(--bg-card)" }}>
+              <input 
+                type="radio" 
+                name="exportWatermark" 
+                value={pos} 
+                defaultChecked={
+                  (user.exportPreferences?.watermark === pos) || 
+                  (!user.exportPreferences?.watermark && pos === "bottom-right")
+                }
+                style={{ accentColor: "var(--primary)" }}
+              />
+              <span style={{ textTransform: "capitalize", fontSize: "13px" }}>{pos.replace('-', ' ')}</span>
+            </label>
+          ))}
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <label style={{ fontSize: "13px", color: "var(--text-secondary)" }}>Margin (px):</label>
+          <input 
+            type="number" 
+            name="exportMargin"
+            defaultValue={user.exportPreferences?.margin || 20}
+            className="input-field"
+            style={{ width: "80px", padding: "6px 8px", fontSize: "13px", backgroundColor: "var(--bg-base)" }}
+          />
+        </div>
+      </div>
+
 
       <div className="form-actions" style={{ display: "flex", justifyContent: "flex-end", marginTop: "8px" }}>
         <button 

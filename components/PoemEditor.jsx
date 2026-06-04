@@ -163,7 +163,8 @@ export default function PoemEditor({ initialPoem = null, allTags = [] }) {
         )}
       </div>
 
-      <div className="form-group" style={{ display: "flex", gap: "16px", marginBottom: "24px" }}>
+      
+      <div className="form-group" style={{ display: "flex", gap: "16px", marginBottom: "24px", flexWrap: "wrap" }}>
         <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
           <input 
             type="checkbox" 
@@ -174,6 +175,21 @@ export default function PoemEditor({ initialPoem = null, allTags = [] }) {
           <span style={{ fontSize: "14px" }}>Keep Private (Only you can see this)</span>
         </label>
       </div>
+
+      <div className="form-group" style={{ marginBottom: "24px" }}>
+        <label htmlFor="customAuthorName" className="form-label">
+          Original Author <span className="form-hint">(Optional - If you are posting someone else's work)</span>
+        </label>
+        <input 
+          type="text" 
+          id="customAuthorName" 
+          name="customAuthorName" 
+          className="input" 
+          placeholder="Leave blank to use your name..."
+          defaultValue={initialPoem?.customAuthorName || ""}
+        />
+      </div>
+
 
       <div className="form-group" style={{ marginBottom: "24px" }}>
         <label htmlFor="images" className="form-label">

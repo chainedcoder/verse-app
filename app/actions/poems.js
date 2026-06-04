@@ -18,6 +18,7 @@ export async function createPoem(formData) {
   const tagsString = formData.get("tags")?.toString().trim() || ""
   const status = formData.get("status")?.toString() === "DRAFT" ? "DRAFT" : "PUBLISHED"
   const isPrivate = formData.get("isPrivate") === "true"
+  const customAuthorName = formData.get("customAuthorName")?.toString().trim() || null
   let vibeConfig = []
   try {
     vibeConfig = JSON.parse(formData.get("vibeConfig")?.toString() || "[]")
@@ -56,6 +57,7 @@ export async function createPoem(formData) {
       status,
       isPrivate,
       vibeConfig,
+      customAuthorName,
       tags: {
         connectOrCreate: tagsArray.map(tag => ({
           where: { name: tag },
@@ -89,6 +91,7 @@ export async function updatePoem(poemId, formData) {
   const tagsString = formData.get("tags")?.toString().trim() || ""
   const status = formData.get("status")?.toString() === "DRAFT" ? "DRAFT" : "PUBLISHED"
   const isPrivate = formData.get("isPrivate") === "true"
+  const customAuthorName = formData.get("customAuthorName")?.toString().trim() || null
   let vibeConfig = []
   try {
     vibeConfig = JSON.parse(formData.get("vibeConfig")?.toString() || "[]")
@@ -126,6 +129,7 @@ export async function updatePoem(poemId, formData) {
     status,
     isPrivate,
     vibeConfig,
+    customAuthorName,
     tags: {
       set: [], // clear existing tags
       connectOrCreate: tagsArray.map(tag => ({

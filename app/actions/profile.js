@@ -110,13 +110,24 @@ export async function updatePreferences(formData) {
 
   const theme = formData.get("theme")
   const immersiveMode = formData.get("immersiveMode") === "true"
+  let exportPreferences = undefined
+  try {
+    const watermark = formData.get("exportWatermark")
+    const margin = parseInt(formData.get("exportMargin"), 10) || 20
+    if (watermark) {
+      exportPreferences = { watermark, margin }
+    }
+  } catch (e) {
+    console.error("Failed to parse export preferences", e)
+  }
 
   try {
     await prisma.user.update({
       where: { id: session.user.id },
       data: {
         theme,
-        immersiveMode
+        immersiveMode,
+        ...(exportPreferences !== undefined && { exportPreferences })
       }
     })
 

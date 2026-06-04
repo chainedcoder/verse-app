@@ -8,18 +8,21 @@ jest.mock('@/lib/theme', () => ({
   getAccent: jest.fn(() => 'indigo'),
 }))
 
-// Mock canvas API used in generateCanvas
-HTMLCanvasElement.prototype.getContext = jest.fn(() => ({
-  fillStyle: '',
-  globalAlpha: 1,
-  font: '',
-  textAlign: '',
-  fillRect: jest.fn(),
-  fillText: jest.fn(),
-  measureText: jest.fn(() => ({ width: 0 })),
+// Mock html-to-image
+jest.mock('html-to-image', () => ({
+  toJpeg: jest.fn(() => Promise.resolve('data:image/jpeg;base64,mock')),
+  toSvg: jest.fn(() => Promise.resolve('data:image/svg+xml;base64,mock')),
 }))
-HTMLCanvasElement.prototype.toDataURL = jest.fn(() => 'data:image/png;base64,mock')
-HTMLCanvasElement.prototype.toBlob = jest.fn((cb) => cb(new Blob(['mock'])))
+
+// Mock jspdf
+jest.mock('jspdf', () => {
+  return {
+    jsPDF: jest.fn().mockImplementation(() => ({
+      addImage: jest.fn(),
+      save: jest.fn(),
+    })),
+  }
+})
 
 // Mock URL APIs used in download
 global.URL.createObjectURL = jest.fn(() => 'blob:mock')
@@ -50,7 +53,7 @@ describe('ExportModal', () => {
   it('renders the modal with the poem title in the header', () => {
     render(<ExportModal {...defaultProps} />)
     expect(screen.getByText('Download poem')).toBeInTheDocument()
-    expect(screen.getByText('Choose a style to export as an image')).toBeInTheDocument()
+    expect(screen.getByText('Choose a style and size to export')).toBeInTheDocument()
   })
 
   it('renders all 5 template cards', () => {
@@ -62,10 +65,12 @@ describe('ExportModal', () => {
     expect(screen.getByText('Story format')).toBeInTheDocument()
   })
 
-  it('renders Preview and Download action buttons', () => {
+  it('renders Preview and format buttons', () => {
     render(<ExportModal {...defaultProps} />)
     expect(screen.getByRole('button', { name: /Preview/i })).toBeInTheDocument()
-    expect(screen.getByTestId('export-modal-download')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /JPEG/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /SVG/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /PDF/i })).toBeInTheDocument()
   })
 
   it('calls onClose when the close button is clicked', async () => {
@@ -130,14 +135,14 @@ describe('ExportModal', () => {
     })
 
     // Preview image should appear
-    const img = screen.getByAltText('Poem preview')
+    const img = await screen.findByAltText('Poem preview')
     expect(img).toBeInTheDocument()
-    expect(img.src).toContain('data:image/png')
+    expect(img.src).toContain('data:image/jpeg')
   })
 
-  it('triggers download (blob creation) when Download button is clicked', async () => {
+  it('triggers download when format buttons are clicked', async () => {
     render(<ExportModal {...defaultProps} />)
-    const downloadBtn = screen.getByTestId('export-modal-download')
+    const jpegBtn = screen.getByRole('button', { name: /JPEG/i })
 
     // Spy on document.createElement so that the <a> click does not cause errors
     const origCreateElement = document.createElement.bind(document)
@@ -150,10 +155,11 @@ describe('ExportModal', () => {
     })
 
     await act(async () => {
-      fireEvent.click(downloadBtn)
+      fireEvent.click(jpegBtn)
     })
 
-    expect(HTMLCanvasElement.prototype.toBlob).toHaveBeenCalled()
+    const { toJpeg } = require('html-to-image')
+    expect(toJpeg).toHaveBeenCalled()
 
     createElSpy.mockRestore()
   })

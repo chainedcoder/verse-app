@@ -44,6 +44,7 @@ describe('PoemEditor', () => {
     expect(screen.getByLabelText(/Excerpt/)).toBeInTheDocument()
     expect(screen.getByLabelText('Body')).toBeInTheDocument()
     expect(screen.getByLabelText(/Tags/)).toBeInTheDocument()
+    expect(screen.getByLabelText(/Original Author/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /publish/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /save draft/i })).toBeInTheDocument()
     expect(screen.queryByRole('button', { name: /delete/i })).not.toBeInTheDocument()
@@ -55,12 +56,14 @@ describe('PoemEditor', () => {
       title: 'Existing Title',
       fullText: 'Existing Body',
       isPrivate: true,
+      customAuthorName: 'Old Poet',
       tags: [{ name: 'nature' }, { name: 'love' }]
     }
     render(<PoemEditor initialPoem={mockPoem} />)
     
     expect(screen.getByLabelText('Title')).toHaveValue('Existing Title')
     expect(screen.getByLabelText('Body')).toHaveValue('Existing Body')
+    expect(screen.getByLabelText(/Original Author/)).toHaveValue('Old Poet')
     expect(screen.getByLabelText(/Tags/)).toHaveValue('nature, love')
     expect(screen.getByLabelText(/Keep Private/i)).toBeChecked()
     

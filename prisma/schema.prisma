@@ -15,6 +15,7 @@ model User {
   website       String?
   theme         String          @default("system")
   immersiveMode Boolean         @default(false)
+  exportPreferences Json?
   email         String?         @unique
   emailVerified DateTime?
   password      String?
@@ -96,6 +97,7 @@ model Poem {
   status    String   @default("PUBLISHED")
   isPrivate Boolean  @default(false)
   vibeConfig Json?
+  customAuthorName String?
   authorId  String
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   likes     Like[]

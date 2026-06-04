@@ -28,7 +28,11 @@ jest.mock('react', () => {
 describe('PreferencesClient', () => {
   const mockUser = {
     theme: 'dark',
-    immersiveMode: true
+    immersiveMode: true,
+    exportPreferences: {
+      watermark: 'bottom-left',
+      margin: 30
+    }
   }
 
   beforeEach(() => {
@@ -43,6 +47,9 @@ describe('PreferencesClient', () => {
 
     const immersiveCheckbox = screen.getByLabelText(/Immersive Mode/i)
     expect(immersiveCheckbox).toBeChecked()
+
+    expect(screen.getByLabelText(/Bottom Left/i)).toBeChecked()
+    expect(document.querySelector('input[name="exportMargin"]')).toHaveValue(30)
   })
 
   it('submits updated preferences', async () => {
@@ -52,6 +59,9 @@ describe('PreferencesClient', () => {
     
     fireEvent.click(screen.getByLabelText('light'))
     fireEvent.click(screen.getByLabelText(/Immersive Mode/i)) // uncheck
+    fireEvent.click(screen.getByLabelText(/none/i))
+    const marginInput = document.querySelector('input[name="exportMargin"]')
+    fireEvent.change(marginInput, { target: { value: 10 } })
     
     fireEvent.click(screen.getByRole('button', { name: /save preferences/i }))
     
@@ -62,5 +72,7 @@ describe('PreferencesClient', () => {
     const submittedData = mockUpdatePreferences.mock.calls[0][0]
     expect(submittedData.get('theme')).toBe('light')
     expect(submittedData.get('immersiveMode')).toBe('false')
+    expect(submittedData.get('exportWatermark')).toBe('none')
+    expect(submittedData.get('exportMargin')).toBe('10')
   })
 })
