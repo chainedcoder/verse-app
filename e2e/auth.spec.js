@@ -63,4 +63,12 @@ test.describe('Authentication Flow', () => {
     // We cannot easily test the exact token parsing from console in E2E
     // So we test the frontend behavior.
   });
+
+  test('login page displays social login options', async ({ page }) => {
+    await page.goto('/login');
+    
+    // Verify Google and GitHub buttons are visible
+    await expect(page.getByRole('button', { name: /Sign in with Google/i })).toBeVisible();
+    await expect(page.getByRole('button', { name: /Sign in with GitHub/i })).toBeVisible();
+  });
 });
