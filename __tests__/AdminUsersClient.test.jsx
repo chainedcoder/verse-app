@@ -263,7 +263,7 @@ describe("AdminUsersClient — bulk delete modal", () => {
     fireEvent.click(screen.getByRole("button", { name: /delete selected|delete \d+ user/i }))
     expect(screen.getByRole("dialog")).toBeInTheDocument()
     // Title text appears in the modal header
-    expect(screen.getAllByText(/permanently delete 1 user/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/delete 1 user/i).length).toBeGreaterThan(0)
   })
 
   it("modal pre-fills textarea with username and email", () => {
@@ -281,7 +281,7 @@ describe("AdminUsersClient — bulk delete modal", () => {
     fireEvent.click(screen.getByLabelText(/select alice/i))
     fireEvent.click(screen.getByRole("button", { name: /delete selected|delete \d+ user/i }))
 
-    const confirmBtn = screen.getByRole("button", { name: /permanently delete 1 user/i })
+    const confirmBtn = screen.getByRole("button", { name: /yes, delete/i })
     expect(confirmBtn).toBeDisabled()
 
     fireEvent.change(screen.getByPlaceholderText(/type delete here/i), {
@@ -298,7 +298,7 @@ describe("AdminUsersClient — bulk delete modal", () => {
     fireEvent.change(screen.getByPlaceholderText(/type delete here/i), {
       target: { value: "delete" }
     })
-    const confirmBtn = screen.getByRole("button", { name: /permanently delete 1 user/i })
+    const confirmBtn = screen.getByRole("button", { name: /yes, delete/i })
     expect(confirmBtn).not.toBeDisabled()
   })
 
@@ -322,7 +322,7 @@ describe("AdminUsersClient — bulk delete modal", () => {
     })
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /permanently delete 1 user/i }))
+      fireEvent.click(screen.getByRole("button", { name: /yes, delete/i }))
     })
 
     expect(deleteUsersNuclearBulk).toHaveBeenCalledWith(["u1"])
@@ -339,7 +339,7 @@ describe("AdminUsersClient — bulk delete modal", () => {
     })
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /permanently delete 1 user/i }))
+      fireEvent.click(screen.getByRole("button", { name: /yes, delete/i }))
     })
 
     await waitFor(() => {
@@ -359,7 +359,7 @@ describe("AdminUsersClient — bulk delete modal", () => {
     })
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: /permanently delete 1 user/i }))
+      fireEvent.click(screen.getByRole("button", { name: /yes, delete/i }))
     })
 
     await waitFor(() => {

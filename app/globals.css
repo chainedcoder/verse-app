@@ -3,3 +3,5 @@
 @import "./layout.css";
 @import "./pages.css";
 @import "./admin-table.css";
+
+/* Force CSS HMR 1 */

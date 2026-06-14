@@ -119,61 +119,71 @@ function ConfirmBulkDeleteModal({ users, onConfirm, onCancel, isPending }) {
 
   return (
     <div
-      className="adt-modal-overlay"
+      style={{
+        position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: "rgba(0,0,0,0.6)", zIndex: 1000,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: "20px", backdropFilter: "blur(4px)"
+      }}
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirm-modal-title"
       onClick={(e) => { if (e.target === e.currentTarget) onCancel() }}
     >
-      <div className="adt-modal">
-        <div className="adt-modal-stripe" />
-        <div className="adt-modal-head">
-          <span className="adt-modal-icon">⚠️</span>
-          <h3 id="confirm-modal-title" className="adt-modal-title">
-            Permanently Delete {users.length} User{users.length !== 1 ? "s" : ""}
-          </h3>
-          <p className="adt-modal-sub">
-            This action is <strong>irreversible</strong>. All their poems, comments, likes, and data will be permanently removed.
-          </p>
+      <div className="card" style={{ padding: "32px", maxWidth: "400px", width: "100%", boxShadow: "0 20px 40px rgba(0,0,0,0.3)", textAlign: "center" }}>
+        <div style={{ width: "64px", height: "64px", borderRadius: "50%", backgroundColor: "rgba(239, 68, 68, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px", color: "#ef4444", fontSize: "28px" }}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
         </div>
+        
+        <h3 id="confirm-modal-title" className="serif" style={{ fontSize: "24px", marginBottom: "12px" }}>
+          Delete {users.length} User{users.length !== 1 ? "s" : ""}
+        </h3>
+        
+        <p style={{ color: "var(--text-secondary)", marginBottom: "24px", lineHeight: 1.5 }}>
+          This action is <strong>irreversible</strong>. All their poems, comments, likes, and data will be permanently removed.
+        </p>
 
-        <div className="adt-modal-body">
-          <label className="adt-modal-label">
+        <div style={{ textAlign: "left", marginBottom: "24px" }}>
+          <label style={{ display: "block", fontSize: "13px", color: "var(--text-secondary)", marginBottom: "6px" }}>
             Accounts to be deleted ({users.length}):
           </label>
           <textarea
-            className="adt-modal-textarea"
+            className="input"
             readOnly
             value={userList}
-            rows={Math.min(users.length + 1, 6)}
+            rows={Math.min(users.length + 1, 4)}
             aria-label="List of accounts to be deleted"
+            style={{ width: "100%", resize: "vertical", fontSize: "13px", padding: "10px", backgroundColor: "var(--bg-secondary)" }}
           />
 
-          <label className="adt-modal-label" htmlFor="delete-confirm-input">
+          <label htmlFor="delete-confirm-input" style={{ display: "block", fontSize: "13px", color: "var(--text-secondary)", marginTop: "16px", marginBottom: "6px" }}>
             Type <strong>DELETE</strong> to confirm:
           </label>
           <input
             id="delete-confirm-input"
             type="text"
-            className="adt-modal-input"
+            className="input"
             value={confirmText}
             onChange={(e) => setConfirmText(e.target.value)}
             placeholder="Type DELETE here"
             autoComplete="off"
             autoFocus
+            style={{ width: "100%", padding: "10px", fontSize: "13px", backgroundColor: "var(--bg-secondary)" }}
           />
         </div>
 
-        <div className="adt-modal-foot">
-          <button className="adt-modal-cancel" onClick={onCancel} disabled={isPending}>
+        <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+          <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={isPending}>
             Cancel
           </button>
           <button
-            className="adt-modal-confirm"
+            type="button"
+            className="btn btn-primary"
+            style={{ backgroundColor: "#ef4444", borderColor: "#ef4444", color: "white", opacity: (!isValid || isPending) ? 0.5 : 1 }}
             onClick={() => isValid && onConfirm()}
             disabled={!isValid || isPending}
           >
-            {isPending ? "Deleting…" : `Permanently Delete ${users.length} User${users.length !== 1 ? "s" : ""}`}
+            {isPending ? "Deleting…" : "Yes, delete"}
           </button>
         </div>
       </div>
@@ -520,7 +530,8 @@ export default function AdminUsersClient({ initialUsers, currentUserRole }) {
             onClick={() => { setBulkError(""); setShowBulkModal(true) }}
             disabled={isPending}
           >
-            🗑&nbsp; Delete {selectedIds.size} User{selectedIds.size !== 1 ? "s" : ""}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/></svg>
+            Delete {selectedIds.size} User{selectedIds.size !== 1 ? "s" : ""}
           </button>
         </div>
       )}

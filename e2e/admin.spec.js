@@ -166,7 +166,7 @@ test.describe('Admin Users — Bulk Delete', () => {
     await page.getByRole('button', { name: /delete selected/i }).click()
 
     await expect(page.getByRole('dialog')).toBeVisible()
-    await expect(page.getByText(/permanently delete/i)).toBeVisible()
+    await expect(page.getByText(/yes, delete/i)).toBeVisible()
     await expect(page.getByLabelText(/list of accounts to be deleted/i)).toBeVisible()
   })
 
@@ -180,7 +180,7 @@ test.describe('Admin Users — Bulk Delete', () => {
     await firstCheckbox.check()
     await page.getByRole('button', { name: /delete selected/i }).click()
 
-    const confirmBtn = page.getByRole('button', { name: /permanently delete/i })
+    const confirmBtn = page.getByRole('button', { name: /yes, delete/i })
     await expect(confirmBtn).toBeDisabled()
 
     await page.getByPlaceholder(/type delete here/i).fill('DELETE')
