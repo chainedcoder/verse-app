@@ -218,6 +218,53 @@ export async function deleteUserNuclear(userId) {
   }
 }
 
+export async function deleteUsersNuclearBulk(userIds) {
+  const session = await (await import("@/auth")).auth()
+  if (!(await verifyAdmin())) return { error: "Only administrators can permanently delete users" }
+
+  if (!Array.isArray(userIds) || userIds.length === 0) {
+    return { error: "No users selected" }
+  }
+
+  // Prevent self-deletion
+  const filteredIds = userIds.filter(id => id !== session?.user?.id)
+  if (filteredIds.length === 0) {
+    return { error: "Cannot delete your own account" }
+  }
+
+  try {
+    // Delete in a transaction for atomicity
+    await prisma.$transaction(
+      filteredIds.map(id => prisma.user.delete({ where: { id } }))
+    )
+    revalidatePath("/admin/users")
+    return { success: true, deletedCount: filteredIds.length }
+  } catch (error) {
+    console.error("Error bulk deleting users:", error)
+    return { error: "Failed to delete users. Some may not exist." }
+  }
+}
+
+export async function deletePoemsAdminBulk(poemIds) {
+  if (!(await verifyAdminOrMod())) return { error: "Unauthorized" }
+
+  if (!Array.isArray(poemIds) || poemIds.length === 0) {
+    return { error: "No poems selected" }
+  }
+
+  try {
+    await prisma.poem.updateMany({
+      where: { id: { in: poemIds } },
+      data: { status: "DELETED" }
+    })
+    revalidatePath("/admin/content")
+    return { success: true, deletedCount: poemIds.length }
+  } catch (error) {
+    console.error("Error bulk deleting poems:", error)
+    return { error: "Failed to delete poems" }
+  }
+}
+
 export async function fetchTagsAdmin() {
   if (!(await verifyAdminOrMod())) return { error: "Unauthorized" }
 
