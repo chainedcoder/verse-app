@@ -42,7 +42,7 @@ export default async function TagsPage() {
         </div>
       ) : (
         <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-          {visibleTags.map(tag => (
+          {JSON.parse(JSON.stringify(visibleTags)).map(tag => (
             <Link 
               key={tag.id} 
               href={`/tags/${encodeURIComponent(tag.name)}`}

@@ -68,7 +68,7 @@ export default async function SearchPage(props) {
         </div>
       ) : (
         <div className="search-results-grid">
-          {poems.map(poem => (
+          {JSON.parse(JSON.stringify(poems)).map(poem => (
             <PoemCard key={poem.id} poem={poem} />
           ))}
         </div>

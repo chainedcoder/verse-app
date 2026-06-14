@@ -77,10 +77,10 @@ export default async function ProfilePage() {
 
   return (
     <ProfileClient 
-      user={user} 
-      poems={user.poems} 
-      likedPoems={likedPoems}
-      collections={user.collections}
+      user={JSON.parse(JSON.stringify(user))} 
+      poems={JSON.parse(JSON.stringify(user.poems))} 
+      likedPoems={JSON.parse(JSON.stringify(likedPoems))}
+      collections={JSON.parse(JSON.stringify(user.collections))}
       initialLikedPoemIds={likedPoemIds} 
     />
   )

@@ -98,7 +98,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               where: { id: user.id },
               data: { currentChallenge: null }
             })
-            return user
+            return {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              image: user.image,
+            }
           }
           throw new Error("PASSKEY_VERIFICATION_FAILED")
         }
@@ -166,7 +171,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           }
         }
 
-        return user
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+        }
       }
     })
   ],

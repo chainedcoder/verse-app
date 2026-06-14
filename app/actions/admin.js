@@ -48,7 +48,7 @@ export async function fetchPendingReports() {
       },
       orderBy: { createdAt: "asc" }
     })
-    return { success: true, reports }
+    return { success: true, reports: JSON.parse(JSON.stringify(reports)) }
   } catch (error) {
     console.error("Error fetching reports:", error)
     return { error: "Failed to fetch reports" }
@@ -172,7 +172,7 @@ export async function fetchDashboardMetrics() {
     return { 
       success: true, 
       metrics: { totalUsers, activeUsers, totalPoems, pendingReports },
-      recentSignups 
+      recentSignups: JSON.parse(JSON.stringify(recentSignups)) 
     }
   } catch (error) {
     console.error("Error fetching metrics:", error)
@@ -196,7 +196,7 @@ export async function fetchAllPoems(searchTerm = "") {
       },
       orderBy: { createdAt: "desc" }
     })
-    return { success: true, poems }
+    return { success: true, poems: JSON.parse(JSON.stringify(poems)) }
   } catch (error) {
     console.error("Error fetching poems:", error)
     return { error: "Failed to fetch poems" }
@@ -228,7 +228,7 @@ export async function fetchTagsAdmin() {
       },
       orderBy: { poems: { _count: "desc" } }
     })
-    return { success: true, tags }
+    return { success: true, tags: JSON.parse(JSON.stringify(tags)) }
   } catch (error) {
     console.error("Error fetching tags:", error)
     return { error: "Failed to fetch tags" }

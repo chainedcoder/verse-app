@@ -125,10 +125,10 @@ export default async function PoemPage(props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <PoemPageClient 
-        poem={poem} 
+        poem={JSON.parse(JSON.stringify(poem))} 
         initialLiked={isLiked} 
         initialFollowingAuthor={isFollowingAuthor} 
-        userCollections={userCollections}
+        userCollections={JSON.parse(JSON.stringify(userCollections))}
         userId={userId}
         initialImmersive={isImmersiveMode}
       />

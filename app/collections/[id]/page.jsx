@@ -79,7 +79,7 @@ export default async function CollectionDetailPage(props) {
             <p style={{ color: "var(--text-secondary)" }}>This collection is empty.</p>
           </div>
         ) : (
-          collection.poems.map(poem => (
+          JSON.parse(JSON.stringify(collection.poems)).map(poem => (
             isAuthor ? (
               <RemovablePoemCard key={poem.id} poem={poem} collectionId={collection.id} isMine={poem.authorId === session?.user?.id} />
             ) : (

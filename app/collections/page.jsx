@@ -20,6 +20,8 @@ export default async function Collections() {
     orderBy: { createdAt: "desc" }
   })
 
+  const safeCollections = JSON.parse(JSON.stringify(collections))
+
   return (
     <div className="page-container">
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
@@ -27,14 +29,14 @@ export default async function Collections() {
         <Link href="/collections/create" className="btn btn-primary btn-sm">Create New</Link>
       </div>
       
-      {collections.length === 0 ? (
+      {safeCollections.length === 0 ? (
         <div className="empty-state">
           <i className="ti ti-folders" aria-hidden="true"></i>
           <p>No collections found. Be the first to create one!</p>
         </div>
       ) : (
         <div className="collections-grid">
-          {collections.map(collection => (
+          {safeCollections.map(collection => (
             <Link href={`/collections/${collection.id}`} key={collection.id} style={{ display: "block", textDecoration: "none", color: "inherit" }}>
               <Card isMine={session?.user?.id === collection.authorId} style={{ padding: "24px", height: "100%", display: "flex", flexDirection: "column" }}>
                 <h3 className="serif" style={{ fontSize: "22px", marginBottom: "8px" }}>{collection.name}</h3>

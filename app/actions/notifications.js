@@ -37,7 +37,7 @@ export async function getNotifications() {
       where: { userId, read: false }
     })
 
-    return { success: true, notifications, unreadCount }
+    return { success: true, notifications: JSON.parse(JSON.stringify(notifications)), unreadCount }
   } catch (error) {
     console.error("Error fetching notifications:", error)
     return { success: false, error: "Failed to fetch notifications" }

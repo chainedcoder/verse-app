@@ -34,7 +34,7 @@ export default async function Authors() {
     <div className="page-container">
       <h1 className="serif" style={{ marginBottom: "24px" }}>Authors</h1>
       <div className="author-list-grid">
-        {authorsList.map(author => (
+        {JSON.parse(JSON.stringify(authorsList)).map(author => (
           <Link key={author.id} href={`/author/${author.id}`} style={{ textDecoration: "none", color: "inherit" }}>
             <Card clickable style={{ display: "flex", alignItems: "center", gap: "16px" }}>
               <Avatar image={author.image} name={author.name} size="lg" />

@@ -26,7 +26,7 @@ export default async function AccountSettingsPage() {
   return (
     <div className="card" style={{ padding: "32px" }}>
       <h2 style={{ fontSize: "20px", marginBottom: "24px", borderBottom: "1px solid var(--border-secondary)", paddingBottom: "12px" }}>Account & Privacy</h2>
-      <AccountSettingsClient user={user} />
+      <AccountSettingsClient user={JSON.parse(JSON.stringify(user))} />
     </div>
   )
 }

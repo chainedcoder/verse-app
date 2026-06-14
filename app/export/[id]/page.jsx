@@ -22,5 +22,6 @@ export default async function ExportPage(props) {
     )
   }
 
-  return <ExportPageClient poem={poem} author={poem.author} />
+  const safePoem = JSON.parse(JSON.stringify(poem))
+  return <ExportPageClient poem={safePoem} author={safePoem.author} />
 }

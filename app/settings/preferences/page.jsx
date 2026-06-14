@@ -28,7 +28,7 @@ export default async function PreferencesPage() {
       <p style={{ color: "var(--text-tertiary)", fontSize: "14px", marginBottom: "24px", borderBottom: "1px solid var(--border-secondary)", paddingBottom: "12px" }}>
         Customize your experience on Verse.
       </p>
-      <PreferencesClient user={user} />
+      <PreferencesClient user={JSON.parse(JSON.stringify(user))} />
     </div>
   )
 }

@@ -102,7 +102,7 @@ export default async function Home() {
 
   const tags = allTagsRaw.map(t => t.name).filter(Boolean)
 
-  const trendingAuthors = trendingAuthorsRaw
+  const trendingAuthors = JSON.parse(JSON.stringify(trendingAuthorsRaw))
     .filter(a => a.id !== session?.user?.id)
     .slice(0, 3)
 
