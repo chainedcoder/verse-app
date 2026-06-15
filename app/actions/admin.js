@@ -3,6 +3,7 @@
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import bcrypt from "bcryptjs"
 
 // Helper to verify if the current user is an ADMIN or MODERATOR
 async function verifyAdminOrMod() {
@@ -83,8 +84,14 @@ export async function updateUserStatus(userId, status) {
   }
 
   try {
+    // API Safeguard: Block operations on deleted users
+    const targetUser = await prisma.user.findUnique({ where: { id: userId }, select: { role: true, status: true }})
+    if (!targetUser) return { error: "User not found" }
+    if (targetUser.status === "DELETED") {
+      return { error: "Cannot modify a deleted user" }
+    }
+
     // Prevent banning admins if requester is a moderator
-    const targetUser = await prisma.user.findUnique({ where: { id: userId }, select: { role: true }})
     if (targetUser.role === "ADMIN" && !(await verifyAdmin())) {
       return { error: "Moderators cannot ban administrators" }
     }
@@ -110,6 +117,13 @@ export async function updateUserRole(userId, role) {
   }
 
   try {
+    // API Safeguard: Block operations on deleted users
+    const targetUser = await prisma.user.findUnique({ where: { id: userId }, select: { status: true }})
+    if (!targetUser) return { error: "User not found" }
+    if (targetUser.status === "DELETED") {
+      return { error: "Cannot modify a deleted user" }
+    }
+
     await prisma.user.update({
       where: { id: userId },
       data: { role }
@@ -119,6 +133,38 @@ export async function updateUserRole(userId, role) {
   } catch (error) {
     console.error("Error updating user role:", error)
     return { error: "Failed to update user role" }
+  }
+}
+
+export async function createUserAdmin({ name, email, password, role }) {
+  if (!(await verifyAdmin())) return { error: "Only administrators can create users" }
+  
+  if (!name || !email || !password || !role) {
+    return { error: "All fields are required" }
+  }
+  
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } })
+    if (existing) {
+      return { error: "A user with this email already exists" }
+    }
+    
+    const hashedPassword = await bcrypt.hash(password, 10)
+    
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role,
+        status: "ACTIVE"
+      }
+    })
+    revalidatePath("/admin/users")
+    return { success: true, user: JSON.parse(JSON.stringify(newUser)) }
+  } catch (error) {
+    console.error("Error creating user admin:", error)
+    return { error: "Failed to create user" }
   }
 }
 
@@ -148,6 +194,7 @@ export async function deletePoemAdmin(poemId) {
       data: { status: "DELETED" }
     })
     revalidatePath("/admin/content")
+    revalidatePath(`/poem/${poemId}`)
     return { success: true }
   } catch (error) {
     console.error("Error deleting poem:", error)
@@ -155,88 +202,68 @@ export async function deletePoemAdmin(poemId) {
   }
 }
 
-export async function fetchDashboardMetrics() {
-  if (!(await verifyAdminOrMod())) return { error: "Unauthorized" }
-
-  try {
-    const totalUsers = await prisma.user.count()
-    const activeUsers = await prisma.user.count({ where: { status: "ACTIVE" } })
-    const totalPoems = await prisma.poem.count({ where: { status: "PUBLISHED" } })
-    const pendingReports = await prisma.report.count({ where: { status: "PENDING" } })
-    const recentSignups = await prisma.user.findMany({
-      take: 5,
-      orderBy: { createdAt: "desc" },
-      select: { id: true, name: true, email: true, createdAt: true, image: true }
-    })
-
-    return { 
-      success: true, 
-      metrics: { totalUsers, activeUsers, totalPoems, pendingReports },
-      recentSignups: JSON.parse(JSON.stringify(recentSignups)) 
-    }
-  } catch (error) {
-    console.error("Error fetching metrics:", error)
-    return { error: "Failed to fetch metrics" }
-  }
-}
-
-export async function fetchAllPoems(searchTerm = "") {
-  if (!(await verifyAdminOrMod())) return { error: "Unauthorized" }
-
-  try {
-    const poems = await prisma.poem.findMany({
-      where: {
-        OR: [
-          { title: { contains: searchTerm } },
-          { excerpt: { contains: searchTerm } }
-        ]
-      },
-      include: {
-        author: { select: { id: true, name: true, image: true } }
-      },
-      orderBy: { createdAt: "desc" }
-    })
-    return { success: true, poems: JSON.parse(JSON.stringify(poems)) }
-  } catch (error) {
-    console.error("Error fetching poems:", error)
-    return { error: "Failed to fetch poems" }
-  }
-}
-
 export async function deleteUser(userId) {
   if (!(await verifyAdmin())) return { error: "Only administrators can delete users" }
 
   try {
-    await prisma.$transaction([
-      prisma.user.update({
-        where: { id: userId },
-        data: {
-          status: "DELETED",
-          name: "[deleted]",
-          username: `deleted-${userId}`,
-          email: `deleted-${userId}@deleted.local`,
-          bio: null,
-          website: null,
-          location: null,
-          image: null,
-          password: null,
-          twoFactorSecret: null,
-        }
-      }),
-      prisma.account.deleteMany({ where: { userId } }),
-      prisma.session.deleteMany({ where: { userId } }),
-      prisma.authenticator.deleteMany({ where: { userId } }),
-      prisma.poem.deleteMany({ where: { authorId: userId } }),
-      prisma.like.deleteMany({ where: { userId } }),
-      prisma.follow.deleteMany({ where: { OR: [{ followerId: userId }, { followingId: userId }] } }),
-      prisma.collection.deleteMany({ where: { authorId: userId } }),
-      prisma.notification.deleteMany({ where: { OR: [{ userId }, { actorId: userId }] } })
-    ])
+    // API Safeguard: Block operations on deleted users
+    const targetUser = await prisma.user.findUnique({ where: { id: userId }, select: { status: true }})
+    if (!targetUser) return { error: "User not found" }
+    if (targetUser.status === "DELETED") {
+      return { error: "User is already deleted" }
+    }
+
+    // Soft delete: Anonymize user account
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        name: "[deleted]",
+        email: `deleted-${userId}@deleted.local`,
+        status: "DELETED",
+        role: "USER"
+      }
+    })
+
+    // Delete user's poems, likes, follows, but comments are preserved as [deleted]
+    await prisma.poem.updateMany({
+      where: { userId },
+      data: { status: "DELETED" }
+    })
+    
+    await prisma.like.deleteMany({
+      where: { userId }
+    })
+
+    await prisma.follow.deleteMany({
+      where: {
+        OR: [
+          { followerId: userId },
+          { followingId: userId }
+        ]
+      }
+    })
+
     revalidatePath("/admin/users")
     return { success: true }
   } catch (error) {
-    console.error("Error soft deleting user:", error)
+    console.error("Error deleting user:", error)
     return { error: "Failed to delete user" }
+  }
+}
+
+export async function deleteUserNuclear(userId) {
+  if (!(await verifyAdmin())) return { error: "Only administrators can permanently delete users" }
+
+  try {
+    // Permanently delete user and cascade
+    await prisma.user.delete({
+      where: { id: userId }
+    })
+    revalidatePath("/admin/users")
+    return { success: true }
+  } catch (error) {
+    console.error("Error permanently deleting user:", error)
+    return { error: "Failed to permanently delete user" }
   }
 }
 
@@ -255,53 +282,53 @@ export async function deleteUsersBulk(userIds) {
   }
 
   try {
+    // API Safeguard: Filter out already deleted users to avoid double processing
+    const activeUsers = await prisma.user.findMany({
+      where: { id: { in: filteredIds }, status: { not: "DELETED" } },
+      select: { id: true }
+    })
+    const activeIds = activeUsers.map(u => u.id)
+    if (activeIds.length === 0) return { success: true, deletedCount: 0 }
+
+    // Soft delete active users
     await prisma.$transaction(
-      filteredIds.flatMap(userId => [
+      activeIds.map(id =>
         prisma.user.update({
-          where: { id: userId },
+          where: { id },
           data: {
-            status: "DELETED",
             name: "[deleted]",
-            username: `deleted-${userId}`,
-            email: `deleted-${userId}@deleted.local`,
-            bio: null,
-            website: null,
-            location: null,
-            image: null,
-            password: null,
-            twoFactorSecret: null,
+            email: `deleted-${id}@deleted.local`,
+            status: "DELETED",
+            role: "USER"
           }
-        }),
-        prisma.account.deleteMany({ where: { userId } }),
-        prisma.session.deleteMany({ where: { userId } }),
-        prisma.authenticator.deleteMany({ where: { userId } }),
-        prisma.poem.deleteMany({ where: { authorId: userId } }),
-        prisma.like.deleteMany({ where: { userId } }),
-        prisma.follow.deleteMany({ where: { OR: [{ followerId: userId }, { followingId: userId }] } }),
-        prisma.collection.deleteMany({ where: { authorId: userId } }),
-        prisma.notification.deleteMany({ where: { OR: [{ userId }, { actorId: userId }] } })
-      ])
+        })
+      )
     )
+
+    // Delete their content
+    await prisma.poem.updateMany({
+      where: { userId: { in: activeIds } },
+      data: { status: "DELETED" }
+    })
+
+    await prisma.like.deleteMany({
+      where: { userId: { in: activeIds } }
+    })
+
+    await prisma.follow.deleteMany({
+      where: {
+        OR: [
+          { followerId: { in: activeIds } },
+          { followingId: { in: activeIds } }
+        ]
+      }
+    })
+
     revalidatePath("/admin/users")
-    return { success: true, deletedCount: filteredIds.length }
+    return { success: true, deletedCount: activeIds.length }
   } catch (error) {
     console.error("Error bulk soft deleting users:", error)
-    return { error: "Failed to delete users. Some may not exist." }
-  }
-}
-
-export async function deleteUserNuclear(userId) {
-  if (!(await verifyAdmin())) return { error: "Only administrators can permanently delete users" }
-
-  try {
-    await prisma.user.delete({
-      where: { id: userId }
-    })
-    revalidatePath("/admin/users")
-    return { success: true }
-  } catch (error) {
-    console.error("Error deleting user:", error)
-    return { error: "Failed to delete user" }
+    return { error: "Failed to delete users" }
   }
 }
 
