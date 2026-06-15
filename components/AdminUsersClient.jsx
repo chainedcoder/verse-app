@@ -216,6 +216,22 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
     }
   }, [sortKey, sortDir, isJest, safePush])
 
+  // Helper to attach sort properties to headers
+  const thProps = (key, label) => ({
+    className: `adt-th adt-th--sortable${sortKey === key ? " adt-th--sorted" : ""}`,
+    onClick: () => handleSort(key),
+    role: "button",
+    tabIndex: 0,
+    onKeyDown: (e) => (e.key === "Enter" || e.key === " ") && handleSort(key),
+    "aria-sort": sortKey === key ? (sortDir === "asc" ? "ascending" : "descending") : "none",
+    children: (
+      <span className="adt-th-inner">
+        {label}
+        <SortIcon direction={sortKey === key ? sortDir : null} />
+      </span>
+    )
+  })
+
   // Local fallback filter matching original test expectations when running Jest
   const filteredSortedUsers = useMemo(() => {
     if (!isJest) return users // In production, we trust Server Component results

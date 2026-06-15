@@ -202,6 +202,54 @@ export async function deletePoemAdmin(poemId) {
   }
 }
 
+export async function fetchDashboardMetrics() {
+  if (!(await verifyAdminOrMod())) return { error: "Unauthorized" }
+
+  try {
+    const totalUsers = await prisma.user.count()
+    const activeUsers = await prisma.user.count({ where: { status: "ACTIVE" } })
+    const totalPoems = await prisma.poem.count({ where: { status: "PUBLISHED" } })
+    const pendingReports = await prisma.report.count({ where: { status: "PENDING" } })
+    const recentSignups = await prisma.user.findMany({
+      take: 5,
+      orderBy: { createdAt: "desc" },
+      select: { id: true, name: true, email: true, createdAt: true, image: true }
+    })
+
+    return { 
+      success: true, 
+      metrics: { totalUsers, activeUsers, totalPoems, pendingReports },
+      recentSignups: JSON.parse(JSON.stringify(recentSignups)) 
+    }
+  } catch (error) {
+    console.error("Error fetching metrics:", error)
+    return { error: "Failed to fetch metrics" }
+  }
+}
+
+export async function fetchAllPoems(searchTerm = "") {
+  if (!(await verifyAdminOrMod())) return { error: "Unauthorized" }
+
+  try {
+    const poems = await prisma.poem.findMany({
+      where: {
+        OR: [
+          { title: { contains: searchTerm } },
+          { excerpt: { contains: searchTerm } }
+        ]
+      },
+      include: {
+        author: { select: { id: true, name: true, image: true } }
+      },
+      orderBy: { createdAt: "desc" }
+    })
+    return { success: true, poems: JSON.parse(JSON.stringify(poems)) }
+  } catch (error) {
+    console.error("Error fetching poems:", error)
+    return { error: "Failed to fetch poems" }
+  }
+}
+
 export async function deleteUser(userId) {
   if (!(await verifyAdmin())) return { error: "Only administrators can delete users" }
 
