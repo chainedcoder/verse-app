@@ -138,3 +138,45 @@ export async function updatePreferences(formData) {
     return { error: "Failed to update preferences" }
   }
 }
+
+export async function deleteAccount() {
+  const session = await auth()
+  if (!session?.user) {
+    return { error: "You must be logged in to delete your account" }
+  }
+
+  const userId = session.user.id
+
+  try {
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: userId },
+        data: {
+          status: "DELETED",
+          name: "[deleted]",
+          username: `deleted-${userId}`,
+          email: `deleted-${userId}@deleted.local`,
+          bio: null,
+          website: null,
+          location: null,
+          image: null,
+          password: null,
+          twoFactorSecret: null,
+        }
+      }),
+      prisma.account.deleteMany({ where: { userId } }),
+      prisma.session.deleteMany({ where: { userId } }),
+      prisma.authenticator.deleteMany({ where: { userId } }),
+      prisma.poem.deleteMany({ where: { authorId: userId } }),
+      prisma.like.deleteMany({ where: { userId } }),
+      prisma.follow.deleteMany({ where: { OR: [{ followerId: userId }, { followingId: userId }] } }),
+      prisma.collection.deleteMany({ where: { authorId: userId } }),
+      prisma.notification.deleteMany({ where: { OR: [{ userId }, { actorId: userId }] } })
+    ])
+    
+    return { success: true }
+  } catch (error) {
+    console.error("Error soft deleting account:", error)
+    return { error: "Failed to delete account" }
+  }
+}

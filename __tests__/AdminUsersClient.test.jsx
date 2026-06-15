@@ -4,6 +4,8 @@ import AdminUsersClient from "../components/AdminUsersClient"
 import {
   updateUserStatus,
   updateUserRole,
+  deleteUser,
+  deleteUsersBulk,
   deleteUserNuclear,
   deleteUsersNuclearBulk
 } from "@/app/actions/admin"
@@ -13,6 +15,8 @@ jest.mock("next/link", () => ({ children, href }) => <a href={href}>{children}</
 jest.mock("@/app/actions/admin", () => ({
   updateUserStatus: jest.fn(),
   updateUserRole: jest.fn(),
+  deleteUser: jest.fn(),
+  deleteUsersBulk: jest.fn(),
   deleteUserNuclear: jest.fn(),
   deleteUsersNuclearBulk: jest.fn()
 }))
@@ -192,12 +196,23 @@ describe("AdminUsersClient — single row actions", () => {
     expect(updateUserStatus).toHaveBeenCalled()
   })
 
-  it("calls deleteUserNuclear when single Delete confirmed", async () => {
-    deleteUserNuclear.mockResolvedValue({ success: true })
+  it("calls deleteUser when single Delete confirmed", async () => {
+    deleteUser.mockResolvedValue({ success: true })
     render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
 
     const deleteBtns = screen.getAllByRole("button", { name: /^delete$/i })
     await act(async () => fireEvent.click(deleteBtns[0]))
+
+    expect(window.confirm).toHaveBeenCalled()
+    expect(deleteUser).toHaveBeenCalled()
+  })
+
+  it("calls deleteUserNuclear when Nuclear confirmed", async () => {
+    deleteUserNuclear.mockResolvedValue({ success: true })
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+
+    const nuclearBtns = screen.getAllByRole("button", { name: /^nuclear$/i })
+    await act(async () => fireEvent.click(nuclearBtns[0]))
 
     expect(window.confirm).toHaveBeenCalled()
     expect(deleteUserNuclear).toHaveBeenCalled()
@@ -318,8 +333,8 @@ describe("AdminUsersClient — bulk delete modal", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
   })
 
-  it("calls deleteUsersNuclearBulk with correct IDs on confirm", async () => {
-    deleteUsersNuclearBulk.mockResolvedValue({ success: true, deletedCount: 1 })
+  it("calls deleteUsersBulk with correct IDs on confirm", async () => {
+    deleteUsersBulk.mockResolvedValue({ success: true, deletedCount: 1 })
     render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
 
     fireEvent.click(screen.getByLabelText(/select alice/i))
@@ -332,11 +347,11 @@ describe("AdminUsersClient — bulk delete modal", () => {
       fireEvent.click(screen.getByRole("button", { name: /yes, delete/i }))
     })
 
-    expect(deleteUsersNuclearBulk).toHaveBeenCalledWith(["u1"])
+    expect(deleteUsersBulk).toHaveBeenCalledWith(["u1"])
   })
 
-  it("removes deleted users from table on success", async () => {
-    deleteUsersNuclearBulk.mockResolvedValue({ success: true, deletedCount: 1 })
+  it("updates deleted users in table on success", async () => {
+    deleteUsersBulk.mockResolvedValue({ success: true, deletedCount: 1 })
     render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
 
     fireEvent.click(screen.getByLabelText(/select alice/i))
@@ -351,12 +366,13 @@ describe("AdminUsersClient — bulk delete modal", () => {
 
     await waitFor(() => {
       expect(screen.queryByText("Alice")).not.toBeInTheDocument()
+      expect(screen.getAllByText("[deleted]").length).toBeGreaterThan(0)
     })
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
   })
 
   it("shows error message when bulk delete fails", async () => {
-    deleteUsersNuclearBulk.mockResolvedValue({ error: "Failed to delete users" })
+    deleteUsersBulk.mockResolvedValue({ error: "Failed to delete users" })
     render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
 
     fireEvent.click(screen.getByLabelText(/select alice/i))

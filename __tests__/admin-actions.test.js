@@ -257,3 +257,79 @@ describe("deletePoemsAdminBulk logic", () => {
     expect(mockRevalidate).toHaveBeenCalledWith("/admin/content")
   })
 })
+
+describe("deleteUser soft delete logic", () => {
+  let mockPrisma, mockAuth, mockRevalidate
+
+  beforeEach(() => {
+    mockPrisma = {
+      user: {
+        findUnique: jest.fn(),
+        update: jest.fn(),
+      },
+      account: { deleteMany: jest.fn() },
+      session: { deleteMany: jest.fn() },
+      authenticator: { deleteMany: jest.fn() },
+      poem: { deleteMany: jest.fn() },
+      like: { deleteMany: jest.fn() },
+      follow: { deleteMany: jest.fn() },
+      collection: { deleteMany: jest.fn() },
+      notification: { deleteMany: jest.fn() },
+      $transaction: jest.fn((promises) => Promise.all(promises)),
+    }
+    mockAuth = jest.fn()
+    mockRevalidate = jest.fn()
+  })
+
+  async function runDeleteUser(userId) {
+    const session = await mockAuth()
+    if (!session?.user) return { error: "Unauthorized" }
+
+    const caller = await mockPrisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true, status: true }
+    })
+    if (!caller || caller.status === "BANNED") return { error: "Unauthorized" }
+    if (caller.role !== "ADMIN") return { error: "Only administrators can delete users" }
+
+    try {
+      await mockPrisma.$transaction([
+        mockPrisma.user.update({
+          where: { id: userId },
+          data: { status: "DELETED", name: "[deleted]" }
+        }),
+        mockPrisma.account.deleteMany({ where: { userId } }),
+        mockPrisma.session.deleteMany({ where: { userId } }),
+        mockPrisma.authenticator.deleteMany({ where: { userId } }),
+        mockPrisma.poem.deleteMany({ where: { authorId: userId } }),
+        mockPrisma.like.deleteMany({ where: { userId } }),
+        mockPrisma.follow.deleteMany({ where: { OR: [{ followerId: userId }, { followingId: userId }] } }),
+        mockPrisma.collection.deleteMany({ where: { authorId: userId } }),
+        mockPrisma.notification.deleteMany({ where: { OR: [{ userId }, { actorId: userId }] } })
+      ])
+      mockRevalidate("/admin/users")
+      return { success: true }
+    } catch (err) {
+      return { error: "Failed to delete user" }
+    }
+  }
+
+  it("returns error when not authenticated", async () => {
+    mockAuth.mockResolvedValue(null)
+    const result = await runDeleteUser("u1")
+    expect(result.error).toBe("Unauthorized")
+  })
+
+  it("updates user status and deletes auth records", async () => {
+    mockAuth.mockResolvedValue({ user: { id: "admin" } })
+    mockPrisma.user.findUnique.mockResolvedValue({ role: "ADMIN", status: "ACTIVE" })
+    
+    const result = await runDeleteUser("u1")
+    expect(result.success).toBe(true)
+    expect(mockPrisma.user.update).toHaveBeenCalledWith({
+      where: { id: "u1" },
+      data: { status: "DELETED", name: "[deleted]" }
+    })
+    expect(mockPrisma.account.deleteMany).toHaveBeenCalledWith({ where: { userId: "u1" } })
+  })
+})

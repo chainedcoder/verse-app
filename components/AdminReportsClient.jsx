@@ -77,12 +77,12 @@ export default function AdminReportsClient({ initialReports, currentUserRole }) 
         if (report.reportedPoemId) {
           type = "Poem"
           targetLink = `/poem/${report.reportedPoemId}`
-          targetLabel = report.reportedPoem?.title || "Deleted Poem"
+          targetLabel = report.reportedPoem?.title || "[deleted]"
           targetId = report.reportedPoemId
         } else if (report.reportedUserId) {
           type = "User"
-          targetLink = `/author/${report.reportedUserId}`
-          targetLabel = report.reportedUser?.name || "Deleted User"
+          targetLabel = report.reportedUser?.name || "[deleted]"
+          targetLink = `/author/${report.reportedUser?.id || report.reportedUserId}`
           targetId = report.reportedUserId
         } else if (report.reportedCommentId) {
           type = "Comment"

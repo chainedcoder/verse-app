@@ -4,6 +4,8 @@ import { useState, useTransition, useMemo, useCallback } from "react"
 import {
   updateUserStatus,
   updateUserRole,
+  deleteUser,
+  deleteUsersBulk,
   deleteUserNuclear,
   deleteUsersNuclearBulk
 } from "@/app/actions/admin"
@@ -142,7 +144,7 @@ function ConfirmBulkDeleteModal({ users, onConfirm, onCancel, isPending }) {
         </h3>
         
         <p style={{ color: "var(--text-secondary)", marginBottom: "24px", lineHeight: 1.5 }}>
-          This action is <strong>irreversible</strong>. All their poems, comments, likes, and data will be permanently removed.
+          Their accounts will be anonymized. Their poems, follows, and likes will be deleted, but their comments will be preserved under a "[deleted]" moniker.
         </p>
 
         <div style={{ textAlign: "left", marginBottom: "24px" }}>
@@ -294,6 +296,19 @@ export default function AdminUsersClient({ initialUsers, currentUserRole }) {
     })
   }
 
+  const handleSoftDelete = async (userId, userName) => {
+    if (currentUserRole !== "ADMIN") { showToast("Only Administrators can delete users.", "error"); return }
+    const isConfirmed = await confirm(`Delete "${userName}"? Their content will be preserved but anonymized.`)
+    if (!isConfirmed) return
+    startTransition(async () => {
+      const res = await deleteUser(userId)
+      if (res.success) {
+        setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: "DELETED", name: "[deleted]", email: `deleted-${userId}@deleted.local`, role: "USER" } : u))
+        setSelectedIds(prev => { const n = new Set(prev); n.delete(userId); return n })
+      } else { showToast(res.error, "error") }
+    })
+  }
+
   const handleNuclearDelete = async (userId, userName) => {
     if (currentUserRole !== "ADMIN") { showToast("Only Administrators can permanently delete users.", "error"); return }
     const isConfirmed = await confirm(`NUCLEAR OPTION: Permanently delete "${userName}" and ALL their content? Cannot be undone.`)
@@ -310,9 +325,9 @@ export default function AdminUsersClient({ initialUsers, currentUserRole }) {
   const handleBulkConfirm = () => {
     startTransition(async () => {
       const ids = [...selectedIds]
-      const res = await deleteUsersNuclearBulk(ids)
+      const res = await deleteUsersBulk(ids)
       if (res.success) {
-        setUsers(prev => prev.filter(u => !ids.includes(u.id)))
+        setUsers(prev => prev.map(u => ids.includes(u.id) ? { ...u, status: "DELETED", name: "[deleted]", email: `deleted-${u.id}@deleted.local`, role: "USER" } : u))
         setSelectedIds(new Set())
         setShowBulkModal(false)
         setBulkError("")
@@ -491,14 +506,25 @@ export default function AdminUsersClient({ initialUsers, currentUserRole }) {
                         {user.status === "BANNED" ? "Unban" : "Ban"}
                       </button>
                       {currentUserRole === "ADMIN" && (
-                        <button
-                          className="adt-btn adt-btn--danger"
-                          onClick={() => handleNuclearDelete(user.id, user.name)}
-                          disabled={isPending}
-                          title="Permanently delete user"
-                        >
-                          Delete
-                        </button>
+                        <>
+                          <button
+                            className="adt-btn adt-btn--danger"
+                            onClick={() => handleSoftDelete(user.id, user.name)}
+                            disabled={isPending || user.status === "DELETED"}
+                            title="Delete user and anonymize"
+                          >
+                            Delete
+                          </button>
+                          <button
+                            className="adt-btn adt-btn--danger"
+                            style={{ backgroundColor: "#7f1d1d", color: "white" }}
+                            onClick={() => handleNuclearDelete(user.id, user.name)}
+                            disabled={isPending}
+                            title="Permanently delete user and all their content"
+                          >
+                            Nuclear
+                          </button>
+                        </>
                       )}
                     </div>
                   </td>

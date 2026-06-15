@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { updateAccountSettings } from "@/app/actions/profile"
+import { updateAccountSettings, deleteAccount } from "@/app/actions/profile"
 import { useRouter } from "next/navigation"
-import { signIn } from "next-auth/react"
+import { signIn, signOut } from "next-auth/react"
 import { setupTOTP, verifyTOTP, disable2FA, setupEmailOTP } from "@/app/actions/2fa"
 import { getRegistrationOptions, verifyRegistration } from "@/app/actions/webauthn"
 import { startRegistration } from "@simplewebauthn/browser"
@@ -304,6 +304,40 @@ export default function AccountSettingsClient({ user }) {
             <><i className="ti ti-device-floppy"></i> Save Settings</>
           )}
         </button>
+      </div>
+
+      <div className="form-group" style={{ padding: "16px", backgroundColor: "rgba(239, 68, 68, 0.05)", borderRadius: "8px", border: "1px solid rgba(239, 68, 68, 0.2)", marginTop: "24px" }}>
+        <h3 style={{ fontSize: "16px", marginBottom: "12px", color: "var(--danger)", display: "flex", alignItems: "center", gap: "8px" }}>
+          <i className="ti ti-alert-triangle"></i> Danger Zone
+        </h3>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div>
+            <div style={{ fontWeight: 500, fontSize: "15px" }}>Delete Account</div>
+            <div style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>
+              Delete your account, poems, follows, and likes. Your past comments will be anonymized. This cannot be undone.
+            </div>
+          </div>
+          <button 
+            type="button" 
+            className="btn btn-outline" 
+            style={{ borderColor: "var(--danger)", color: "var(--danger)" }}
+            onClick={async () => {
+              const isConfirmed = await confirm("Are you sure you want to delete your account? You will lose access to all your data. This cannot be undone.")
+              if (isConfirmed) {
+                const res = await deleteAccount()
+                if (res.success) {
+                  // NextAuth session is invalidated in DB, just redirect to home
+                  window.location.href = "/"
+                } else {
+                  setError(res.error || "Failed to delete account")
+                }
+              }
+            }}
+            disabled={isPending}
+          >
+            Delete Account
+          </button>
+        </div>
       </div>
     </form>
   )

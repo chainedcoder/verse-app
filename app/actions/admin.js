@@ -203,6 +203,93 @@ export async function fetchAllPoems(searchTerm = "") {
   }
 }
 
+export async function deleteUser(userId) {
+  if (!(await verifyAdmin())) return { error: "Only administrators can delete users" }
+
+  try {
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: userId },
+        data: {
+          status: "DELETED",
+          name: "[deleted]",
+          username: `deleted-${userId}`,
+          email: `deleted-${userId}@deleted.local`,
+          bio: null,
+          website: null,
+          location: null,
+          image: null,
+          password: null,
+          twoFactorSecret: null,
+        }
+      }),
+      prisma.account.deleteMany({ where: { userId } }),
+      prisma.session.deleteMany({ where: { userId } }),
+      prisma.authenticator.deleteMany({ where: { userId } }),
+      prisma.poem.deleteMany({ where: { authorId: userId } }),
+      prisma.like.deleteMany({ where: { userId } }),
+      prisma.follow.deleteMany({ where: { OR: [{ followerId: userId }, { followingId: userId }] } }),
+      prisma.collection.deleteMany({ where: { authorId: userId } }),
+      prisma.notification.deleteMany({ where: { OR: [{ userId }, { actorId: userId }] } })
+    ])
+    revalidatePath("/admin/users")
+    return { success: true }
+  } catch (error) {
+    console.error("Error soft deleting user:", error)
+    return { error: "Failed to delete user" }
+  }
+}
+
+export async function deleteUsersBulk(userIds) {
+  const session = await (await import("@/auth")).auth()
+  if (!(await verifyAdmin())) return { error: "Only administrators can delete users" }
+
+  if (!Array.isArray(userIds) || userIds.length === 0) {
+    return { error: "No users selected" }
+  }
+
+  // Prevent self-deletion
+  const filteredIds = userIds.filter(id => id !== session?.user?.id)
+  if (filteredIds.length === 0) {
+    return { error: "Cannot delete your own account" }
+  }
+
+  try {
+    await prisma.$transaction(
+      filteredIds.flatMap(userId => [
+        prisma.user.update({
+          where: { id: userId },
+          data: {
+            status: "DELETED",
+            name: "[deleted]",
+            username: `deleted-${userId}`,
+            email: `deleted-${userId}@deleted.local`,
+            bio: null,
+            website: null,
+            location: null,
+            image: null,
+            password: null,
+            twoFactorSecret: null,
+          }
+        }),
+        prisma.account.deleteMany({ where: { userId } }),
+        prisma.session.deleteMany({ where: { userId } }),
+        prisma.authenticator.deleteMany({ where: { userId } }),
+        prisma.poem.deleteMany({ where: { authorId: userId } }),
+        prisma.like.deleteMany({ where: { userId } }),
+        prisma.follow.deleteMany({ where: { OR: [{ followerId: userId }, { followingId: userId }] } }),
+        prisma.collection.deleteMany({ where: { authorId: userId } }),
+        prisma.notification.deleteMany({ where: { OR: [{ userId }, { actorId: userId }] } })
+      ])
+    )
+    revalidatePath("/admin/users")
+    return { success: true, deletedCount: filteredIds.length }
+  } catch (error) {
+    console.error("Error bulk soft deleting users:", error)
+    return { error: "Failed to delete users. Some may not exist." }
+  }
+}
+
 export async function deleteUserNuclear(userId) {
   if (!(await verifyAdmin())) return { error: "Only administrators can permanently delete users" }
 

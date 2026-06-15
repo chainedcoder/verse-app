@@ -11,8 +11,10 @@ jest.mock("next/navigation", () => ({
 
 // Mock the server action
 const mockUpdateAccountSettings = jest.fn()
+const mockDeleteAccount = jest.fn()
 jest.mock("@/app/actions/profile", () => ({
-  updateAccountSettings: (...args) => mockUpdateAccountSettings(...args)
+  updateAccountSettings: (...args) => mockUpdateAccountSettings(...args),
+  deleteAccount: (...args) => mockDeleteAccount(...args)
 }))
 
 jest.mock("@/app/actions/2fa", () => ({
@@ -32,7 +34,8 @@ jest.mock("@simplewebauthn/browser", () => ({
 }))
 
 jest.mock("next-auth/react", () => ({
-  signIn: jest.fn()
+  signIn: jest.fn(),
+  signOut: jest.fn()
 }))
 
 jest.mock("../components/ToastProvider", () => ({
@@ -51,6 +54,8 @@ describe("AccountSettingsClient", () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    window.confirm = jest.fn(() => true)
+    window.alert = jest.fn()
   })
 
   it("renders with initial values", () => {
@@ -101,6 +106,30 @@ describe("AccountSettingsClient", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Update failed")).toBeInTheDocument()
+    })
+  })
+
+  it("calls deleteAccount when Delete Account is clicked and confirmed", async () => {
+    mockDeleteAccount.mockResolvedValue({ success: true })
+    render(<AccountSettingsClient user={mockUser} />)
+    
+    // Click Delete Account button
+    fireEvent.click(screen.getByRole("button", { name: /^Delete Account$/i }))
+
+    await waitFor(() => {
+      expect(window.confirm).toHaveBeenCalled()
+      expect(mockDeleteAccount).toHaveBeenCalled()
+    })
+  })
+
+  it("shows error when deleteAccount fails", async () => {
+    mockDeleteAccount.mockResolvedValue({ success: false, error: "Failed to delete account" })
+    render(<AccountSettingsClient user={mockUser} />)
+    
+    fireEvent.click(screen.getByRole("button", { name: /^Delete Account$/i }))
+
+    await waitFor(() => {
+      expect(screen.getByText("Failed to delete account")).toBeInTheDocument()
     })
   })
 })
