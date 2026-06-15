@@ -9,6 +9,8 @@ import {
 import Link from "next/link"
 import Avatar from "./Avatar"
 import Pagination from "./Pagination"
+import { useToast } from "./ToastProvider"
+import { useConfirm } from "./ConfirmProvider"
 
 const ITEMS_PER_PAGE = 10
 
@@ -89,6 +91,8 @@ function ConfirmBulkDeleteModal({ poems, onConfirm, onCancel, isPending }) {
 export default function AdminContentClient({ initialPoems, currentUserRole }) {
   const [poems, setPoems] = useState(initialPoems)
   const [isPending, startTransition] = useTransition()
+  const { showToast } = useToast()
+  const { confirm } = useConfirm()
 
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("ALL")
@@ -174,18 +178,19 @@ export default function AdminContentClient({ initialPoems, currentUserRole }) {
     startTransition(async () => {
       const res = await togglePoemFeatured(poemId, !currentFeatured)
       if (res.success) setPoems(prev => prev.map(p => p.id === poemId ? { ...p, featured: !currentFeatured } : p))
-      else alert(res.error)
+      else showToast(res.error, "error")
     })
   }
 
-  const handleDelete = (poemId) => {
-    if (!confirm("Are you sure you want to delete this poem?")) return
+  const handleDelete = async (poemId) => {
+    const isConfirmed = await confirm("Are you sure you want to delete this poem?")
+    if (!isConfirmed) return
     startTransition(async () => {
       const res = await deletePoemAdmin(poemId)
       if (res.success) {
         setPoems(prev => prev.map(p => p.id === poemId ? { ...p, status: "DELETED" } : p))
         setSelectedIds(prev => { const n = new Set(prev); n.delete(poemId); return n })
-      } else alert(res.error)
+      } else showToast(res.error, "error")
     })
   }
 

@@ -3,6 +3,7 @@ import Nav from "@/components/Nav"
 import ThemePanel from "@/components/ThemePanel"
 import { Providers } from "@/components/Providers"
 import { ToastProvider } from "@/components/ToastProvider"
+import { ConfirmProvider } from "@/components/ConfirmProvider"
 import ErrorBoundary from "@/components/ErrorBoundary"
 import { WebVitals } from "@/components/WebVitals"
 import Script from "next/script"
@@ -101,18 +102,20 @@ export default async function RootLayout({ children }) {
       </head>
       <body>
         <Providers>
-          <ToastProvider>
-            <WebVitals />
-            <div id="app">
-              <Nav />
-              <ThemePanel />
-              <main id="main-content" className="page-enter" role="main">
-                <ErrorBoundary>
-                  {children}
-                </ErrorBoundary>
-              </main>
-            </div>
-          </ToastProvider>
+          <ConfirmProvider>
+            <ToastProvider>
+              <WebVitals />
+              <div id="app">
+                <Nav />
+                <ThemePanel />
+                <main id="main-content" className="page-enter" role="main">
+                  <ErrorBoundary>
+                    {children}
+                  </ErrorBoundary>
+                </main>
+              </div>
+            </ToastProvider>
+          </ConfirmProvider>
         </Providers>
       </body>
     </html>

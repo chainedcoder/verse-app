@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 
 const ToastContext = createContext({
   showUndoToast: () => {},
+  showToast: () => {},
 })
 
 export const useToast = () => useContext(ToastContext)
@@ -14,7 +15,18 @@ export function ToastProvider({ children }) {
   const showUndoToast = useCallback((message, onUndo) => {
     const id = Date.now().toString()
     
-    setToasts(prev => [...prev, { id, message, onUndo }])
+    setToasts(prev => [...prev, { id, message, onUndo, type: "undo" }])
+
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+      setToasts(prev => prev.filter(t => t.id !== id))
+    }, 5000)
+  }, [])
+
+  const showToast = useCallback((message, type = "info") => {
+    const id = Date.now().toString()
+    
+    setToasts(prev => [...prev, { id, message, type }])
 
     // Auto-dismiss after 5 seconds
     setTimeout(() => {
@@ -37,7 +49,7 @@ export function ToastProvider({ children }) {
   }
 
   return (
-    <ToastContext.Provider value={{ showUndoToast }}>
+    <ToastContext.Provider value={{ showUndoToast, showToast }}>
       {children}
       
       {/* Toast Container */}
@@ -52,22 +64,35 @@ export function ToastProvider({ children }) {
         zIndex: 9999,
         pointerEvents: "none"
       }}>
-        {toasts.map(toast => (
+        {toasts.map(toast => {
+          let borderStyle = "1px solid var(--border-secondary)";
+          let icon = null;
+          if (toast.type === "error") {
+            borderStyle = "1px solid var(--danger)";
+            icon = <i className="ti ti-alert-circle" style={{ color: "var(--danger)" }}></i>;
+          } else if (toast.type === "success") {
+            borderStyle = "1px solid var(--success)";
+            icon = <i className="ti ti-check" style={{ color: "var(--success)" }}></i>;
+          }
+
+          return (
           <div key={toast.id} role="alert" style={{
             background: "var(--bg-card)",
             color: "var(--text-primary)",
             padding: "12px 20px",
             borderRadius: "8px",
             boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
-            border: "1px solid var(--border-secondary)",
+            border: borderStyle,
             display: "flex",
             alignItems: "center",
             gap: "16px",
             pointerEvents: "auto",
             animation: "slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)"
           }}>
+            {icon}
             <span style={{ fontSize: "14px", fontWeight: "500" }}>{toast.message}</span>
             <div style={{ display: "flex", gap: "8px", borderLeft: "1px solid var(--border-tertiary)", paddingLeft: "16px" }}>
+              {toast.onUndo && (
               <button 
                 onClick={() => handleUndo(toast)}
                 style={{
@@ -77,6 +102,7 @@ export function ToastProvider({ children }) {
               >
                 Undo
               </button>
+              )}
               <button 
                 onClick={() => handleDismiss(toast.id)}
                 style={{
@@ -89,7 +115,7 @@ export function ToastProvider({ children }) {
               </button>
             </div>
           </div>
-        ))}
+        )})}
       </div>
       
       <style dangerouslySetInnerHTML={{__html: `

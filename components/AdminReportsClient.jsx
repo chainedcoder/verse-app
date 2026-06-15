@@ -3,10 +3,14 @@
 import { useState, useTransition } from "react"
 import { updateReportStatus, updateUserStatus, deletePoemAdmin } from "@/app/actions/admin"
 import Link from "next/link"
+import { useToast } from "./ToastProvider"
+import { useConfirm } from "./ConfirmProvider"
 
 export default function AdminReportsClient({ initialReports, currentUserRole }) {
   const [reports, setReports] = useState(initialReports)
   const [isPending, startTransition] = useTransition()
+  const { showToast } = useToast()
+  const { confirm } = useConfirm()
 
   const handleUpdateStatus = (reportId, status) => {
     startTransition(async () => {
@@ -14,13 +18,14 @@ export default function AdminReportsClient({ initialReports, currentUserRole }) 
       if (res.success) {
         setReports(prev => prev.filter(r => r.id !== reportId))
       } else {
-        alert(res.error)
+        showToast(res.error, "error")
       }
     })
   }
 
-  const handleBanUser = (userId, reportId) => {
-    if (!confirm("Are you sure you want to ban this user?")) return
+  const handleBanUser = async (userId, reportId) => {
+    const isConfirmed = await confirm("Are you sure you want to ban this user?")
+    if (!isConfirmed) return
     
     startTransition(async () => {
       const res = await updateUserStatus(userId, "BANNED")
@@ -28,15 +33,16 @@ export default function AdminReportsClient({ initialReports, currentUserRole }) 
         // Automatically resolve the report
         await updateReportStatus(reportId, "RESOLVED")
         setReports(prev => prev.filter(r => r.id !== reportId))
-        alert("User banned and report resolved.")
+        showToast("User banned and report resolved.", "success")
       } else {
-        alert(res.error)
+        showToast(res.error, "error")
       }
     })
   }
 
-  const handleDeletePoem = (poemId, reportId) => {
-    if (!confirm("Are you sure you want to delete this poem?")) return
+  const handleDeletePoem = async (poemId, reportId) => {
+    const isConfirmed = await confirm("Are you sure you want to delete this poem?")
+    if (!isConfirmed) return
     
     startTransition(async () => {
       const res = await deletePoemAdmin(poemId)
@@ -44,9 +50,9 @@ export default function AdminReportsClient({ initialReports, currentUserRole }) 
         // Automatically resolve the report
         await updateReportStatus(reportId, "RESOLVED")
         setReports(prev => prev.filter(r => r.id !== reportId))
-        alert("Poem deleted and report resolved.")
+        showToast("Poem deleted and report resolved.", "success")
       } else {
-        alert(res.error)
+        showToast(res.error, "error")
       }
     })
   }

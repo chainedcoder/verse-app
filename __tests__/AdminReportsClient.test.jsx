@@ -13,6 +13,13 @@ jest.mock("@/app/actions/admin", () => ({
   deletePoemAdmin: jest.fn()
 }))
 
+jest.mock("../components/ToastProvider", () => ({
+  useToast: () => ({ showToast: (msg) => window.alert(msg) })
+}))
+jest.mock("../components/ConfirmProvider", () => ({
+  useConfirm: () => ({ confirm: async (msg) => window.confirm(msg) })
+}))
+
 describe("AdminReportsClient", () => {
   const mockReports = [
     {

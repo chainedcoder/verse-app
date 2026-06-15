@@ -2,11 +2,15 @@
 
 import { useState, useTransition } from "react"
 import { renameTagAdmin, deleteTagAdmin } from "@/app/actions/admin"
+import { useToast } from "./ToastProvider"
+import { useConfirm } from "./ConfirmProvider"
 
 export default function AdminTagsClient({ initialTags, currentUserRole }) {
   const [tags, setTags] = useState(initialTags)
   const [isPending, startTransition] = useTransition()
   const [searchTerm, setSearchTerm] = useState("")
+  const { showToast } = useToast()
+  const { confirm } = useConfirm()
 
   const filteredTags = tags.filter(t => t.name.toLowerCase().includes(searchTerm.toLowerCase()))
 
@@ -19,20 +23,22 @@ export default function AdminTagsClient({ initialTags, currentUserRole }) {
       if (res.success) {
         setTags(prev => prev.map(t => t.id === tagId ? { ...t, name: newName } : t))
       } else {
-        alert(res.error)
+        showToast(res.error, "error")
       }
     })
   }
 
-  const handleDelete = (tagId, tagName) => {
-    if (!confirm(`Are you sure you want to permanently delete the tag "${tagName}"?`)) return
+  const handleDelete = async (tagId, tagName) => {
+    const isConfirmed = await confirm(`Are you sure you want to permanently delete the tag "${tagName}"?`)
+    if (!isConfirmed) return
 
     startTransition(async () => {
       const res = await deleteTagAdmin(tagId)
       if (res.success) {
         setTags(prev => prev.filter(t => t.id !== tagId))
+        showToast(`Tag "${tagName}" deleted`, "success")
       } else {
-        alert(res.error)
+        showToast(res.error, "error")
       }
     })
   }

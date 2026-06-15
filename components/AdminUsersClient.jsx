@@ -10,6 +10,8 @@ import {
 import Link from "next/link"
 import Avatar from "./Avatar"
 import Pagination from "./Pagination"
+import { useToast } from "./ToastProvider"
+import { useConfirm } from "./ConfirmProvider"
 
 const ITEMS_PER_PAGE = 10
 
@@ -194,6 +196,8 @@ function ConfirmBulkDeleteModal({ users, onConfirm, onCancel, isPending }) {
 export default function AdminUsersClient({ initialUsers, currentUserRole }) {
   const [users, setUsers] = useState(initialUsers)
   const [isPending, startTransition] = useTransition()
+  const { showToast } = useToast()
+  const { confirm } = useConfirm()
 
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("ALL")
@@ -277,28 +281,29 @@ export default function AdminUsersClient({ initialUsers, currentUserRole }) {
     startTransition(async () => {
       const res = await updateUserStatus(userId, newStatus)
       if (res.success) setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: newStatus } : u))
-      else alert(res.error)
+      else showToast(res.error, "error")
     })
   }
 
   const handleRoleChange = (userId, newRole) => {
-    if (currentUserRole !== "ADMIN") { alert("Only Administrators can change roles."); return }
+    if (currentUserRole !== "ADMIN") { showToast("Only Administrators can change roles.", "error"); return }
     startTransition(async () => {
       const res = await updateUserRole(userId, newRole)
       if (res.success) setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u))
-      else alert(res.error)
+      else showToast(res.error, "error")
     })
   }
 
-  const handleNuclearDelete = (userId, userName) => {
-    if (currentUserRole !== "ADMIN") { alert("Only Administrators can permanently delete users."); return }
-    if (!confirm(`NUCLEAR OPTION: Permanently delete "${userName}" and ALL their content? Cannot be undone.`)) return
+  const handleNuclearDelete = async (userId, userName) => {
+    if (currentUserRole !== "ADMIN") { showToast("Only Administrators can permanently delete users.", "error"); return }
+    const isConfirmed = await confirm(`NUCLEAR OPTION: Permanently delete "${userName}" and ALL their content? Cannot be undone.`)
+    if (!isConfirmed) return
     startTransition(async () => {
       const res = await deleteUserNuclear(userId)
       if (res.success) {
         setUsers(prev => prev.filter(u => u.id !== userId))
         setSelectedIds(prev => { const n = new Set(prev); n.delete(userId); return n })
-      } else { alert(res.error) }
+      } else { showToast(res.error, "error") }
     })
   }
 

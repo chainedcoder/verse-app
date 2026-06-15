@@ -8,6 +8,13 @@ jest.mock('@/app/actions/admin', () => ({
   deleteTagAdmin: jest.fn()
 }))
 
+jest.mock("../components/ToastProvider", () => ({
+  useToast: () => ({ showToast: (msg) => window.alert(msg) })
+}))
+jest.mock("../components/ConfirmProvider", () => ({
+  useConfirm: () => ({ confirm: async (msg) => window.confirm(msg) })
+}))
+
 describe('AdminTagsClient Component', () => {
   const mockTags = [
     { id: 'tag-1', name: 'poetry', _count: { poems: 5 } },

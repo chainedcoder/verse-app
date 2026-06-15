@@ -8,12 +8,16 @@ import { setupTOTP, verifyTOTP, disable2FA, setupEmailOTP } from "@/app/actions/
 import { getRegistrationOptions, verifyRegistration } from "@/app/actions/webauthn"
 import { startRegistration } from "@simplewebauthn/browser"
 import Image from "next/image"
+import { useToast } from "./ToastProvider"
+import { useConfirm } from "./ConfirmProvider"
 
 export default function AccountSettingsClient({ user }) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
+  const { showToast } = useToast()
+  const { confirm } = useConfirm()
 
   // 2FA Setup State
   const [showTotpModal, setShowTotpModal] = useState(false)
@@ -93,7 +97,8 @@ export default function AccountSettingsClient({ user }) {
   }
 
   const handleDisable2FA = async () => {
-    if (confirm("Are you sure you want to disable Two-Factor Authentication?")) {
+    const isConfirmed = await confirm("Are you sure you want to disable Two-Factor Authentication?")
+    if (isConfirmed) {
       // In a real app, you'd prompt for the TOTP code again to disable it, but for simplicity:
       // We pass null here, which currently the action handles loosely or we should pass the real code
       const res = await disable2FA("")

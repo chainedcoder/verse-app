@@ -35,6 +35,13 @@ jest.mock("next-auth/react", () => ({
   signIn: jest.fn()
 }))
 
+jest.mock("../components/ToastProvider", () => ({
+  useToast: () => ({ showToast: (msg) => window.alert(msg) })
+}))
+jest.mock("../components/ConfirmProvider", () => ({
+  useConfirm: () => ({ confirm: async (msg) => window.confirm(msg) })
+}))
+
 describe("AccountSettingsClient", () => {
   const mockUser = {
     isPrivateAccount: false,

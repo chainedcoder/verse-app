@@ -17,6 +17,13 @@ jest.mock("@/app/actions/admin", () => ({
   deleteUsersNuclearBulk: jest.fn()
 }))
 
+jest.mock("../components/ToastProvider", () => ({
+  useToast: () => ({ showToast: (msg) => window.alert(msg) })
+}))
+jest.mock("../components/ConfirmProvider", () => ({
+  useConfirm: () => ({ confirm: async (msg) => window.confirm(msg) })
+}))
+
 // Avatar stub
 jest.mock("../components/Avatar", () => ({ name }) => <span data-testid="avatar">{name}</span>)
 jest.mock("../components/Pagination", () => ({ currentPage, totalPages, onPageChange }) => (
