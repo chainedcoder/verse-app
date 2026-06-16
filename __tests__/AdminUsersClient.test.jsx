@@ -394,15 +394,53 @@ describe("AdminUsersClient — bulk delete modal", () => {
 describe("AdminUsersClient — Add User Modal", () => {
   it("opens the Add User modal", () => {
     render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
-    fireEvent.click(screen.getByRole("button", { name: /add user/i }))
+    fireEvent.click(screen.getByRole("button", { name: /create new member/i }))
     expect(screen.getByRole("dialog")).toBeInTheDocument()
     expect(screen.getByText("User Permissions")).toBeInTheDocument()
   })
 
   it("closes the Add User modal on Discard", () => {
     render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
-    fireEvent.click(screen.getByRole("button", { name: /add user/i }))
+    fireEvent.click(screen.getByRole("button", { name: /create new member/i }))
     fireEvent.click(screen.getByRole("button", { name: /discard/i }))
     expect(screen.queryByText("User Permissions")).not.toBeInTheDocument()
+  })
+})
+
+describe("AdminUsersClient — Row Dropdowns Click-Away", () => {
+  it("dismisses role dropdown on click-away", () => {
+    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    expect(container.querySelector('.custom-row-dropdown')).not.toBeInTheDocument()
+
+    const roleButtons = container.querySelectorAll('.role-badge-btn')
+    fireEvent.click(roleButtons[0])
+
+    expect(container.querySelector('.custom-row-dropdown')).toBeInTheDocument()
+
+    // Click inside the dropdown (should not dismiss)
+    fireEvent.click(container.querySelector('.custom-row-dropdown'))
+    expect(container.querySelector('.custom-row-dropdown')).toBeInTheDocument()
+
+    // Click outside on the body (should dismiss)
+    fireEvent.click(document.body)
+    expect(container.querySelector('.custom-row-dropdown')).not.toBeInTheDocument()
+  })
+
+  it("dismisses status dropdown on click-away", () => {
+    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    expect(container.querySelector('.custom-row-dropdown')).not.toBeInTheDocument()
+
+    const statusButtons = container.querySelectorAll('.status-pill-btn')
+    fireEvent.click(statusButtons[0])
+
+    expect(container.querySelector('.custom-row-dropdown')).toBeInTheDocument()
+
+    // Click inside the dropdown (should not dismiss)
+    fireEvent.click(container.querySelector('.custom-row-dropdown'))
+    expect(container.querySelector('.custom-row-dropdown')).toBeInTheDocument()
+
+    // Click outside on the body (should dismiss)
+    fireEvent.click(document.body)
+    expect(container.querySelector('.custom-row-dropdown')).not.toBeInTheDocument()
   })
 })

@@ -231,6 +231,9 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
   // Global click-away handler to dismiss filter popups and custom menus when clicking outside
   useEffect(() => {
     const handleOutsideClick = (e) => {
+      // Ignore clicks on unmounted/detached DOM elements
+      if (!e.target || !document.body.contains(e.target)) return
+
       if (activeDropdown) {
         if (!e.target.closest('.filter-pill-container') && !e.target.closest('.filter-pill-add-btn')) {
           setActiveDropdown(null)
@@ -246,12 +249,22 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
           setShowMoreMenu(false)
         }
       }
+      if (activeRowRoleDropdownId) {
+        if (!e.target.closest('.role-cell-container')) {
+          setActiveRowRoleDropdownId(null)
+        }
+      }
+      if (activeRowStatusDropdownId) {
+        if (!e.target.closest('.status-cell-container')) {
+          setActiveRowStatusDropdownId(null)
+        }
+      }
     }
     document.addEventListener('click', handleOutsideClick)
     return () => {
       document.removeEventListener('click', handleOutsideClick)
     }
-  }, [activeDropdown, showHideColumns, showMoreMenu])
+  }, [activeDropdown, showHideColumns, showMoreMenu, activeRowRoleDropdownId, activeRowStatusDropdownId])
 
   // Premium dynamic success toast with undo support
   const [premiumToast, setPremiumToast] = useState(null)
@@ -915,7 +928,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
               <option value="ADMIN">Admin</option>
             </select>
             {activeDropdown === 'role' && (
-              <div style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '140px' }}>
+              <div className="custom-dropdown-popover" onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '140px' }}>
                 {[['ALL', 'All Roles'], ['USER', 'User'], ['MODERATOR', 'Moderator'], ['ADMIN', 'Admin']].map(([val, label]) => (
                   <button key={val} onClick={() => { handleLiveRoleFilter(val); setActiveDropdown(null); }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === roleFilter ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === roleFilter ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = val === roleFilter ? '#f1f5f9' : 'transparent'}>
                     <span>{label}</span>
@@ -945,7 +958,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
               <option value="BANNED">Banned</option>
             </select>
             {activeDropdown === 'status' && (
-              <div style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '140px' }}>
+              <div className="custom-dropdown-popover" onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '140px' }}>
                 {[['ALL', 'All Status'], ['ACTIVE', 'Active'], ['SUSPENDED', 'Suspended'], ['BANNED', 'Banned']].map(([val, label]) => (
                   <button key={val} onClick={() => { handleLiveStatusFilter(val); setActiveDropdown(null); }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === statusFilter ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === statusFilter ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = val === statusFilter ? '#f1f5f9' : 'transparent'}>
                     <span>{label}</span>
@@ -974,7 +987,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
               <option value="DISABLED">Disabled</option>
             </select>
             {activeDropdown === 'mfa' && (
-              <div style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '140px' }}>
+              <div className="custom-dropdown-popover" onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '140px' }}>
                 {[['ALL', 'All 2FA'], ['ENABLED', 'Enabled'], ['DISABLED', 'Disabled']].map(([val, label]) => (
                   <button key={val} onClick={() => { handleLiveMfaFilter(val); setActiveDropdown(null); }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === mfaFilter ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === mfaFilter ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = val === mfaFilter ? '#f1f5f9' : 'transparent'}>
                     <span>{label}</span>
@@ -996,14 +1009,14 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
           ))}
 
           {/* Add Filter tag selector button */}
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+          <div className="filter-pill-container" style={{ position: 'relative', display: 'flex', alignItems: 'center', border: 'none', background: 'none', padding: 0 }}>
             <button className="filter-pill-add-btn" type="button" onClick={() => { setActiveDropdown(activeDropdown === 'addFilter' ? null : 'addFilter'); setAddFilterStep('fields'); setSelectedFilterField(null); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
               <Plus size={14} />
               <span>Add filter</span>
             </button>
             
             {activeDropdown === 'addFilter' && (
-              <div style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 120, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '180px' }}>
+              <div className="custom-dropdown-popover" onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 120, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '180px' }}>
                 {addFilterStep === 'fields' ? (
                   <>
                     <div style={{ padding: '6px 8px', fontSize: '12px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase' }}>Filter column</div>
@@ -1118,11 +1131,11 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                         disabled={currentUserRole !== "ADMIN"}
                       />
                     </th>
-                    <th {...thProps("name", "Full name")} aria-label="User" />
-                    <th {...thProps("email", "@ Email")} />
-                    <th {...thProps("role", "Role")} />
-                    <th {...thProps("status", "Status")} />
-                    <th {...thProps("createdAt", "Joined date")} />
+                    {!hiddenColumns.has("name") && <th {...thProps("name", "Full name")} aria-label="User" />}
+                    {!hiddenColumns.has("email") && <th {...thProps("email", "@ Email")} />}
+                    {!hiddenColumns.has("role") && <th {...thProps("role", "Role")} />}
+                    {!hiddenColumns.has("status") && <th {...thProps("status", "Status")} />}
+                    {!hiddenColumns.has("createdAt") && <th {...thProps("createdAt", "Joined date")} />}
                     <th className="adt-th adt-header-with-icon">
                       <div className="adt-th-inner">
                         <Shield size={13} className="header-icon" />
@@ -1164,145 +1177,155 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                         </td>
 
                         {/* Full name column */}
-                        <td className="adt-td">
-                          <div className="adt-user-cell custom-premium-user-cell">
-                            <div className="avatar-wrapper">
-                              <Avatar image={avatarUrl} name={user.name} size="sm" />
+                        {!hiddenColumns.has("name") && (
+                          <td className="adt-td">
+                            <div className="adt-user-cell custom-premium-user-cell">
+                              <div className="avatar-wrapper">
+                                <Avatar image={avatarUrl} name={user.name} size="sm" />
+                              </div>
+                              <div className="adt-user-text">
+                                <Link href={`/author/${user.id}`} className="adt-user-name custom-premium-name-text">
+                                  {user.name}
+                                </Link>
+                              </div>
                             </div>
-                            <div className="adt-user-text">
-                              <Link href={`/author/${user.id}`} className="adt-user-name custom-premium-name-text">
-                                {user.name}
-                              </Link>
-                            </div>
-                          </div>
-                        </td>
+                          </td>
+                        )}
 
                         {/* Email column */}
-                        <td className="adt-td">
-                          <span className="custom-premium-email-link" title={user.email}>
-                            {user.email || "No email"}
-                          </span>
-                        </td>
+                        {!hiddenColumns.has("email") && (
+                          <td className="adt-td">
+                            <span className="custom-premium-email-link" title={user.email}>
+                              {user.email || "No email"}
+                            </span>
+                          </td>
+                        )}
 
                         {/* Role column */}
-                        <td className="adt-td" style={{ position: 'relative' }}>
-                          <div className="role-cell-container" style={{ position: 'relative' }}>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (currentUserRole === "ADMIN" && !isDeleted) {
-                                  setActiveRowRoleDropdownId(activeRowRoleDropdownId === user.id ? null : user.id)
-                                  setActiveRowStatusDropdownId(null)
-                                }
-                              }}
-                              className="role-badge-btn"
-                              style={{ background: 'none', border: 'none', padding: 0, cursor: currentUserRole === "ADMIN" && !isDeleted ? 'pointer' : 'default', outline: 'none' }}
-                            >
-                              <span className="role-display-text">{displayRole}</span>
-                            </button>
-                            
-                            {activeRowRoleDropdownId === user.id && (
-                              <div className="custom-row-dropdown" style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '130px' }}>
-                                {[['USER', 'User'], ['MODERATOR', 'Mod'], ['ADMIN', 'Admin']].map(([val, label]) => (
-                                  <button
-                                    key={val}
-                                    type="button"
-                                    onClick={() => {
-                                      handleRoleChange(user.id, val)
-                                      setActiveRowRoleDropdownId(null)
-                                    }}
-                                    style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === user.role ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === user.role ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                                  >
-                                    <span>{label}</span>
-                                    {val === user.role && <Check size={12} color="#3b82f6" />}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
+                        {!hiddenColumns.has("role") && (
+                          <td className="adt-td" style={{ position: 'relative' }}>
+                            <div className="role-cell-container" style={{ position: 'relative' }}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (currentUserRole === "ADMIN" && !isDeleted) {
+                                    setActiveRowRoleDropdownId(activeRowRoleDropdownId === user.id ? null : user.id)
+                                    setActiveRowStatusDropdownId(null)
+                                  }
+                                }}
+                                className="role-badge-btn"
+                                style={{ background: 'none', border: 'none', padding: 0, cursor: currentUserRole === "ADMIN" && !isDeleted ? 'pointer' : 'default', outline: 'none' }}
+                              >
+                                <span className="role-display-text">{displayRole}</span>
+                              </button>
+                              
+                              {activeRowRoleDropdownId === user.id && (
+                                <div className="custom-row-dropdown" style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '130px' }}>
+                                  {[['USER', 'User'], ['MODERATOR', 'Mod'], ['ADMIN', 'Admin']].map(([val, label]) => (
+                                    <button
+                                      key={val}
+                                      type="button"
+                                      onClick={() => {
+                                        handleRoleChange(user.id, val)
+                                        setActiveRowRoleDropdownId(null)
+                                      }}
+                                      style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === user.role ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === user.role ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                                    >
+                                      <span>{label}</span>
+                                      {val === user.role && <Check size={12} color="#3b82f6" />}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
 
-                            {/* Hidden native select for role modifications */}
-                            <select
-                              aria-label={`Role for user: ${user.role === "USER" ? "User" : user.role === "MODERATOR" ? "Mod" : "Admin"}`}
-                              disabled={isPending || isDeleted || currentUserRole !== "ADMIN"}
-                              value={user.role}
-                              onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                              className="role-cell-select-hidden-overlay"
-                              style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', overflow: 'hidden', pointerEvents: 'none' }}
-                            >
-                              <option value="USER">User</option>
-                              <option value="MODERATOR">Mod</option>
-                              <option value="ADMIN">Admin</option>
-                            </select>
-                          </div>
-                        </td>
+                              {/* Hidden native select for role modifications */}
+                              <select
+                                aria-label={`Role for user: ${user.role === "USER" ? "User" : user.role === "MODERATOR" ? "Mod" : "Admin"}`}
+                                disabled={isPending || isDeleted || currentUserRole !== "ADMIN"}
+                                value={user.role}
+                                onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                                className="role-cell-select-hidden-overlay"
+                                style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', overflow: 'hidden', pointerEvents: 'none' }}
+                              >
+                                <option value="USER">User</option>
+                                <option value="MODERATOR">Mod</option>
+                                <option value="ADMIN">Admin</option>
+                              </select>
+                            </div>
+                          </td>
+                        )}
 
                         {/* Status column */}
-                        <td className="adt-td" style={{ position: 'relative' }}>
-                          <div className="status-cell-container" style={{ position: 'relative' }}>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                if (!isDeleted && !(user.role === "ADMIN" && currentUserRole !== "ADMIN")) {
-                                  setActiveRowStatusDropdownId(activeRowStatusDropdownId === user.id ? null : user.id)
-                                  setActiveRowRoleDropdownId(null)
-                                }
-                              }}
-                              className="status-pill-btn"
-                              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', outline: 'none' }}
-                            >
-                              <div className={`status-pill status-${displayStatus.toLowerCase()}`}>
-                                <span className="status-dot"></span>
-                                <span>{displayStatus}</span>
-                              </div>
-                            </button>
+                        {!hiddenColumns.has("status") && (
+                          <td className="adt-td" style={{ position: 'relative' }}>
+                            <div className="status-cell-container" style={{ position: 'relative' }}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (!isDeleted && !(user.role === "ADMIN" && currentUserRole !== "ADMIN")) {
+                                    setActiveRowStatusDropdownId(activeRowStatusDropdownId === user.id ? null : user.id)
+                                    setActiveRowRoleDropdownId(null)
+                                  }
+                                }}
+                                className="status-pill-btn"
+                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', outline: 'none' }}
+                              >
+                                <div className={`status-pill status-${displayStatus.toLowerCase()}`}>
+                                  <span className="status-dot"></span>
+                                  <span>{displayStatus}</span>
+                                </div>
+                              </button>
 
-                            {activeRowStatusDropdownId === user.id && (
-                              <div className="custom-row-dropdown" style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '130px' }}>
-                                {[['ACTIVE', 'Active'], ['SUSPENDED', 'Suspended'], ['BANNED', 'Banned']].map(([val, label]) => (
-                                  <button
-                                    key={val}
-                                    type="button"
-                                    onClick={() => {
-                                      handleStatusChange(user.id, val)
-                                      setActiveRowStatusDropdownId(null)
-                                    }}
-                                    style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === user.status ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === user.status ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-                                  >
-                                    <span>{label}</span>
-                                    {val === user.status && <Check size={12} color="#3b82f6" />}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
+                              {activeRowStatusDropdownId === user.id && (
+                                <div className="custom-row-dropdown" style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '130px' }}>
+                                  {[['ACTIVE', 'Active'], ['SUSPENDED', 'Suspended'], ['BANNED', 'Banned']].map(([val, label]) => (
+                                    <button
+                                      key={val}
+                                      type="button"
+                                      onClick={() => {
+                                        handleStatusChange(user.id, val)
+                                        setActiveRowStatusDropdownId(null)
+                                      }}
+                                      style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === user.status ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === user.status ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                                    >
+                                      <span>{label}</span>
+                                      {val === user.status && <Check size={12} color="#3b82f6" />}
+                                    </button>
+                                  ))}
+                                </div>
+                              )}
 
-                            {/* Hidden status select so admins can modify status on click */}
-                            <select
-                              aria-label={`Status for user: ${displayStatus}`}
-                              className="status-cell-select-hidden-overlay"
-                              value={user.status}
-                              onChange={(e) => handleStatusChange(user.id, e.target.value)}
-                              disabled={isPending || isDeleted || (user.role === "ADMIN" && currentUserRole !== "ADMIN")}
-                              style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', overflow: 'hidden', pointerEvents: 'none' }}
-                            >
-                              <option value="ACTIVE">Active</option>
-                              <option value="SUSPENDED">Suspended</option>
-                              <option value="BANNED">Banned</option>
-                            </select>
-                          </div>
-                        </td>
+                              {/* Hidden status select so admins can modify status on click */}
+                              <select
+                                aria-label={`Status for user: ${displayStatus}`}
+                                className="status-cell-select-hidden-overlay"
+                                value={user.status}
+                                onChange={(e) => handleStatusChange(user.id, e.target.value)}
+                                disabled={isPending || isDeleted || (user.role === "ADMIN" && currentUserRole !== "ADMIN")}
+                                style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', overflow: 'hidden', pointerEvents: 'none' }}
+                              >
+                                <option value="ACTIVE">Active</option>
+                                <option value="SUSPENDED">Suspended</option>
+                                <option value="BANNED">Banned</option>
+                              </select>
+                            </div>
+                          </td>
+                        )}
 
                         {/* Joined date column */}
-                        <td className="adt-td custom-premium-joined-date">
-                          {user.createdAt ? new Date(user.createdAt).toLocaleDateString("en-GB", { 
-                            day: "2-digit", 
-                            month: "short", 
-                            year: "numeric" 
-                          }) + `, ${new Date(user.createdAt).toLocaleTimeString("en-US", { 
-                            hour: "numeric", 
-                            minute: "2-digit", 
-                            hour12: true 
-                          }).toLowerCase()}` : "—"}
-                        </td>
+                        {!hiddenColumns.has("createdAt") && (
+                          <td className="adt-td custom-premium-joined-date">
+                            {user.createdAt ? new Date(user.createdAt).toLocaleDateString("en-GB", { 
+                              day: "2-digit", 
+                              month: "short", 
+                              year: "numeric" 
+                            }) + `, ${new Date(user.createdAt).toLocaleTimeString("en-US", { 
+                              hour: "numeric", 
+                              minute: "2-digit", 
+                              hour12: true 
+                            }).toLowerCase()}` : "—"}
+                          </td>
+                        )}
 
                         {/* 2F Auth column */}
                         <td className="adt-td">

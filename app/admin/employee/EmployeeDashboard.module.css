@@ -1,0 +1,638 @@
+.container {
+  width: 100%;
+  background-color: #fcf9ed;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100vh;
+  color: #111827;
+  font-family: inherit;
+}
+
+@media (min-width: 1024px) {
+  .container {
+    flex-direction: row;
+  }
+}
+
+.sidebarWrapper {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .sidebarWrapper {
+    display: flex;
+  }
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 16px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+@media (min-width: 1024px) {
+  .mainContent {
+    padding: 40px 48px;
+  }
+}
+
+.title {
+  font-size: 52px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  margin-bottom: 32px;
+  line-height: 1;
+}
+
+.statsSection {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 40px;
+  width: 100%;
+}
+
+.statsBars {
+  display: flex;
+  flex: 1;
+  max-width: 768px;
+}
+
+.statBarContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.statBarLabel {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.statBarDark {
+  height: 40px;
+  background-color: #2c2c2c;
+  border-radius: 9999px;
+  color: white;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+}
+
+.statBarYellow {
+  height: 40px;
+  background-color: #ffd966;
+  border-radius: 9999px;
+  color: #1c1c1c;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  font-weight: 500;
+}
+
+.statBarGradient {
+  height: 40px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), rgba(255,255,255,0.4));
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.statBarGradientBg {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  opacity: 0.2;
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, #1c1c1c 5px, #1c1c1c 10px);
+}
+
+.statBarBorder {
+  height: 40px;
+  border: 1px solid #b0b0b0;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-weight: 500;
+}
+
+.statNumbers {
+  display: flex;
+  gap: 40px;
+  align-items: flex-end;
+}
+
+.statNumberItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.statNumberRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  color: #6b7280;
+}
+
+.statNumberValue {
+  font-size: 52px;
+  line-height: 1;
+  font-weight: 500;
+  color: #1c1c1c;
+}
+
+.statNumberLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.mainGrid {
+  display: flex;
+  gap: 24px;
+  height: 100%;
+  min-height: 0;
+}
+
+.leftCol {
+  width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profileCard {
+  position: relative;
+  height: 340px;
+  border-radius: 32px;
+  overflow: hidden;
+  background-color: #d1d5db;
+  flex-shrink: 0;
+}
+
+.profileImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profileGradient {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent, transparent);
+}
+
+.profileInfo {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  right: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.profileName {
+  font-size: 24px;
+  color: white;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.profileRole {
+  color: rgba(255,255,255,0.7);
+  font-size: 14px;
+}
+
+.profileBadge {
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  border-radius: 9999px;
+  padding: 8px 16px;
+  backdrop-filter: blur(4px);
+  background-color: rgba(255,255,255,0.1);
+  font-weight: 500;
+}
+
+.accordionMenu {
+  background-color: #fcf9ed;
+  flex: 1;
+  border-radius: 32px;
+  overflow: hidden;
+}
+
+.accordionItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(229,231,235,0.6);
+  cursor: pointer;
+}
+
+.accordionLabel {
+  font-weight: 500;
+  font-size: 17px;
+}
+
+.accordionIcon {
+  color: #9ca3af;
+}
+
+.middleCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.progressContainer {
+  display: flex;
+  gap: 16px;
+  height: 340px;
+}
+
+.progressCard {
+  background-color: white;
+  border-radius: 32px;
+  padding: 24px;
+  flex: 1;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.iconBtn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.iconBtn:hover {
+  background-color: #f9fafb;
+}
+
+.cardTitle {
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.progressStats {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.progressMainStat {
+  font-size: 56px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.025em;
+}
+
+.progressSubStat {
+  color: #6b7280;
+  line-height: 1.25;
+  font-size: 14px;
+  width: 80px;
+}
+
+.progressChart {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex: 1;
+  padding: 0 16px;
+}
+
+.progressDay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.progressDayBar {
+  height: 120px;
+  width: 12px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.progressDayLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #9ca3af;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background-color: #e5e7eb;
+  margin-bottom: 4px;
+}
+
+.barActive {
+  width: 100%;
+  background-color: #ffd966;
+  border-radius: 9999px;
+  position: relative;
+  height: 90%;
+}
+
+.barActiveTooltip {
+  position: absolute;
+  top: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ffd966;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.barEmpty {
+  width: 100%;
+  background-color: #f3f4f6;
+  border-radius: 9999px;
+  height: 16px;
+  border: 1px dashed #d1d5db;
+}
+
+.barNormal {
+  width: 100%;
+  background-color: #1c1c1c;
+  border-radius: 9999px;
+}
+
+.rightCol {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.onboardingCard {
+  background-color: white;
+  border-radius: 32px;
+  padding: 24px;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+}
+
+.onboardingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.onboardingPercent {
+  font-size: 30px;
+  font-weight: 500;
+}
+
+.onboardingBars {
+  display: flex;
+  gap: 8px;
+}
+
+.onboardingBarYellow {
+  flex: 1;
+  background-color: #ffd966;
+  border-radius: 9999px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  position: relative;
+}
+
+.onboardingBarDark {
+  width: 64px;
+  background-color: #2c2c2c;
+  border-radius: 9999px;
+  height: 48px;
+  position: relative;
+}
+
+.onboardingBarGray {
+  width: 48px;
+  background-color: #9ca3af;
+  border-radius: 9999px;
+  height: 48px;
+  position: relative;
+}
+
+.onboardingLabel {
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 10;
+}
+
+.onboardingValue {
+  position: absolute;
+  top: -24px;
+  left: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.tasksCard {
+  background-color: #2a2a2a;
+  border-radius: 32px;
+  padding: 24px;
+  color: white;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-top: 32px;
+}
+
+.tasksHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  padding: 0 8px;
+}
+
+.tasksTitle {
+  font-size: 22px;
+  font-weight: 400;
+  letter-spacing: 0.025em;
+  color: white;
+}
+
+.tasksCount {
+  font-size: 36px;
+  color: white;
+  font-weight: 300;
+  letter-spacing: -0.025em;
+}
+
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.taskItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.taskIconDark {
+  width: 52px;
+  height: 52px;
+  border-radius: 9999px;
+  background-color: #3b3b3b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #d1d5db;
+}
+
+.taskIconLight {
+  width: 52px;
+  height: 52px;
+  border-radius: 9999px;
+  background-color: #f4f4f4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1c1c1c;
+}
+
+.taskInfo {
+  flex: 1;
+  margin-left: 8px;
+}
+
+.taskNameDone {
+  font-weight: 400;
+  font-size: 17px;
+  color: #9ca3af;
+  text-decoration: line-through;
+  text-decoration-color: #6b7280;
+}
+
+.taskName {
+  font-weight: 400;
+  font-size: 17px;
+  color: white;
+}
+
+.taskTime {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.taskTimeLight {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+.taskCheck {
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  background-color: #f6d365;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.taskUncheck {
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background-color: #3b3b3b;
+}
+
+.deviceItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.deviceIcon {
+  width: 64px;
+  height: 48px;
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.deviceScreen {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom right, #e5e7eb, #d1d5db);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.deviceKeyboard {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 50%;
+  background: linear-gradient(to right, #f87171, #a855f7, #6366f1);
+}
+
+.deviceInfo h5 {
+  font-weight: 500;
+}
+
+.deviceInfo p {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.deviceRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}

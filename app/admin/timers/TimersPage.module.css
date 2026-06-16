@@ -1,0 +1,134 @@
+.container {
+  width: 100%;
+  background-color: #E8EAE8;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100vh;
+  color: #111827;
+  font-family: inherit;
+}
+
+@media (min-width: 1024px) {
+  .container {
+    flex-direction: row;
+  }
+}
+
+.sidebarWrapper {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .sidebarWrapper {
+    display: flex;
+  }
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 16px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+@media (min-width: 1024px) {
+  .mainContent {
+    padding: 40px 48px;
+  }
+}
+
+.title {
+  font-size: 52px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  margin-bottom: 32px;
+  color: #1c1c1c;
+}
+
+.contentWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+@media (min-width: 1024px) {
+  .contentWrapper {
+    flex-direction: row;
+  }
+}
+
+.formCard {
+  background-color: white;
+  border-radius: 32px;
+  padding: 32px;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  flex: 1;
+  max-width: 512px;
+}
+
+.cardTitle {
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 24px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.formGroup {
+  display: block;
+}
+
+.label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.input {
+  width: 100%;
+  height: 56px;
+  background-color: #f9fafb;
+  border-radius: 16px;
+  padding: 0 16px;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.input:focus {
+  box-shadow: 0 0 0 2px #f6d365;
+}
+
+.submitBtn {
+  height: 56px;
+  background-color: #1c1c1c;
+  color: white;
+  border-radius: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.submitBtn:hover {
+  background-color: black;
+}
+
+.timersListWrapper {
+  flex: 1;
+}

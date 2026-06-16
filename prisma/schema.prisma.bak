@@ -1,0 +1,221 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+    output   = "../node_modules/.prisma/client"
+
+}
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  username      String?         @unique
+  website       String?
+  theme         String          @default("system")
+  immersiveMode Boolean         @default(false)
+  exportPreferences Json?
+  email         String?         @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  bio                String?
+  location           String?
+  isPrivateAccount   Boolean @default(false)
+  mfaEnabled         Boolean @default(false)
+  twoFactorSecret    String?
+  twoFactorMethod    String?
+  currentChallenge   String?
+  emailNotifications Boolean @default(true)
+  role               String  @default("USER") // USER, MODERATOR, ADMIN
+  status             String  @default("ACTIVE") // ACTIVE, SUSPENDED, BANNED
+   
+  accounts      Account[]
+  sessions      Session[]
+  poems         Poem[]
+  likes         Like[]
+  comments           Comment[]
+  notifications      Notification[] @relation("userNotifications")
+  actorNotifications Notification[] @relation("actorNotifications")
+   
+  followers     Follow[] @relation("following")
+  following     Follow[] @relation("follower")
+  collections   Collection[]
+
+  reportsSubmitted   Report[] @relation("reporter")
+  reportsReceived    Report[] @relation("reportedUser")
+   
+  authenticators     Authenticator[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                 String  @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Poem {
+  id        String   @id @default(cuid())
+  title     String
+  excerpt   String
+  fullText  String
+  featured  Boolean  @default(false)
+  images    PoemImage[]
+  status    String   @default("PUBLISHED")
+  isPrivate Boolean  @default(false)
+  vibeConfig Json?
+  customAuthorName String?
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  likes     Like[]
+  comments  Comment[]
+  tags      Tag[]    @relation("PoemTags")
+  collections Collection[] @relation("CollectionPoems")
+  notifications Notification[] @relation("poemNotifications")
+  reports   Report[] @relation("reportedPoem")
+  createdAt DateTime @default(now())
+}
+
+model PoemImage {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String?
+  poemId    String
+  poem      Poem     @relation(fields: [poemId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  poems     Poem[]   @relation("PoemTags")
+  createdAt DateTime @default(now())
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  poemId    String
+  userId    String
+  poem      Poem     @relation(fields: [poemId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([poemId, userId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  poemId    String
+  authorId  String
+  poem      Poem     @relation(fields: [poemId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  reports   Report[] @relation("reportedComment")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([poemId, createdAt])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String
+  followingId String
+  follower    User     @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
+
+model Collection {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isPublic    Boolean  @default(true)
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  poems       Poem[]   @relation("CollectionPoems")
+  status      String   @default("ACTIVE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "LIKE", "COMMENT", "FOLLOW"
+  actorId   String
+  poemId    String?
+  read      Boolean  @default(false)
+  user      User     @relation("userNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  actor     User     @relation("actorNotifications", fields: [actorId], references: [id], onDelete: Cascade)
+  poem      Poem?    @relation("poemNotifications", fields: [poemId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model Report {
+  id                String   @id @default(cuid())
+  reporterId        String
+  reporter          User     @relation("reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  reportedUserId    String?
+  reportedUser      User?    @relation("reportedUser", fields: [reportedUserId], references: [id], onDelete: Cascade)
+  reportedPoemId    String?
+  reportedPoem      Poem?    @relation("reportedPoem", fields: [reportedPoemId], references: [id], onDelete: Cascade)
+  reportedCommentId String?
+  reportedComment   Comment? @relation("reportedComment", fields: [reportedCommentId], references: [id], onDelete: Cascade)
+  reason            String
+  status            String   @default("PENDING") // PENDING, RESOLVED, DISMISSED
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Authenticator {
+  credentialID         String  @id
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, credentialID])
+}

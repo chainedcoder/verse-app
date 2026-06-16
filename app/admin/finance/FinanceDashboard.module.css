@@ -1,0 +1,1007 @@
+.container {
+  width: 100%;
+  background-color: #f4f5f5;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  height: 100vh;
+  color: #1c1c1c;
+  font-family: inherit;
+}
+
+@media (min-width: 1024px) {
+  .container {
+    flex-direction: row;
+  }
+}
+
+.sidebarWrapper {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .sidebarWrapper {
+    display: flex;
+  }
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 16px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+@media (min-width: 1024px) {
+  .mainContent {
+    padding: 40px 48px;
+  }
+}
+
+.mainGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: 100%;
+}
+
+@media (min-width: 1280px) {
+  .mainGrid {
+    flex-direction: row;
+  }
+}
+
+.col1 {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1;
+  min-width: 340px;
+}
+
+.visaCard {
+  background-color: white;
+  border-radius: 32px;
+  padding: 24px;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+}
+
+.visaHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.visaLogo {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.05em;
+  font-style: italic;
+}
+
+.outlineBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  background-color: transparent;
+}
+
+.outlineBtn:hover {
+  background-color: #f9fafb;
+}
+
+.textGraySm {
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.cardNumber {
+  font-size: 24px;
+  font-weight: 500;
+  margin-bottom: 32px;
+}
+
+.actionBtns {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.btnDark {
+  flex: 1;
+  background-color: #1c1c1c;
+  color: white;
+  border-radius: 9999px;
+  padding: 12px 0;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+
+.btnLight {
+  flex: 1;
+  background-color: #f3f4f6;
+  color: #1c1c1c;
+  border-radius: 9999px;
+  padding: 12px 0;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+
+.visaFooter {
+  padding-top: 24px;
+  border-top: 1px solid #f3f4f6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.feeAmount {
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.redBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #d25f46;
+  background-color: rgba(210, 95, 70, 0.1);
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+
+.profitsCard {
+  background-color: white;
+  border-radius: 32px;
+  padding: 24px;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.cardTitle {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.profitsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.profitsChart {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  position: relative;
+  min-height: 250px;
+  padding-bottom: 40px;
+}
+
+.circle1 {
+  position: absolute;
+  bottom: 0;
+  width: 256px;
+  height: 256px;
+  background-color: #f8eaea;
+  border-radius: 50%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 20px;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.circle1:hover {
+  transform: scale(1.05);
+}
+
+.circle1Label {
+  position: absolute;
+  top: 30px;
+  font-weight: 500;
+  color: #d25f46;
+}
+
+.circle2 {
+  width: 192px;
+  height: 192px;
+  background-color: #f1d0ca;
+  border-radius: 50%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 20px;
+}
+
+.circle2Label {
+  position: absolute;
+  top: 40px;
+  font-weight: 500;
+  color: #d25f46;
+}
+
+.circle3 {
+  width: 128px;
+  height: 128px;
+  background-color: #e8a99e;
+  border-radius: 50%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 20px;
+}
+
+.circle3Label {
+  position: absolute;
+  top: 35px;
+  font-weight: 500;
+  color: white;
+}
+
+.circle4 {
+  width: 80px;
+  height: 80px;
+  background-color: #d25f46;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.circle4Label {
+  font-weight: 500;
+  color: white;
+}
+
+.col2 {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1.5;
+  min-width: 400px;
+}
+
+.incomeCards {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.incomeCard {
+  background-color: white;
+  border-radius: 32px;
+  padding: 24px;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.iconCircle {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.incomeAmount {
+  font-size: 32px;
+  font-weight: 500;
+  color: #d25f46;
+}
+
+.btnStart {
+  align-self: flex-start;
+}
+
+.paidRightCol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.mb10 {
+  margin-bottom: 40px;
+}
+
+.activityManager {
+  background-color: white;
+  border-radius: 32px;
+  padding: 24px;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.activityHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.activityTools {
+  display: flex;
+  gap: 8px;
+}
+
+.toolBtn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.toolBtn:hover {
+  background-color: #f9fafb;
+}
+
+.searchBar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.searchInputWrapper {
+  position: relative;
+  flex: 1;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+}
+
+.searchInput {
+  width: 100%;
+  height: 48px;
+  background-color: #f9fafb;
+  border-radius: 9999px;
+  padding-left: 48px;
+  padding-right: 16px;
+  border: none;
+  outline: none;
+}
+
+.searchInput:focus {
+  box-shadow: 0 0 0 2px #e5e7eb;
+}
+
+.filterTags {
+  display: flex;
+  gap: 8px;
+}
+
+.filterDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #d25f46;
+}
+
+.filterClose {
+  color: #9ca3af;
+}
+
+.activityWidgets {
+  display: flex;
+  gap: 16px;
+}
+
+.barChartWidget {
+  background-color: white;
+  border: 1px solid #f3f4f6;
+  border-radius: 24px;
+  padding: 24px;
+  flex: 1;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  position: relative;
+}
+
+.chartValueRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  margin-bottom: 32px;
+}
+
+.chartValue {
+  font-size: 30px;
+  font-weight: 500;
+  color: #d25f46;
+}
+
+.chartCurrency {
+  color: #6b7280;
+  font-weight: 500;
+  padding-bottom: 4px;
+  font-size: 14px;
+}
+
+.chartBars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  height: 96px;
+  justify-content: space-between;
+}
+
+.chartBarRed {
+  width: 6px;
+  border-radius: 9999px;
+  background-color: #d25f46;
+}
+
+.chartBarGray {
+  width: 6px;
+  border-radius: 9999px;
+  background-color: #e5e7eb;
+}
+
+.chartDots {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 24px;
+}
+
+.dotLongGray {
+  width: 16px;
+  height: 6px;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+}
+
+.dotRed {
+  width: 6px;
+  height: 6px;
+  background-color: #d25f46;
+  border-radius: 9999px;
+}
+
+.dotGray {
+  width: 6px;
+  height: 6px;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+}
+
+.plansWidget {
+  background-color: white;
+  border: 1px solid #f3f4f6;
+  border-radius: 24px;
+  padding: 24px;
+  flex: 1.2;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+}
+
+.plansHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.plansTitle {
+  font-weight: 500;
+  font-size: 18px;
+}
+
+.plansMoreBtn {
+  color: #9ca3af;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.plansMoreBtn:hover {
+  color: #4b5563;
+}
+
+.plansList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+}
+
+.plansLine {
+  position: absolute;
+  left: 15px;
+  top: 16px;
+  bottom: 16px;
+  width: 2px;
+  background-color: #f3f4f6;
+  z-index: 0;
+}
+
+.planItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  position: relative;
+  z-index: 10;
+}
+
+.planIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #d25f46;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.planDropdown {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: transparent;
+  cursor: pointer;
+}
+
+.planDropdown:hover {
+  background-color: #f9fafb;
+}
+
+.planLabel {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 0 8px;
+}
+
+.walletWidget {
+  background-color: white;
+  border: 1px solid #f3f4f6;
+  border-radius: 24px;
+  padding: 24px;
+  flex: 1;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.walletIcon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.walletTitle {
+  font-weight: 500;
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.walletDesc {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 24px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.walletBtn {
+  margin-top: auto;
+  width: 100%;
+  background-color: #d25f46;
+  color: white;
+  border-radius: 9999px;
+  padding: 12px 0;
+  font-weight: 500;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+}
+
+.col3 {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1;
+  min-width: 340px;
+}
+
+.lockRow {
+  display: flex;
+  gap: 24px;
+}
+
+.lockWidget {
+  background-color: white;
+  border-radius: 32px;
+  padding: 24px;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lockHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  margin-top: 8px;
+}
+
+.lockLabel {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.circularProgress {
+  position: relative;
+  width: 128px;
+  height: 128px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progressSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.progressCenter {
+  width: 96px;
+  height: 96px;
+  background-color: #1c1c1c;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+  color: white;
+}
+
+.progressValue {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+.progressDesc {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.daysWidget {
+  background-color: white;
+  border-radius: 32px;
+  padding: 24px;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.daysIcon {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.daysValue {
+  font-size: 24px;
+  font-weight: 500;
+  display: block;
+}
+
+.daysDesc {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.dotsGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+.gridDotRed {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #d25f46;
+}
+
+.gridDotGray {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+}
+
+.yearChart {
+  background-color: white;
+  border-radius: 32px;
+  padding: 24px;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  display: flex;
+  gap: 16px;
+  height: 140px;
+  position: relative;
+  overflow: hidden;
+}
+
+.yearIcon {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 10;
+  background-color: white;
+}
+
+.yearBars {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 32px;
+  position: relative;
+  margin-top: 32px;
+}
+
+.yearGrid {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  opacity: 0.3;
+}
+
+.gridHLine {
+  border-top: 1px solid #d1d5db;
+  width: 100%;
+}
+
+.yearGridV {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  opacity: 0.3;
+}
+
+.gridVLine {
+  border-left: 1px solid #d1d5db;
+  height: 100%;
+}
+
+.yearCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+  width: 64px;
+  position: relative;
+}
+
+.yearLabelWhite {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.yearLabelRed {
+  background-color: #d25f46;
+  color: white;
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.yearBarLine {
+  position: absolute;
+  top: 32px;
+  bottom: 0;
+  width: 4px;
+  background-color: #d25f46;
+  border-radius: 9999px 9999px 0 0;
+}
+
+.stocksWidget {
+  background-color: white;
+  border-radius: 32px;
+  padding: 24px;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.stocksHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 48px;
+  position: relative;
+  z-index: 10;
+}
+
+.stocksIcon {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+}
+
+.stocksValue {
+  font-size: 30px;
+  font-weight: 500;
+  color: #d25f46;
+}
+
+.splineChart {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 128px;
+  opacity: 0.8;
+  pointer-events: none;
+  transform: translateY(-16px);
+}
+
+.stocksFooter {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  position: relative;
+  z-index: 10;
+}
+
+.stocksFooterTitle {
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.stocksFooterDesc {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.stocksBadge {
+  background-color: #f8eaea;
+  color: #d25f46;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+}
+
+.ratingWidget {
+  background-color: white;
+  border-radius: 32px;
+  padding: 24px;
+  box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05);
+  position: relative;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  color: #9ca3af;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.closeBtn:hover {
+  color: #4b5563;
+}
+
+.ratingDots {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.ratingLabel {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.ratingTitle {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.25;
+  margin-bottom: 32px;
+}
+
+.smileysRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 8px;
+  color: #9ca3af;
+}
