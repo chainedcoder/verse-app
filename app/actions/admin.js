@@ -136,7 +136,7 @@ export async function updateUserRole(userId, role) {
   }
 }
 
-export async function createUserAdmin({ name, email, password, role }) {
+export async function createUserAdmin({ name, surname, email, password, role, permissions }) {
   if (!(await verifyAdmin())) return { error: "Only administrators can create users" }
   
   if (!name || !email || !password || !role) {
@@ -150,14 +150,16 @@ export async function createUserAdmin({ name, email, password, role }) {
     }
     
     const hashedPassword = await bcrypt.hash(password, 10)
+    const fullName = surname ? `${name} ${surname}` : name;
     
     const newUser = await prisma.user.create({
       data: {
-        name,
+        name: fullName,
         email,
         password: hashedPassword,
         role,
-        status: "ACTIVE"
+        status: "ACTIVE",
+        permissions
       }
     })
     revalidatePath("/admin/users")
@@ -472,5 +474,74 @@ export async function deleteTagAdmin(tagId) {
   } catch (error) {
     console.error("Error deleting tag:", error)
     return { error: "Failed to delete tag" }
+  }
+}
+
+// 🔐 Permission Group Actions
+export async function fetchPermissionGroups() {
+  try {
+    const groups = await prisma.permissionGroup.findMany({
+      orderBy: { createdAt: "asc" },
+      include: { _count: { select: { users: true } } }
+    })
+    return { success: true, groups: JSON.parse(JSON.stringify(groups)) }
+  } catch (error) {
+    console.error("Error fetching permission groups:", error)
+    return { error: "Failed to fetch permission groups" }
+  }
+}
+
+export async function createPermissionGroup({ name, color, permissions }) {
+  if (!(await verifyAdmin())) return { error: "Unauthorized" }
+  if (!name) return { error: "Name is required" }
+
+  try {
+    const group = await prisma.permissionGroup.create({
+      data: {
+        name,
+        color: color || "blue",
+        permissions: permissions || {}
+      }
+    })
+    revalidatePath("/admin/roles")
+    return { success: true, group: JSON.parse(JSON.stringify(group)) }
+  } catch (error) {
+    console.error("Error creating permission group:", error)
+    return { error: "Failed to create permission group" }
+  }
+}
+
+export async function updatePermissionGroup(id, { name, color, permissions }) {
+  if (!(await verifyAdmin())) return { error: "Unauthorized" }
+
+  try {
+    const group = await prisma.permissionGroup.update({
+      where: { id },
+      data: {
+        name,
+        color,
+        permissions
+      }
+    })
+    revalidatePath("/admin/roles")
+    return { success: true, group: JSON.parse(JSON.stringify(group)) }
+  } catch (error) {
+    console.error("Error updating permission group:", error)
+    return { error: "Failed to update permission group" }
+  }
+}
+
+export async function deletePermissionGroup(id) {
+  if (!(await verifyAdmin())) return { error: "Unauthorized" }
+
+  try {
+    await prisma.permissionGroup.delete({
+      where: { id }
+    })
+    revalidatePath("/admin/roles")
+    return { success: true }
+  } catch (error) {
+    console.error("Error deleting permission group:", error)
+    return { error: "Failed to delete permission group" }
   }
 }

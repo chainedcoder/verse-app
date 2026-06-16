@@ -133,6 +133,10 @@ export default function Nav() {
     if (panel) panel.classList.toggle("open")
   }
 
+  if (pathname.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <>
       <nav className={styles.navbar} id="navbar" role="navigation">

@@ -390,3 +390,19 @@ describe("AdminUsersClient — bulk delete modal", () => {
     })
   })
 })
+
+describe("AdminUsersClient — Add User Modal", () => {
+  it("opens the Add User modal", () => {
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    fireEvent.click(screen.getByRole("button", { name: /add user/i }))
+    expect(screen.getByRole("dialog")).toBeInTheDocument()
+    expect(screen.getByText("User Permissions")).toBeInTheDocument()
+  })
+
+  it("closes the Add User modal on Discard", () => {
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    fireEvent.click(screen.getByRole("button", { name: /add user/i }))
+    fireEvent.click(screen.getByRole("button", { name: /discard/i }))
+    expect(screen.queryByText("User Permissions")).not.toBeInTheDocument()
+  })
+})

@@ -2,9 +2,14 @@ import { fetchPendingReports } from "@/app/actions/admin"
 import AdminReportsClient from "@/components/AdminReportsClient"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { redirect } from "next/navigation"
 
 export default async function AdminReportsPage() {
   const session = await auth()
+  
+  if (!session?.user) {
+    redirect("/login")
+  }
   
   // Need to pass the role so the client knows if it's ADMIN or MODERATOR
   const user = await prisma.user.findUnique({

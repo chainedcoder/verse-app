@@ -2,9 +2,14 @@ import { fetchAllPoems } from "@/app/actions/admin"
 import AdminContentClient from "@/components/AdminContentClient"
 import { auth } from "@/auth"
 import { prisma } from "@/lib/prisma"
+import { redirect } from "next/navigation"
 
 export default async function AdminContentPage() {
   const session = await auth()
+  
+  if (!session?.user) {
+    redirect("/login")
+  }
   
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },

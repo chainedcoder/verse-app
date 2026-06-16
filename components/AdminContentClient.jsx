@@ -262,7 +262,7 @@ export default function AdminContentClient({ initialPoems, currentUserRole }) {
             <option value="FEATURED">Featured</option>
             <option value="NOT_FEATURED">Not Featured</option>
           </select>
-          <span className="adt-count">
+          <span className="adt-count admin-table-toolbar__count">
             {filteredSortedPoems.length} poem{filteredSortedPoems.length !== 1 ? "s" : ""}
           </span>
         </div>
@@ -271,7 +271,7 @@ export default function AdminContentClient({ initialPoems, currentUserRole }) {
       {/* ── Table ── */}
       <div className="adt-container">
         <div className="adt-scroll">
-          <table className="adt-table">
+          <table className="adt-table admin-table">
             <thead>
               <tr>
                 <th className="adt-th adt-th--check">
@@ -332,7 +332,7 @@ export default function AdminContentClient({ initialPoems, currentUserRole }) {
 
                   {/* Status */}
                   <td className="adt-td">
-                    <span className={`adt-status adt-status--${poem.status.toLowerCase()}`}>
+                    <span className={`adt-status adt-status--${poem.status.toLowerCase()} ${poem.status === 'DELETED' ? 'admin-status-badge--deleted' : ''}`}>
                       <span className="adt-status-dot" />
                       {poem.status}
                     </span>
@@ -341,7 +341,7 @@ export default function AdminContentClient({ initialPoems, currentUserRole }) {
                   {/* Featured */}
                   <td className="adt-td">
                     {poem.featured ? (
-                      <span className="adt-featured">FEATURED</span>
+                      <span className="adt-featured admin-status-badge--featured">FEATURED</span>
                     ) : (
                       <span className="adt-num--muted">—</span>
                     )}
@@ -377,9 +377,9 @@ export default function AdminContentClient({ initialPoems, currentUserRole }) {
           </table>
 
           {paginatedPoems.length === 0 && (
-            <div className="adt-empty">
+            <div className="adt-empty admin-table-empty">
               <div className="adt-empty-icon">📜</div>
-              <div className="adt-empty-text">No poems found matching your filters.</div>
+              <div className="adt-empty-text admin-table-empty__text">No poems found matching your filters.</div>
             </div>
           )}
         </div>
@@ -389,8 +389,8 @@ export default function AdminContentClient({ initialPoems, currentUserRole }) {
 
       {/* ── Selection Bar ── */}
       {selectedIds.size > 0 && (
-        <div className="adt-selection-bar" role="status" aria-live="polite">
-          <span className="adt-bar-count">
+        <div className="adt-selection-bar admin-selection-bar" role="status" aria-live="polite">
+          <span className="adt-bar-count admin-selection-bar__count">
             <strong>{selectedIds.size}</strong> poem{selectedIds.size !== 1 ? "s" : ""} selected
           </span>
           <button
@@ -401,6 +401,7 @@ export default function AdminContentClient({ initialPoems, currentUserRole }) {
           </button>
           <button
             className="adt-bar-delete"
+            aria-label="Delete Selected"
             onClick={() => { setBulkError(""); setShowBulkModal(true) }}
             disabled={isPending}
           >

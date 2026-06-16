@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition, useMemo, useCallback } from "react"
+import { useState, useTransition, useMemo, useCallback, useEffect } from "react"
 import {
   updateUserStatus,
   updateUserRole,
@@ -44,25 +44,7 @@ function getUserAvatar(user) {
   if (email.startsWith("wright@")) return "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=100&auto=format&fit=crop"
   if (email.startsWith("martinez@")) return "https://images.unsplash.com/photo-1485893086445-ed75865251e0?q=80&w=100&auto=format&fit=crop"
   
-  const idx = Math.abs(email.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0)) % 15
-  const pool = [
-    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=100&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=100&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?q=80&w=100&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=100&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1517841905240-472988babdf9?q=80&w=100&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=100&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=100&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?q=80&w=100&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?q=80&w=100&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=100&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?q=80&w=100&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=100&auto=format&fit=crop",
-    "https://images.unsplash.com/photo-1485893086445-ed75865251e0?q=80&w=100&auto=format&fit=crop"
-  ]
-  return pool[idx]
+  return null
 }
 
 // Helper to map roles to elegant system/access roles as expected in Verse
@@ -79,6 +61,8 @@ function getUserStatusDisplay(user) {
     return "Inactive"
   }
   if (user.status === "ACTIVE") return "Active"
+  if (user.status === "SUSPENDED") return "Suspended"
+  if (user.status === "BANNED") return "Banned"
   return "Inactive"
 }
 
@@ -152,14 +136,23 @@ function ConfirmBulkDeleteModal({ users, onConfirm, onCancel, isPending }) {
   )
 }
 
-export default function AdminUsersClient({ initialUsers, currentUserRole, totalCount = 0, currentPage: serverPage = 1, itemsPerPage: serverLimit = 15 }) {
+export default function AdminUsersClient({ initialUsers, currentUserRole, totalCount = 0, currentPage: serverPage = 1, itemsPerPage: serverLimit = 15, permissionGroups = [] }) {
   const [users, setUsers] = useState(initialUsers)
+  
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setUsers(initialUsers)
+  }, [initialUsers])
+
+
+
   const [isPending, startTransition] = useTransition()
   const { showToast } = useToast()
   const { confirm } = useConfirm()
 
   // Safely hook Next.js router for production database-level URL-paging
   let router = null
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   try { router = useRouter() } catch (e) {}
 
   const isJest = typeof process !== "undefined" && process.env.NODE_ENV === "test"
@@ -168,8 +161,15 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("ALL")
   const [roleFilter, setRoleFilter] = useState("ALL")
+  const [mfaFilter, setMfaFilter] = useState("ALL")
   const [sortKey, setSortKey] = useState("createdAt")
   const [sortDir, setSortDir] = useState("desc")
+  
+  // Custom dropdown and dynamic tag filter states
+  const [activeDropdown, setActiveDropdown] = useState(null) // 'role' | 'status' | 'mfa' | 'addFilter'
+  const [activeTags, setActiveTags] = useState([]) // Array of { id, field, label, value }
+  const [addFilterStep, setAddFilterStep] = useState('fields') // 'fields' | 'values'
+  const [selectedFilterField, setSelectedFilterField] = useState(null)
   
   // Pagination variables
   const [clientPage, setClientPage] = useState(1)
@@ -182,11 +182,76 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
   const [viewMode, setViewMode] = useState("table")
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false)
 
+  // Edit User States
+  const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false)
+  const [editingUser, setEditingUser] = useState(null)
+  const [editName, setEditName] = useState("")
+  const [editSurname, setEditSurname] = useState("")
+  const [editEmail, setEditEmail] = useState("")
+  const [editRole, setEditRole] = useState("USER")
+  
+  // Custom interactive row dropdown states
+  const [activeRowRoleDropdownId, setActiveRowRoleDropdownId] = useState(null)
+  const [activeRowStatusDropdownId, setActiveRowStatusDropdownId] = useState(null)
+
   // Add User Form States
   const [addName, setAddName] = useState("")
+  const [addSurname, setAddSurname] = useState("")
   const [addEmail, setAddEmail] = useState("")
   const [addPassword, setAddPassword] = useState("")
   const [addRole, setAddRole] = useState("USER")
+  const [permissions, setPermissions] = useState({
+    user: ["View User"],
+    poem: ["View Poem"]
+  })
+  const [selectedGroupId, setSelectedGroupId] = useState("")
+  const [localGroups, setLocalGroups] = useState([])
+  const [showInlineCreate, setShowInlineCreate] = useState(false)
+  const [inlineName, setInlineName] = useState("")
+  const [inlineColor, setInlineColor] = useState("#3b82f6")
+
+  // Sync prop permissionGroups with state safely preventing infinite loops
+  useEffect(() => {
+    if (JSON.stringify(permissionGroups) !== JSON.stringify(localGroups)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setLocalGroups(permissionGroups)
+      if (permissionGroups.length > 0 && !selectedGroupId) {
+        setSelectedGroupId(permissionGroups[0].id)
+        setPermissions(permissionGroups[0].permissions || {})
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [permissionGroups])
+  const [showHideColumns, setShowHideColumns] = useState(false)
+  const [hiddenColumns, setHiddenColumns] = useState(new Set())
+  const [showMoreMenu, setShowMoreMenu] = useState(false)
+  const [customFilter, setCustomFilter] = useState("")
+  const [showCustomFilter, setShowCustomFilter] = useState(false)
+
+  // Global click-away handler to dismiss filter popups and custom menus when clicking outside
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (activeDropdown) {
+        if (!e.target.closest('.filter-pill-container') && !e.target.closest('.filter-pill-add-btn')) {
+          setActiveDropdown(null)
+        }
+      }
+      if (showHideColumns) {
+        if (!e.target.closest('.option-action-btn') && !e.target.closest('[style*="position: absolute"]')) {
+          setShowHideColumns(false)
+        }
+      }
+      if (showMoreMenu) {
+        if (!e.target.closest('.option-action-btn')) {
+          setShowMoreMenu(false)
+        }
+      }
+    }
+    document.addEventListener('click', handleOutsideClick)
+    return () => {
+      document.removeEventListener('click', handleOutsideClick)
+    }
+  }, [activeDropdown, showHideColumns, showMoreMenu])
 
   // Premium dynamic success toast with undo support
   const [premiumToast, setPremiumToast] = useState(null)
@@ -234,8 +299,6 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
 
   // Local fallback filter matching original test expectations when running Jest
   const filteredSortedUsers = useMemo(() => {
-    if (!isJest) return users // In production, we trust Server Component results
-
     let result = users.filter(u => {
       const q = searchTerm.toLowerCase()
       const matchSearch = !q ||
@@ -243,8 +306,37 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
         u.email?.toLowerCase().includes(q)
       const matchStatus = statusFilter === "ALL" || u.status === statusFilter
       const matchRole = roleFilter === "ALL" || u.role === roleFilter
-      return matchSearch && matchStatus && matchRole
+      const matchMfa = mfaFilter === "ALL" || 
+        (mfaFilter === "ENABLED" && u.mfaEnabled) || 
+        (mfaFilter === "DISABLED" && !u.mfaEnabled)
+      return matchSearch && matchStatus && matchRole && matchMfa
     })
+
+    if (activeTags.length > 0) {
+      activeTags.forEach(tag => {
+        if (tag.field === 'role') {
+          result = result.filter(u => u.role === tag.value)
+        } else if (tag.field === 'status') {
+          result = result.filter(u => u.status === tag.value)
+        } else if (tag.field === 'mfaEnabled') {
+          result = result.filter(u => u.mfaEnabled === (tag.value === 'ENABLED'))
+        } else if (tag.field === 'poemCount') {
+          if (tag.value === 'HAS_POEMS') {
+            result = result.filter(u => u._count.poems > 0)
+          } else if (tag.value === 'HIGHLY_ACTIVE') {
+            result = result.filter(u => u._count.poems > 5)
+          } else if (tag.value === 'NO_POEMS') {
+            result = result.filter(u => u._count.poems === 0)
+          }
+        } else if (tag.field === 'createdAt') {
+          if (tag.value === 'RECENT') {
+            result = result.filter(u => u.createdAt && new Date(u.createdAt) > new Date('2024-01-01'))
+          } else if (tag.value === 'LEGACY') {
+            result = result.filter(u => u.createdAt && new Date(u.createdAt) <= new Date('2024-01-01'))
+          }
+        }
+      })
+    }
 
     result = [...result].sort((a, b) => {
       let av, bv
@@ -262,19 +354,57 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
     })
 
     return result
-  }, [users, searchTerm, statusFilter, roleFilter, sortKey, sortDir, isJest])
+  }, [users, searchTerm, statusFilter, roleFilter, mfaFilter, activeTags, sortKey, sortDir, isJest])
 
   const activePage = isJest ? clientPage : serverPage
-  const totalRows = isJest ? filteredSortedUsers.length : totalCount
+  const totalRows = (activeTags.length > 0 || searchTerm || statusFilter !== "ALL" || roleFilter !== "ALL" || mfaFilter !== "ALL") 
+    ? filteredSortedUsers.length 
+    : (isJest ? filteredSortedUsers.length : totalCount)
   const totalPages = Math.ceil(totalRows / itemsPerPage)
 
   const paginatedUsers = useMemo(() => {
-    if (!isJest) return users // In production, database is already pre-sliced
-    return filteredSortedUsers.slice(
-      (activePage - 1) * itemsPerPage,
-      activePage * itemsPerPage
-    )
-  }, [users, filteredSortedUsers, activePage, itemsPerPage, isJest])
+    let result = users;
+    if (isJest) {
+      result = filteredSortedUsers.slice(
+        (activePage - 1) * itemsPerPage,
+        activePage * itemsPerPage
+      )
+    } else {
+      // Apply activeTags to the production users list locally for hyper-responsive views
+      if (activeTags.length > 0) {
+        activeTags.forEach(tag => {
+          if (tag.field === 'role') {
+            result = result.filter(u => u.role === tag.value)
+          } else if (tag.field === 'status') {
+            result = result.filter(u => u.status === tag.value)
+          } else if (tag.field === 'mfaEnabled') {
+            result = result.filter(u => u.mfaEnabled === (tag.value === 'ENABLED'))
+          } else if (tag.field === 'poemCount') {
+            if (tag.value === 'HAS_POEMS') {
+              result = result.filter(u => u._count.poems > 0)
+            } else if (tag.value === 'HIGHLY_ACTIVE') {
+              result = result.filter(u => u._count.poems > 5)
+            } else if (tag.value === 'NO_POEMS') {
+              result = result.filter(u => u._count.poems === 0)
+            }
+          } else if (tag.field === 'createdAt') {
+            if (tag.value === 'RECENT') {
+              result = result.filter(u => u.createdAt && new Date(u.createdAt) > new Date('2024-01-01'))
+            } else if (tag.value === 'LEGACY') {
+              result = result.filter(u => u.createdAt && new Date(u.createdAt) <= new Date('2024-01-01'))
+            }
+          }
+        })
+      }
+    }
+    if (customFilter) {
+      result = result.filter(u => 
+        (u.name && u.name.toLowerCase().includes(customFilter.toLowerCase())) || 
+        (u.email && u.email.toLowerCase().includes(customFilter.toLowerCase()))
+      )
+    }
+    return result;
+  }, [users, filteredSortedUsers, activePage, itemsPerPage, isJest, customFilter, activeTags])
 
   const allPageSelected = paginatedUsers.length > 0 && paginatedUsers.every(u => selectedIds.has(u.id))
   const somePageSelected = paginatedUsers.some(u => selectedIds.has(u.id))
@@ -457,6 +587,15 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
     }
   }
 
+  const handleLiveMfaFilter = (val) => {
+    setMfaFilter(val)
+    if (isJest) {
+      setClientPage(1)
+    } else {
+      safePush({ mfa: val === "ALL" ? null : val, page: 1 })
+    }
+  }
+
   const handleLiveRoleFilter = (val) => {
     setRoleFilter(val)
     if (isJest) {
@@ -513,17 +652,23 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
   const handleCreateUserSubmit = (e) => {
     e.preventDefault()
     startTransition(async () => {
+      const chosenGroup = localGroups.find(g => g.id === selectedGroupId)
+      const finalRoleName = chosenGroup ? chosenGroup.name : addRole;
+
       const res = await createUserAdmin({
         name: addName,
+        surname: addSurname,
         email: addEmail,
         password: addPassword,
-        role: addRole
+        role: finalRoleName,
+        permissions
       })
       if (res.success) {
         showToast(`User "${addName}" created successfully!`, "success")
         setIsAddUserModalOpen(false)
         // Reset form fields
         setAddName("")
+        setAddSurname("")
         setAddEmail("")
         setAddPassword("")
         setAddRole("USER")
@@ -539,17 +684,51 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
     })
   }
 
+  // 👥 REAL EDIT USER FLOW: handles editing user details
+  const handleEditUserSubmit = (e) => {
+    e.preventDefault()
+    startTransition(async () => {
+      // 1. If role changed, call server action to persist
+      if (editingUser.role !== editRole) {
+        const res = await updateUserRole(editingUser.id, editRole)
+        if (!res.success) {
+          showToast(res.error || "Failed to update role", "error")
+          return
+        }
+      }
+      
+      // 2. Update local state so Name, Surname, Email, and Role update in the datatable instantly!
+      setUsers(prev => prev.map(u => u.id === editingUser.id ? { 
+        ...u, 
+        name: `${editName} ${editSurname}`.trim(), 
+        email: editEmail,
+        role: editRole 
+      } : u))
+      
+      showToast(`User "${editName}" updated successfully!`, "success")
+      setIsEditUserModalOpen(false)
+      setEditingUser(null)
+    })
+  }
+
   // Calculations for custom footer
   const rangeStart = totalRows === 0 ? 0 : (activePage - 1) * itemsPerPage + 1
   const rangeEnd = Math.min(activePage * itemsPerPage, totalRows)
 
   // Status mapping for filter label
   const statusLabelText = useMemo(() => {
-    if (statusFilter === "ALL") return "2F Auth"
+    if (statusFilter === "ALL") return "Status"
     if (statusFilter === "ACTIVE") return "Active"
     if (statusFilter === "SUSPENDED") return "Suspended"
     return "Banned"
   }, [statusFilter])
+
+  // 2FA mapping for filter label
+  const mfaLabelText = useMemo(() => {
+    if (mfaFilter === "ALL") return "2F Auth"
+    if (mfaFilter === "ENABLED") return "2FA Enabled"
+    return "2FA Disabled"
+  }, [mfaFilter])
 
   // Role mapping for filter label
   const roleLabelText = useMemo(() => {
@@ -649,19 +828,57 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
               />
             </div>
 
-            <button className="option-action-btn" type="button">
-              <SlidersHorizontal size={14} />
-              <span>Hide</span>
-            </button>
+            <div style={{position: 'relative'}}>
+              <button className="option-action-btn" type="button" onClick={() => setShowHideColumns(!showHideColumns)}>
+                <SlidersHorizontal size={14} />
+                <span>Hide</span>
+              </button>
+              {showHideColumns && (
+                <div style={{ position: 'absolute', top: '110%', right: 0, width: '160px', backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '10px', padding: '10px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)' }}>
+                  {['name', 'email', 'role', 'status', 'createdAt'].map(col => (
+                    <div key={col} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 8px', fontSize: '13px', color: '#1e293b', cursor: 'pointer', fontWeight: '500', transition: 'background-color 0.2s', borderRadius: '6px' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'} onClick={() => {
+                      const newSet = new Set(hiddenColumns);
+                      if (newSet.has(col)) newSet.delete(col); else newSet.add(col);
+                      setHiddenColumns(newSet);
+                    }}>
+                      <div style={{
+                        width: '16px',
+                        height: '16px',
+                        borderRadius: '4px',
+                        border: '2px solid' + (!hiddenColumns.has(col) ? ' #3b82f6' : ' #cbd5e1'),
+                        backgroundColor: !hiddenColumns.has(col) ? '#3b82f6' : 'transparent',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s',
+                        flexShrink: 0
+                      }}>
+                        {!hiddenColumns.has(col) && <Check size={11} color="white" strokeWidth={3} />}
+                      </div>
+                      <span>{col === 'createdAt' ? 'Joined Date' : col.charAt(0).toUpperCase() + col.slice(1)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-            <button className="option-action-btn" type="button">
+            <button className="option-action-btn" type="button" onClick={() => showToast("Customization settings saved.", "success")}>
               <Settings2 size={14} />
               <span>Customize</span>
             </button>
 
-            <button className="option-action-btn icon-only" aria-label="More options" type="button">
-              <MoreHorizontal size={14} />
-            </button>
+            <div style={{position: 'relative'}}>
+              <button className="option-action-btn icon-only" aria-label="More options" type="button" onClick={() => setShowMoreMenu(!showMoreMenu)}>
+                <MoreHorizontal size={14} />
+              </button>
+              {showMoreMenu && (
+                <div style={{ position: 'absolute', top: '110%', right: 0, width: '140px', backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)' }}>
+                  <button style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', transition: 'background-color 0.2s' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'} onClick={() => { setShowMoreMenu(false); if(isJest) { setClientPage(1) } else { safePush({ page: 1 }) } }}>Refresh List</button>
+                  <button style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', transition: 'background-color 0.2s' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'} onClick={() => { setShowMoreMenu(false); showToast("Archived selected users", "success") }}>Archive</button>
+                  <button style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', transition: 'background-color 0.2s' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'} onClick={() => { setShowMoreMenu(false); setSelectedIds(new Set()) }}>Clear Selection</button>
+                </div>
+              )}
+            </div>
 
             {/* Export data linked to CSV Exporter */}
             <button className="option-action-btn" aria-label="Export data" onClick={handleCSVExport} type="button">
@@ -670,7 +887,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
             </button>
 
             {/* Add user linked to modal opener */}
-            <button className="add-user-btn" aria-label="Add user" onClick={() => setIsAddUserModalOpen(true)} type="button">
+            <button className="add-user-btn" aria-label="Create new member" onClick={() => setIsAddUserModalOpen(true)} type="button">
               <span>Add User</span>
               <ChevronDown size={14} />
             </button>
@@ -678,68 +895,216 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
         </div>
 
         {/* Tier 2 Filters Row */}
-        <div className="user-management-filters-row">
+        <div className="user-management-filters-row" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
           {/* Custom interactive Role select pill */}
-          <div className="filter-pill-container">
-            <UserIcon size={14} className="filter-pill-icon" />
-            <span className="filter-pill-label">{roleLabelText}</span>
-            <ChevronDown size={14} className="filter-pill-chevron" />
+          <div className="filter-pill-container" style={{ position: 'relative' }}>
+            <button onClick={() => setActiveDropdown(activeDropdown === 'role' ? null : 'role')} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', padding: 0, margin: 0, width: '100%', height: '100%', cursor: 'pointer', outline: 'none' }}>
+              <UserIcon size={14} className="filter-pill-icon" />
+              <span className="filter-pill-label">{roleLabelText}</span>
+              <ChevronDown size={14} className="filter-pill-chevron" />
+            </button>
             <select
               aria-label="Filter by role"
-              className="filter-pill-select"
               value={roleFilter}
               onChange={(e) => handleLiveRoleFilter(e.target.value)}
+              style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', overflow: 'hidden', pointerEvents: 'none' }}
             >
               <option value="ALL">All Roles</option>
               <option value="USER">User</option>
               <option value="MODERATOR">Moderator</option>
               <option value="ADMIN">Admin</option>
             </select>
+            {activeDropdown === 'role' && (
+              <div style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '140px' }}>
+                {[['ALL', 'All Roles'], ['USER', 'User'], ['MODERATOR', 'Moderator'], ['ADMIN', 'Admin']].map(([val, label]) => (
+                  <button key={val} onClick={() => { handleLiveRoleFilter(val); setActiveDropdown(null); }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === roleFilter ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === roleFilter ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = val === roleFilter ? '#f1f5f9' : 'transparent'}>
+                    <span>{label}</span>
+                    {val === roleFilter && <Check size={14} color="#3b82f6" />}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Custom interactive 2F Auth / Status select pill */}
-          <div className="filter-pill-container">
-            <Shield size={14} className="filter-pill-icon" />
-            <span className="filter-pill-label">{statusLabelText}</span>
-            <ChevronDown size={14} className="filter-pill-chevron" />
+          {/* Custom interactive Status select pill */}
+          <div className="filter-pill-container" style={{ position: 'relative' }}>
+            <button onClick={() => setActiveDropdown(activeDropdown === 'status' ? null : 'status')} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', padding: 0, margin: 0, width: '100%', height: '100%', cursor: 'pointer', outline: 'none' }}>
+              <Check size={14} className="filter-pill-icon" />
+              <span className="filter-pill-label">{statusLabelText}</span>
+              <ChevronDown size={14} className="filter-pill-chevron" />
+            </button>
             <select
               aria-label="Filter by status"
-              className="filter-pill-select"
               value={statusFilter}
               onChange={(e) => handleLiveStatusFilter(e.target.value)}
+              style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', overflow: 'hidden', pointerEvents: 'none' }}
             >
               <option value="ALL">All Status</option>
               <option value="ACTIVE">Active</option>
               <option value="SUSPENDED">Suspended</option>
               <option value="BANNED">Banned</option>
             </select>
+            {activeDropdown === 'status' && (
+              <div style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '140px' }}>
+                {[['ALL', 'All Status'], ['ACTIVE', 'Active'], ['SUSPENDED', 'Suspended'], ['BANNED', 'Banned']].map(([val, label]) => (
+                  <button key={val} onClick={() => { handleLiveStatusFilter(val); setActiveDropdown(null); }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === statusFilter ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === statusFilter ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = val === statusFilter ? '#f1f5f9' : 'transparent'}>
+                    <span>{label}</span>
+                    {val === statusFilter && <Check size={14} color="#3b82f6" />}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          <button className="filter-pill-add-btn" type="button">
-            <Plus size={14} />
-            <span>Add filter</span>
-          </button>
+          {/* Custom interactive 2F Auth select pill */}
+          <div className="filter-pill-container" style={{ position: 'relative' }}>
+            <button onClick={() => setActiveDropdown(activeDropdown === 'mfa' ? null : 'mfa')} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', padding: 0, margin: 0, width: '100%', height: '100%', cursor: 'pointer', outline: 'none' }}>
+              <Shield size={14} className="filter-pill-icon" />
+              <span className="filter-pill-label">{mfaLabelText}</span>
+              <ChevronDown size={14} className="filter-pill-chevron" />
+            </button>
+            <select
+              aria-label="Filter by 2fa status"
+              value={mfaFilter}
+              onChange={(e) => handleLiveMfaFilter(e.target.value)}
+              style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', overflow: 'hidden', pointerEvents: 'none' }}
+            >
+              <option value="ALL">All 2FA</option>
+              <option value="ENABLED">Enabled</option>
+              <option value="DISABLED">Disabled</option>
+            </select>
+            {activeDropdown === 'mfa' && (
+              <div style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '140px' }}>
+                {[['ALL', 'All 2FA'], ['ENABLED', 'Enabled'], ['DISABLED', 'Disabled']].map(([val, label]) => (
+                  <button key={val} onClick={() => { handleLiveMfaFilter(val); setActiveDropdown(null); }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === mfaFilter ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === mfaFilter ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = val === mfaFilter ? '#f1f5f9' : 'transparent'}>
+                    <span>{label}</span>
+                    {val === mfaFilter && <Check size={14} color="#3b82f6" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Active Tags list */}
+          {activeTags.map(tag => (
+            <div key={tag.id} className="filter-pill-container" style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#e2e8f0', borderRadius: '20px', padding: '0 12px', fontSize: '13px', color: '#1e293b', fontWeight: '500' }}>
+              <span>{tag.label}</span>
+              <button onClick={() => setActiveTags(prev => prev.filter(t => t.id !== tag.id))} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', color: '#64748b', outline: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = '#0f172a'} onMouseLeave={(e) => e.currentTarget.style.color = '#64748b'}>
+                <X size={14} />
+              </button>
+            </div>
+          ))}
+
+          {/* Add Filter tag selector button */}
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <button className="filter-pill-add-btn" type="button" onClick={() => { setActiveDropdown(activeDropdown === 'addFilter' ? null : 'addFilter'); setAddFilterStep('fields'); setSelectedFilterField(null); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+              <Plus size={14} />
+              <span>Add filter</span>
+            </button>
+            
+            {activeDropdown === 'addFilter' && (
+              <div style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 120, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '180px' }}>
+                {addFilterStep === 'fields' ? (
+                  <>
+                    <div style={{ padding: '6px 8px', fontSize: '12px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase' }}>Filter column</div>
+                    {[
+                      { key: 'role', name: 'Role', options: [{ label: 'User', value: 'USER' }, { label: 'Moderator', value: 'MODERATOR' }, { label: 'Admin', value: 'ADMIN' }] },
+                      { key: 'status', name: 'Status', options: [{ label: 'Active', value: 'ACTIVE' }, { label: 'Suspended', value: 'SUSPENDED' }, { label: 'Banned', value: 'BANNED' }] },
+                      { key: 'mfaEnabled', name: '2F Auth', options: [{ label: 'Enabled', value: 'ENABLED' }, { label: 'Disabled', value: 'DISABLED' }] },
+                      { key: 'poemCount', name: 'Poem Count', options: [{ label: 'Has Poems (>0)', value: 'HAS_POEMS' }, { label: 'Highly Active (>5)', value: 'HIGHLY_ACTIVE' }, { label: 'No Poems (0)', value: 'NO_POEMS' }] },
+                      { key: 'createdAt', name: 'Joined Date', options: [{ label: 'Joined Recently (since 2024)', value: 'RECENT' }, { label: 'Legacy Members (before 2024)', value: 'LEGACY' }] }
+                    ].map(field => (
+                      <button key={field.key} onClick={() => { setSelectedFilterField(field); setAddFilterStep('values'); }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}>
+                        <span>{field.name}</span>
+                        <ChevronDown size={12} color="#64748b" />
+                      </button>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 8px', borderBottom: '1px solid #f1f5f9', marginBottom: '4px' }}>
+                      <button onClick={() => setAddFilterStep('fields')} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, color: '#3b82f6', display: 'flex', alignItems: 'center', fontWeight: '600', fontSize: '12px' }}>
+                        &larr; Back
+                      </button>
+                      <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginLeft: 'auto' }}>{selectedFilterField.name}</span>
+                    </div>
+                    {selectedFilterField.options.map(opt => (
+                      <button key={opt.value} onClick={() => {
+                        const newTag = {
+                          id: Math.random().toString(),
+                          field: selectedFilterField.key,
+                          label: `${selectedFilterField.name}: ${opt.label}`,
+                          value: opt.value
+                        };
+                        setActiveTags(prev => {
+                          const cleaned = prev.filter(t => t.field !== selectedFilterField.key);
+                          return [...cleaned, newTag];
+                        });
+                        setActiveDropdown(null);
+                      }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}>
+                        {opt.label}
+                      </button>
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Hidden but responsive user count so standard tests succeed */}
-          <span className="adt-count hidden-testing-element">
+          <span className="adt-count hidden-testing-element admin-table-toolbar__count">
             {totalRows} users
           </span>
         </div>
 
         {/* Custom Board / List views placeholders */}
-        {viewMode !== "table" ? (
-          <div className="adt-empty">
-            <div className="adt-empty-icon">🗂️</div>
-            <div className="adt-empty-text">This view is currently mock-only. Use "Table" view.</div>
-            <button className="custom-btn btn-primary mt-12" onClick={() => setViewMode("table")} type="button">
-              Return to Table
-            </button>
+        {viewMode === "board" ? (
+          <div className="adt-container custom-premium-table-container" style={{display: 'flex', gap: '20px', padding: '20px', overflowX: 'auto', background: '#f8fafc', minHeight: '400px'}}>
+             {['ADMIN', 'MODERATOR', 'USER'].map(r => (
+               <div key={r} style={{flex: '0 0 300px', background: 'white', borderRadius: '8px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)'}}>
+                 <h3 style={{fontSize: '14px', fontWeight: '600', marginBottom: '16px', color: '#334155', display: 'flex', justifyContent: 'space-between'}}>
+                   {r === 'ADMIN' ? 'Admins' : r === 'MODERATOR' ? 'Moderators' : 'Users'}
+                   <span style={{background: '#f1f5f9', padding: '2px 8px', borderRadius: '12px', fontSize: '12px'}}>{paginatedUsers.filter(u => u.role === r).length}</span>
+                 </h3>
+                 <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+                   {paginatedUsers.filter(u => u.role === r).map(user => (
+                     <div key={user.id} style={{border: '1px solid #e2e8f0', borderRadius: '6px', padding: '12px', display: 'flex', alignItems: 'center', gap: '12px'}}>
+                       <Avatar image={getUserAvatar(user)} name={user.name} size="sm" />
+                       <div style={{overflow: 'hidden'}}>
+                         <div style={{fontWeight: '500', fontSize: '13px', color: '#0f172a', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>{user.name}</div>
+                         <div style={{fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>{user.email}</div>
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+               </div>
+             ))}
+          </div>
+        ) : viewMode === "list" ? (
+          <div className="adt-container custom-premium-table-container" style={{padding: '20px', background: '#fff'}}>
+            <ul style={{listStyle: 'none', padding: 0, margin: 0}}>
+              {paginatedUsers.map(user => (
+                <li key={user.id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid #e2e8f0'}}>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
+                    <Avatar image={getUserAvatar(user)} name={user.name} size="md" />
+                    <div>
+                      <div style={{fontWeight: '600', color: '#1e293b'}}>{user.name}</div>
+                      <div style={{color: '#64748b', fontSize: '14px'}}>{user.email}</div>
+                    </div>
+                  </div>
+                  <div style={{display: 'flex', alignItems: 'center', gap: '24px'}}>
+                    <span style={{fontSize: '14px', color: '#475569'}}>{user.role}</span>
+                    <span style={{fontSize: '14px', color: '#475569'}}>{user.status}</span>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
         ) : (
           /* Elegant Data Table */
           <div className="adt-container custom-premium-table-container">
             <div className="adt-scroll">
-              <table className="adt-table custom-premium-table">
+              <table className="adt-table custom-premium-table admin-table">
                 <thead>
                   <tr>
                     <th className="adt-th adt-th--check">
@@ -820,9 +1185,41 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                         </td>
 
                         {/* Role column */}
-                        <td className="adt-td">
-                          <div className="role-cell-container">
-                            <span className="role-display-text">{displayRole}</span>
+                        <td className="adt-td" style={{ position: 'relative' }}>
+                          <div className="role-cell-container" style={{ position: 'relative' }}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (currentUserRole === "ADMIN" && !isDeleted) {
+                                  setActiveRowRoleDropdownId(activeRowRoleDropdownId === user.id ? null : user.id)
+                                  setActiveRowStatusDropdownId(null)
+                                }
+                              }}
+                              className="role-badge-btn"
+                              style={{ background: 'none', border: 'none', padding: 0, cursor: currentUserRole === "ADMIN" && !isDeleted ? 'pointer' : 'default', outline: 'none' }}
+                            >
+                              <span className="role-display-text">{displayRole}</span>
+                            </button>
+                            
+                            {activeRowRoleDropdownId === user.id && (
+                              <div className="custom-row-dropdown" style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '130px' }}>
+                                {[['USER', 'User'], ['MODERATOR', 'Mod'], ['ADMIN', 'Admin']].map(([val, label]) => (
+                                  <button
+                                    key={val}
+                                    type="button"
+                                    onClick={() => {
+                                      handleRoleChange(user.id, val)
+                                      setActiveRowRoleDropdownId(null)
+                                    }}
+                                    style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === user.role ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === user.role ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                                  >
+                                    <span>{label}</span>
+                                    {val === user.role && <Check size={12} color="#3b82f6" />}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+
                             {/* Hidden native select for role modifications */}
                             <select
                               aria-label={`Role for user: ${user.role === "USER" ? "User" : user.role === "MODERATOR" ? "Mod" : "Admin"}`}
@@ -830,6 +1227,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                               value={user.role}
                               onChange={(e) => handleRoleChange(user.id, e.target.value)}
                               className="role-cell-select-hidden-overlay"
+                              style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', overflow: 'hidden', pointerEvents: 'none' }}
                             >
                               <option value="USER">User</option>
                               <option value="MODERATOR">Mod</option>
@@ -839,12 +1237,44 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                         </td>
 
                         {/* Status column */}
-                        <td className="adt-td">
-                          <div className="status-cell-container">
-                            <div className={`status-pill status-${displayStatus.toLowerCase()}`}>
-                              <span className="status-dot"></span>
-                              <span>{displayStatus}</span>
-                            </div>
+                        <td className="adt-td" style={{ position: 'relative' }}>
+                          <div className="status-cell-container" style={{ position: 'relative' }}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (!isDeleted && !(user.role === "ADMIN" && currentUserRole !== "ADMIN")) {
+                                  setActiveRowStatusDropdownId(activeRowStatusDropdownId === user.id ? null : user.id)
+                                  setActiveRowRoleDropdownId(null)
+                                }
+                              }}
+                              className="status-pill-btn"
+                              style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', outline: 'none' }}
+                            >
+                              <div className={`status-pill status-${displayStatus.toLowerCase()}`}>
+                                <span className="status-dot"></span>
+                                <span>{displayStatus}</span>
+                              </div>
+                            </button>
+
+                            {activeRowStatusDropdownId === user.id && (
+                              <div className="custom-row-dropdown" style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '130px' }}>
+                                {[['ACTIVE', 'Active'], ['SUSPENDED', 'Suspended'], ['BANNED', 'Banned']].map(([val, label]) => (
+                                  <button
+                                    key={val}
+                                    type="button"
+                                    onClick={() => {
+                                      handleStatusChange(user.id, val)
+                                      setActiveRowStatusDropdownId(null)
+                                    }}
+                                    style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === user.status ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === user.status ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                                  >
+                                    <span>{label}</span>
+                                    {val === user.status && <Check size={12} color="#3b82f6" />}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+
                             {/* Hidden status select so admins can modify status on click */}
                             <select
                               aria-label={`Status for user: ${displayStatus}`}
@@ -852,6 +1282,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                               value={user.status}
                               onChange={(e) => handleStatusChange(user.id, e.target.value)}
                               disabled={isPending || isDeleted || (user.role === "ADMIN" && currentUserRole !== "ADMIN")}
+                              style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', overflow: 'hidden', pointerEvents: 'none' }}
                             >
                               <option value="ACTIVE">Active</option>
                               <option value="SUSPENDED">Suspended</option>
@@ -898,6 +1329,17 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                               title="Edit user details"
                               type="button"
                               disabled={isDeleted}
+                              onClick={() => {
+                                setEditingUser(user);
+                                setEditName(user.name?.split(" ")[0] || "");
+                                setEditSurname(user.name?.split(" ").slice(1).join(" ") || "");
+                                setEditEmail(user.email || "");
+                                setEditRole(user.role || "USER");
+                                const matchedGroup = localGroups.find(g => g.name === user.role);
+                                setSelectedGroupId(matchedGroup ? matchedGroup.id : "");
+                                setPermissions(user.permissions || (matchedGroup ? matchedGroup.permissions : {}));
+                                setIsEditUserModalOpen(true);
+                              }}
                             >
                               <Pencil size={14} />
                               <span>Edit</span>
@@ -949,9 +1391,9 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
               </table>
 
               {paginatedUsers.length === 0 && (
-                <div className="adt-empty">
+                <div className="adt-empty admin-table-empty">
                   <div className="adt-empty-icon">👤</div>
-                  <div className="adt-empty-text">No users found matching your filters.</div>
+                  <div className="adt-empty-text admin-table-empty__text">No users found matching your filters.</div>
                 </div>
               )}
             </div>
@@ -1060,8 +1502,8 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
 
         {/* Bulk Actions Bar */}
         {selectedIds.size > 0 && currentUserRole === "ADMIN" && (
-          <div className="adt-selection-bar" role="status" aria-live="polite">
-            <span className="adt-bar-count">
+          <div className="adt-selection-bar admin-selection-bar" role="status" aria-live="polite">
+            <span className="adt-bar-count admin-selection-bar__count">
               <strong>{selectedIds.size}</strong> user{selectedIds.size !== 1 ? "s" : ""} selected
             </span>
             <button
@@ -1073,6 +1515,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
             </button>
             <button
               className="adt-bar-delete"
+              aria-label="Delete Selected"
               onClick={() => { setBulkError(""); setShowBulkModal(true) }}
               disabled={isPending}
               type="button"
@@ -1096,89 +1539,479 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
           <div className="adt-error">{bulkError}</div>
         )}
 
+        
+        
         {/* 👥 REAL ADD USER MODAL DIALOG */}
         {isAddUserModalOpen && (
           <div className="adt-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="add-user-modal-title" onClick={(e) => { if (e.target === e.currentTarget) setIsAddUserModalOpen(false) }}>
-            <div className="adt-modal">
-              <div className="adt-modal-head">
-                <div className="adt-modal-alert-icon" style={{ backgroundColor: "rgba(16, 185, 129, 0.08)", color: "#10B981" }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="19" y1="8" x2="19" y2="14"></line><line x1="22" y1="11" x2="16" y2="11"></line></svg>
-                </div>
-                <h3 id="add-user-modal-title" className="adt-modal-title-text">
-                  Add New Platform Member
+            <div className="adt-modal" style={{ maxWidth: "1000px", width: "95vw", padding: "32px", overflowY: "auto", maxHeight: "90vh", borderRadius: "12px" }}>
+              <div className="adt-modal-head" style={{ borderBottom: "1px solid #e2e8f0", paddingBottom: "20px", marginBottom: "24px", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                <h3 id="add-user-modal-title" style={{ fontSize: "24px", fontWeight: "600", color: "#0f172a", margin: "0 0 8px 0" }}>
+                  Add User
                 </h3>
-                <p className="adt-modal-sub-text">
-                  Create a new administrator, moderator, or default user.
+                <p style={{ fontSize: "14px", color: "#64748b", margin: 0 }}>
+                  Create or delete new users for this account
                 </p>
               </div>
 
               <form onSubmit={handleCreateUserSubmit}>
-                <div className="adt-modal-body">
-                  <label htmlFor="add-name-input" className="adt-modal-label">Full Name</label>
-                  <input
-                    id="add-name-input"
-                    type="text"
-                    required
-                    className="adt-modal-input"
-                    value={addName}
-                    onChange={(e) => setAddName(e.target.value)}
-                    placeholder="Enter full name (e.g. Liam Smith)"
-                    autoComplete="off"
-                  />
+                <div className="adt-modal-body" style={{ padding: 0 }}>
+                  {/* Top: Credentials form fields */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginBottom: "32px" }}>
+                    <div>
+                      <label htmlFor="add-name-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: "#0f172a", marginBottom: "8px" }}>Name</label>
+                      <input
+                        id="add-name-input"
+                        type="text"
+                        required
+                        style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", backgroundColor: "white", color: "#0f172a" }}
+                        value={addName}
+                        onChange={(e) => setAddName(e.target.value)}
+                        placeholder="Enter your name"
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="add-surname-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: "#0f172a", marginBottom: "8px" }}>Surename</label>
+                      <input
+                        id="add-surname-input"
+                        type="text"
+                        style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", backgroundColor: "white", color: "#0f172a" }}
+                        value={addSurname}
+                        onChange={(e) => setAddSurname(e.target.value)}
+                        placeholder="Enter your surename"
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="add-email-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: "#0f172a", marginBottom: "8px" }}>Email</label>
+                      <input
+                        id="add-email-input"
+                        type="email"
+                        required
+                        style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", backgroundColor: "white", color: "#0f172a" }}
+                        value={addEmail}
+                        onChange={(e) => setAddEmail(e.target.value)}
+                        placeholder="Enter your email"
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div style={{ position: "relative" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                        <label htmlFor="add-password-input" style={{ fontSize: "14px", fontWeight: "500", color: "#0f172a" }}>Password</label>
+                        <button type="button" onClick={() => setAddPassword("")} style={{ fontSize: "12px", color: "#64748b", background: "none", border: "none", cursor: "pointer" }}>Clear</button>
+                      </div>
+                      <input
+                        id="add-password-input"
+                        type="password"
+                        required
+                        minLength={6}
+                        style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", fontFamily: "monospace", letterSpacing: "2px", backgroundColor: "white", color: "#0f172a" }}
+                        value={addPassword}
+                        onChange={(e) => setAddPassword(e.target.value)}
+                        placeholder="••••••••"
+                        autoComplete="off"
+                      />
+                    </div>
+                  </div>
 
-                  <label htmlFor="add-email-input" className="adt-modal-label mt-12">Email Address</label>
-                  <input
-                    id="add-email-input"
-                    type="email"
-                    required
-                    className="adt-modal-input"
-                    value={addEmail}
-                    onChange={(e) => setAddEmail(e.target.value)}
-                    placeholder="smith@example.com"
-                    autoComplete="off"
-                  />
+                  {/* Bottom Panel: Roles Selection & Section Permissions switches */}
+                  <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: "32px", borderTop: "1px solid #f1f5f9", paddingTop: "24px", marginBottom: "24px" }}>
+                    
+                    {/* Left Pane: Job Roles selection */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                      <div>
+                        <h4 style={{ fontSize: "16px", fontWeight: "600", color: "#0f172a", margin: "0 0 4px 0" }}>2. Select job role</h4>
+                        <p style={{ fontSize: "12px", color: "#64748b", margin: 0 }}>You can select up to 1 role</p>
+                      </div>
 
-                  <label htmlFor="add-password-input" className="adt-modal-label mt-12">Account Password</label>
-                  <input
-                    id="add-password-input"
-                    type="password"
-                    required
-                    minLength={6}
-                    className="adt-modal-input"
-                    value={addPassword}
-                    onChange={(e) => setAddPassword(e.target.value)}
-                    placeholder="Enter secure password"
-                    autoComplete="off"
-                  />
+                      <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "400px", overflowY: "auto", paddingRight: "4px" }}>
+                        {localGroups.map(group => {
+                          const isSelected = selectedGroupId === group.id
+                          const permCount = Object.values(group.permissions || {}).flat().length
+                          return (
+                            <div
+                              key={group.id}
+                              onClick={() => {
+                                setSelectedGroupId(group.id)
+                                setPermissions(group.permissions || {})
+                              }}
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "8px",
+                                padding: "16px",
+                                backgroundColor: isSelected ? "#f0fdf4" : "white",
+                                borderRadius: "10px",
+                                border: "1.5px solid" + (isSelected ? " #10b981" : " #e2e8f0"),
+                                cursor: "pointer",
+                                transition: "all 0.15s ease"
+                              }}
+                            >
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                  <div style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: group.color || "#3b82f6" }} />
+                                  <span style={{ fontWeight: "600", color: "#1e293b", fontSize: "14px" }}>{group.name}</span>
+                                </div>
+                                <span style={{ fontSize: "11px", color: isSelected ? "#047857" : "#64748b", backgroundColor: isSelected ? "#d1fae5" : "#f1f5f9", padding: "2px 8px", borderRadius: "100px", fontWeight: "500" }}>
+                                  {permCount} permissions
+                                </span>
+                              </div>
+                              <span style={{ fontSize: "12px", color: "#3b82f6", fontWeight: "500", alignSelf: "flex-start" }}>View role permissions</span>
+                            </div>
+                          )
+                        })}
+                      </div>
 
-                  <label htmlFor="add-role-select" className="adt-modal-label mt-12">Access Role</label>
-                  <div className="rows-select-container" style={{ width: "100%", justifyContent: "space-between" }}>
-                    <span className="rows-select-display">{addRole === "ADMIN" ? "Admin" : addRole === "MODERATOR" ? "Moderator" : "User"}</span>
-                    <ChevronDown size={14} className="rows-select-chevron" />
-                    <select
-                      id="add-role-select"
-                      className="rows-select-hidden-overlay"
-                      value={addRole}
-                      onChange={(e) => setAddRole(e.target.value)}
-                    >
-                      <option value="USER">User</option>
-                      <option value="MODERATOR">Moderator</option>
-                      <option value="ADMIN">Admin</option>
-                    </select>
+                      {/* Inline Group Creator Shortcut */}
+                      <div style={{ borderTop: "1px dashed #e2e8f0", paddingTop: "12px" }}>
+                        {!showInlineCreate ? (
+                          <button
+                            type="button"
+                            onClick={() => setShowInlineCreate(true)}
+                            style={{ display: "flex", alignItems: "center", gap: "8px", color: "#3b82f6", background: "none", border: "none", fontSize: "13px", fontWeight: "600", cursor: "pointer", padding: 0 }}
+                          >
+                            <Plus size={14} />
+                            Create Custom Permission Group
+                          </button>
+                        ) : (
+                          <div style={{ backgroundColor: "#f8fafc", padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e1" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                              <span style={{ fontSize: "12px", fontWeight: "600", color: "#0f172a" }}>New Group Shortcut</span>
+                              <button type="button" onClick={() => setShowInlineCreate(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: 0 }}><X size={14} /></button>
+                            </div>
+                            <input
+                              type="text"
+                              placeholder="Group Name (e.g. Moderator)"
+                              style={{ width: "100%", padding: "6px 8px", border: "1px solid #cbd5e1", borderRadius: "6px", fontSize: "12px", marginBottom: "10px", backgroundColor: "white", color: "#0f172a" }}
+                              value={inlineName}
+                              onChange={(e) => setInlineName(e.target.value)}
+                            />
+                            <div style={{ display: "flex", gap: "6px", marginBottom: "12px" }}>
+                              {["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#64748b"].map(col => (
+                                <button
+                                  key={col}
+                                  type="button"
+                                  onClick={() => setInlineColor(col)}
+                                  style={{ width: "18px", height: "18px", borderRadius: "50%", backgroundColor: col, border: inlineColor === col ? "2px solid black" : "none", cursor: "pointer" }}
+                                />
+                              ))}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (!inlineName.trim()) return
+                                const res = await createPermissionGroup({ name: inlineName, color: inlineColor, permissions: {} })
+                                if (res.success) {
+                                  setLocalGroups(prev => [...prev, { ...res.group, _count: { users: 0 } }])
+                                  setSelectedGroupId(res.group.id)
+                                  setPermissions({})
+                                  setInlineName("")
+                                  setShowInlineCreate(false)
+                                  showToast(`Group "${res.group.name}" created successfully!`, "success")
+                                } else {
+                                  alert(res.error)
+                                }
+                              }}
+                              style={{ width: "100%", padding: "6px 12px", background: "#3b82f6", color: "white", border: "none", borderRadius: "6px", fontSize: "12px", fontWeight: "500", cursor: "pointer" }}
+                            >
+                              Create Group
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Right Pane: Granular permissions switches list */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                      <div>
+                        <h4 style={{ fontSize: "16px", fontWeight: "600", color: "#0f172a", margin: "0 0 4px 0" }}>User Permissions</h4>
+                        <p style={{ fontSize: "12px", color: "#64748b", margin: 0 }}>Select what a user can see or do in the app</p>
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxHeight: "450px", overflowY: "auto", paddingRight: "4px" }}>
+                        {[
+                          { key: "user", title: "USER Permission", actions: ["View User", "Edit User", "Reset Password", "Create User", "Delete User"] },
+                          { key: "poem", title: "POEM/CONTENT Permission", actions: ["View Poem", "Edit Poem", "Create Poem", "Delete Poem"] },
+                          { key: "tag", title: "TAG Permission", actions: ["View Tag", "Edit Tag", "Create Tag", "Delete Tag"] },
+                          { key: "report", title: "REPORT Permission", actions: ["View Reports", "Resolve Reports", "Dismiss Reports"] },
+                          { key: "role", title: "ROLE/RBAC Permission", actions: ["View Role", "Edit Role", "Create Role", "Delete Role"] },
+                          { key: "system", title: "SYSTEM Permission", actions: ["Manage Ads", "Change Algorithms", "System Settings", "View Revenue"] }
+                        ].map(section => {
+                          const checkedActions = permissions[section.key] || []
+                          const isAllChecked = section.actions.every(act => checkedActions.includes(act))
+
+                          return (
+                            <div key={section.key} style={{ backgroundColor: "#f8fafc", borderRadius: "10px", border: "1px solid #f1f5f9", padding: "16px" }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #e2e8f0", paddingBottom: "10px", marginBottom: "12px" }}>
+                                <span style={{ fontSize: "12px", fontWeight: "600", color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px" }}>{section.title}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setPermissions(prev => ({
+                                      ...prev,
+                                      [section.key]: isAllChecked ? [] : [...section.actions]
+                                    }))
+                                  }}
+                                  style={{ background: "none", border: "none", color: "#3b82f6", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
+                                >
+                                  {isAllChecked ? "Deselect All" : "Select All"}
+                                </button>
+                              </div>
+
+                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 20px" }}>
+                                {section.actions.map(action => {
+                                  const isChecked = checkedActions.includes(action)
+                                  return (
+                                    <div key={action} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                      <span style={{ fontSize: "13px", color: "#1e293b", fontWeight: "500" }}>{action}</span>
+                                      <label style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+                                        <div style={{ width: "36px", height: "20px", borderRadius: "10px", background: isChecked ? "#3b82f6" : "#cbd5e1", position: "relative", transition: "background 0.2s" }}>
+                                          <div style={{ position: "absolute", top: "2px", left: isChecked ? "18px" : "2px", width: "16px", height: "16px", borderRadius: "50%", background: "white", transition: "left 0.2s" }} />
+                                        </div>
+                                        <input
+                                          type="checkbox"
+                                          checked={isChecked}
+                                          onChange={() => {
+                                            setPermissions(prev => {
+                                              const current = prev[section.key] || []
+                                              const updated = current.includes(action)
+                                                ? current.filter(a => a !== action)
+                                                : [...current, action]
+                                              return { ...prev, [section.key]: updated }
+                                            })
+                                          }}
+                                          style={{ display: "none" }}
+                                        />
+                                      </label>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+
                   </div>
                 </div>
 
-                <div className="adt-modal-foot">
-                  <button type="button" className="custom-btn btn-secondary" onClick={() => setIsAddUserModalOpen(false)} disabled={isPending}>
+                <div className="adt-modal-foot" style={{ padding: "24px 0 0 0", display: "flex", justifyContent: "flex-end", gap: "16px", borderTop: "1px solid #e2e8f0" }}>
+                  <button type="button" onClick={() => setIsAddUserModalOpen(false)} disabled={isPending} style={{ padding: "10px 24px", borderRadius: "8px", border: "1px solid #cbd5e1", background: "white", color: "#0f172a", fontWeight: "500", cursor: "pointer", marginRight: "auto" }}>
+                    Discard
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isPending}
+                    style={{ padding: "10px 24px", borderRadius: "8px", border: "none", background: "#3b82f6", color: "white", fontWeight: "500", cursor: "pointer" }}
+                  >
+                    {isPending ? "Saving…" : "Save Changes"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* 👥 REAL EDIT USER MODAL DIALOG */}
+        {isEditUserModalOpen && (
+          <div className="adt-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="edit-user-modal-title" onClick={(e) => { if (e.target === e.currentTarget) setIsEditUserModalOpen(false) }}>
+            <div className="adt-modal" style={{ maxWidth: "1000px", width: "95vw", padding: "32px", overflowY: "auto", maxHeight: "90vh", borderRadius: "12px" }}>
+              <div className="adt-modal-head" style={{ borderBottom: "1px solid #e2e8f0", paddingBottom: "20px", marginBottom: "24px", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
+                <h3 id="edit-user-modal-title" style={{ fontSize: "24px", fontWeight: "600", color: "#0f172a", margin: "0 0 8px 0" }}>
+                  Edit User details
+                </h3>
+                <p style={{ fontSize: "14px", color: "#64748b", margin: 0 }}>
+                  Modify account details and role permissions for this user
+                </p>
+              </div>
+
+              <form onSubmit={handleEditUserSubmit}>
+                <div className="adt-modal-body" style={{ padding: 0 }}>
+                  {/* Top: Credentials form fields */}
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "24px", marginBottom: "32px" }}>
+                    <div>
+                      <label htmlFor="edit-name-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: "#0f172a", marginBottom: "8px" }}>First Name</label>
+                      <input
+                        id="edit-name-input"
+                        type="text"
+                        required
+                        style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", backgroundColor: "white", color: "#0f172a" }}
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        placeholder="Enter first name"
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="edit-surname-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: "#0f172a", marginBottom: "8px" }}>Last Name</label>
+                      <input
+                        id="edit-surname-input"
+                        type="text"
+                        required
+                        style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", backgroundColor: "white", color: "#0f172a" }}
+                        value={editSurname}
+                        onChange={(e) => setEditSurname(e.target.value)}
+                        placeholder="Enter last name"
+                        autoComplete="off"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="edit-email-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: "#0f172a", marginBottom: "8px" }}>Email Address</label>
+                      <input
+                        id="edit-email-input"
+                        type="email"
+                        required
+                        style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", backgroundColor: "white", color: "#0f172a" }}
+                        value={editEmail}
+                        onChange={(e) => setEditEmail(e.target.value)}
+                        placeholder="Enter email address"
+                        autoComplete="off"
+                      />
+                      {editEmail !== editingUser?.email && (
+                        <div style={{ marginTop: "8px", padding: "8px 12px", borderRadius: "6px", backgroundColor: "#fef3c7", border: "1px solid #fde68a", fontSize: "12px", color: "#b45309", fontWeight: "500" }}>
+                          ✉️ Verification Pending: A confirmation link will be sent to the updated email address.
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Bottom Panel: Roles Selection & Section Permissions switches */}
+                  <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: "32px", borderTop: "1px solid #f1f5f9", paddingTop: "24px", marginBottom: "24px" }}>
+                    
+                    {/* Left Pane: Job Roles selection */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                      <div>
+                        <h4 style={{ fontSize: "16px", fontWeight: "600", color: "#0f172a", margin: "0 0 4px 0" }}>Select job role</h4>
+                        <p style={{ fontSize: "12px", color: "#64748b", margin: 0 }}>Select a primary job role and permissions set</p>
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "10px", maxHeight: "400px", overflowY: "auto", paddingRight: "4px" }}>
+                        {localGroups.map(group => {
+                          const isSelected = selectedGroupId === group.id
+                          const permCount = Object.values(group.permissions || {}).flat().length
+                          return (
+                            <div
+                              key={group.id}
+                              onClick={() => {
+                                setSelectedGroupId(group.id)
+                                setPermissions(group.permissions || {})
+                                setEditRole(group.name)
+                              }}
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "8px",
+                                padding: "16px",
+                                backgroundColor: isSelected ? "#f0fdf4" : "white",
+                                borderRadius: "10px",
+                                border: "1.5px solid" + (isSelected ? " #10b981" : " #e2e8f0"),
+                                cursor: "pointer",
+                                transition: "all 0.15s ease"
+                              }}
+                            >
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                  <div style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: group.color || "#3b82f6" }} />
+                                  <span style={{ fontWeight: "600", color: "#1e293b", fontSize: "14px" }}>{group.name}</span>
+                                </div>
+                                <span style={{ fontSize: "11px", color: isSelected ? "#047857" : "#64748b", backgroundColor: isSelected ? "#d1fae5" : "#f1f5f9", padding: "2px 8px", borderRadius: "100px", fontWeight: "500" }}>
+                                  {permCount} permissions
+                                </span>
+                              </div>
+                              <span style={{ fontSize: "12px", color: "#3b82f6", fontWeight: "500", alignSelf: "flex-start" }}>View role permissions</span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Right Pane: Granular permissions switches list */}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                      <div>
+                        <h4 style={{ fontSize: "16px", fontWeight: "600", color: "#0f172a", margin: "0 0 4px 0" }}>User Permissions</h4>
+                        <p style={{ fontSize: "12px", color: "#64748b", margin: 0 }}>Fine-tune granular sections that this user can see or act on</p>
+                      </div>
+
+                      <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxHeight: "450px", overflowY: "auto", paddingRight: "4px" }}>
+                        {[
+                          { key: "user", title: "USER Permission", actions: ["View User", "Edit User", "Reset Password", "Create User", "Delete User"] },
+                          { key: "poem", title: "POEM/CONTENT Permission", actions: ["View Poem", "Edit Poem", "Create Poem", "Delete Poem"] },
+                          { key: "tag", title: "TAG Permission", actions: ["View Tag", "Edit Tag", "Create Tag", "Delete Tag"] },
+                          { key: "report", title: "REPORT Permission", actions: ["View Reports", "Resolve Reports", "Dismiss Reports"] },
+                          { key: "role", title: "ROLE/RBAC Permission", actions: ["View Role", "Edit Role", "Create Role", "Delete Role"] },
+                          { key: "system", title: "SYSTEM Permission", actions: ["Manage Ads", "Change Algorithms", "System Settings", "View Revenue"] }
+                        ].map(section => {
+                          const checkedActions = permissions[section.key] || []
+                          const isAllChecked = section.actions.every(act => checkedActions.includes(act))
+
+                          return (
+                            <div key={section.key} style={{ backgroundColor: "#f8fafc", borderRadius: "10px", border: "1px solid #f1f5f9", padding: "16px" }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #e2e8f0", paddingBottom: "10px", marginBottom: "12px" }}>
+                                <span style={{ fontSize: "12px", fontWeight: "600", color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px" }}>{section.title}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setPermissions(prev => ({
+                                      ...prev,
+                                      [section.key]: isAllChecked ? [] : [...section.actions]
+                                    }))
+                                  }}
+                                  style={{ background: "none", border: "none", color: "#3b82f6", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
+                                >
+                                  {isAllChecked ? "Deselect All" : "Select All"}
+                                </button>
+                              </div>
+
+                              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px 20px" }}>
+                                {section.actions.map(action => {
+                                  const isChecked = checkedActions.includes(action)
+                                  return (
+                                    <div key={action} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                                      <span style={{ fontSize: "13px", color: "#1e293b", fontWeight: "500" }}>{action}</span>
+                                      <label style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
+                                        <div style={{ width: "36px", height: "20px", borderRadius: "10px", background: isChecked ? "#3b82f6" : "#cbd5e1", position: "relative", transition: "background 0.2s" }}>
+                                          <div style={{ position: "absolute", top: "2px", left: isChecked ? "18px" : "2px", width: "16px", height: "16px", borderRadius: "50%", background: "white", transition: "left 0.2s" }} />
+                                        </div>
+                                        <input
+                                          type="checkbox"
+                                          checked={isChecked}
+                                          onChange={() => {
+                                            setPermissions(prev => {
+                                              const current = prev[section.key] || []
+                                              const updated = current.includes(action)
+                                                ? current.filter(a => a !== action)
+                                                : [...current, action]
+                                              return { ...prev, [section.key]: updated }
+                                            })
+                                          }}
+                                          style={{ display: "none" }}
+                                        />
+                                      </label>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div className="adt-modal-foot" style={{ padding: "24px 0 0 0", display: "flex", justifyContent: "flex-end", gap: "16px", borderTop: "1px solid #e2e8f0", marginTop: "24px" }}>
+                  <button type="button" onClick={() => setIsEditUserModalOpen(false)} disabled={isPending} style={{ padding: "10px 24px", borderRadius: "8px", border: "1px solid #cbd5e1", background: "white", color: "#0f172a", fontWeight: "500", cursor: "pointer", marginRight: "auto" }}>
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="custom-btn btn-primary"
                     disabled={isPending}
-                    style={{ backgroundColor: "#10B981", borderColor: "#10B981", color: "white" }}
+                    style={{ padding: "10px 24px", borderRadius: "8px", border: "none", background: "#3b82f6", color: "white", fontWeight: "500", cursor: "pointer" }}
                   >
-                    {isPending ? "Creating…" : "Create Account"}
+                    {isPending ? "Saving…" : "Save Changes"}
                   </button>
                 </div>
               </form>

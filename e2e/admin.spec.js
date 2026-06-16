@@ -38,6 +38,7 @@ test.describe('Admin Dashboard — Auth & Navigation', () => {
 // ── Authenticated tests (skipped if no admin auth state) ──────────────────
 
 test.describe('Admin Users Table', () => {
+  test.use({ storageState: adminAuthFile })
   test.beforeEach(async ({ page }) => {
     if (!hasAdminAuth) {
       test.skip()
@@ -129,6 +130,7 @@ test.describe('Admin Users Table', () => {
 })
 
 test.describe('Admin Users — Bulk Delete', () => {
+  test.use({ storageState: adminAuthFile })
   test.beforeEach(async ({ page }) => {
     if (!hasAdminAuth) {
       test.skip()
@@ -167,7 +169,7 @@ test.describe('Admin Users — Bulk Delete', () => {
 
     await expect(page.getByRole('dialog')).toBeVisible()
     await expect(page.getByText(/yes, delete/i)).toBeVisible()
-    await expect(page.getByLabelText(/list of accounts to be deleted/i)).toBeVisible()
+    await expect(page.getByLabel(/list of accounts to be deleted/i)).toBeVisible()
   })
 
   test('confirm button stays disabled until DELETE is typed', async ({ page }) => {
@@ -205,6 +207,7 @@ test.describe('Admin Users — Bulk Delete', () => {
 })
 
 test.describe('Admin Content Table', () => {
+  test.use({ storageState: adminAuthFile })
   test.beforeEach(async ({ page }) => {
     if (!hasAdminAuth) {
       test.skip()
@@ -280,6 +283,7 @@ test.describe('Admin Content Table', () => {
 })
 
 test.describe('Admin Content — Bulk Delete', () => {
+  test.use({ storageState: adminAuthFile })
   test.beforeEach(async ({ page }) => {
     if (!hasAdminAuth) {
       test.skip()
