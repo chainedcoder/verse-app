@@ -10,7 +10,7 @@ import {
   deleteUsersNuclearBulk
 } from "@/app/actions/admin"
 
-jest.mock("next/link", () => ({ children, href }) => <a href={href}>{children}</a>)
+jest.mock("next/link", () => ({ children, href, ...rest }) => <a href={href} {...rest}>{children}</a>)
 
 jest.mock("@/app/actions/admin", () => ({
   updateUserStatus: jest.fn(),
@@ -442,5 +442,105 @@ describe("AdminUsersClient — Row Dropdowns Click-Away", () => {
     // Click outside on the body (should dismiss)
     fireEvent.click(document.body)
     expect(container.querySelector('.custom-row-dropdown')).not.toBeInTheDocument()
+  })
+})
+
+describe("AdminUsersClient — Style Modularity & Design System Consistency", () => {
+  it("enforces strict styling layout classes on the main containers", () => {
+    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    
+    // Check main layout container
+    const main = screen.getByRole("main")
+    expect(main).toHaveClass("admin-main")
+    expect(main).toHaveClass("custom-admin-layout-main")
+
+    // Check user management header classes
+    const header = container.querySelector(".user-management-header")
+    expect(header).toBeInTheDocument()
+    expect(container.querySelector(".user-management-breadcrumb")).toBeInTheDocument()
+    expect(container.querySelector(".breadcrumb-muted")).toBeInTheDocument()
+    expect(container.querySelector(".breadcrumb-active")).toBeInTheDocument()
+    expect(container.querySelector(".user-management-title")).toBeInTheDocument()
+    expect(container.querySelector(".user-management-badge")).toBeInTheDocument()
+    expect(container.querySelector(".user-management-subtitle")).toBeInTheDocument()
+
+    // Check toolbar styling classes
+    const toolbar = container.querySelector(".user-management-toolbar")
+    expect(toolbar).toBeInTheDocument()
+    expect(container.querySelector(".toolbar-views-group")).toBeInTheDocument()
+    expect(container.querySelector(".toolbar-options-group")).toBeInTheDocument()
+    expect(container.querySelector(".action-search-container")).toBeInTheDocument()
+    expect(container.querySelector(".action-search-icon")).toBeInTheDocument()
+    expect(container.querySelector(".action-search-input")).toBeInTheDocument()
+    
+    // Verify view toggle buttons have correct base classes
+    const viewButtons = container.querySelectorAll(".view-toggle-btn")
+    expect(viewButtons.length).toBe(3)
+    expect(viewButtons[0]).toHaveClass("active") // Table is default view
+  })
+
+  it("enforces strict table layout styling and custom rows", () => {
+    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+
+    expect(container.querySelector(".adt-container")).toBeInTheDocument()
+    expect(container.querySelector(".adt-scroll")).toBeInTheDocument()
+    expect(container.querySelector(".adt-table")).toBeInTheDocument()
+    expect(container.querySelector(".adt-table thead")).toBeInTheDocument()
+    expect(container.querySelector(".adt-table tbody")).toBeInTheDocument()
+
+    // Verify row styling
+    const tableRows = container.querySelectorAll(".adt-row")
+    expect(tableRows.length).toBe(mockUsers.length)
+    tableRows.forEach(row => {
+      expect(row).toHaveClass("custom-premium-row")
+    })
+  })
+
+  it("enforces badge and status pill styling in the table", () => {
+    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+
+    // Check role badge buttons
+    const roleBadges = container.querySelectorAll(".role-badge-btn")
+    expect(roleBadges.length).toBeGreaterThan(0)
+    roleBadges.forEach(badge => {
+      expect(badge).toHaveClass("role-badge-btn")
+    })
+
+    // Check status pill buttons
+    const statusPills = container.querySelectorAll(".status-pill-btn")
+    expect(statusPills.length).toBeGreaterThan(0)
+    statusPills.forEach(pill => {
+      expect(pill).toHaveClass("status-pill-btn")
+    })
+  })
+
+  it("enforces modal overlay and design layout structure when bulk delete modal is opened", () => {
+    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    
+    // Select Alice and open modal
+    fireEvent.click(screen.getByLabelText(/select alice/i))
+    fireEvent.click(screen.getByRole("button", { name: /delete selected|delete \d+ user/i }))
+    
+    // Verify modal overlay and modal container structure
+    const modalOverlay = container.querySelector(".adt-modal-overlay")
+    expect(modalOverlay).toBeInTheDocument()
+    
+    const modal = container.querySelector(".adt-modal")
+    expect(modal).toBeInTheDocument()
+    
+    expect(container.querySelector(".adt-modal-head")).toBeInTheDocument()
+    expect(container.querySelector(".adt-modal-alert-icon")).toBeInTheDocument()
+    expect(container.querySelector(".adt-modal-title-text")).toBeInTheDocument()
+    expect(container.querySelector(".adt-modal-sub-text")).toBeInTheDocument()
+    expect(container.querySelector(".adt-modal-body")).toBeInTheDocument()
+    expect(container.querySelector(".adt-modal-label")).toBeInTheDocument()
+    expect(container.querySelector(".adt-modal-textarea")).toBeInTheDocument()
+    expect(container.querySelector(".adt-modal-input")).toBeInTheDocument()
+    expect(container.querySelector(".adt-modal-foot")).toBeInTheDocument()
+  })
+
+  it("matches full component rendering snapshot to lock the complete styling contract", () => {
+    const { asFragment } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    expect(asFragment()).toMatchSnapshot()
   })
 })
