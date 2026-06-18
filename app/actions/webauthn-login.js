@@ -21,11 +21,6 @@ export async function getAuthenticationOptions(email) {
 
   const options = await generateAuthenticationOptions({
     rpID,
-    allowCredentials: user.authenticators.map(auth => ({
-      id: auth.credentialID,
-      type: 'public-key',
-      transports: auth.transports ? auth.transports.split(',') : []
-    })),
     userVerification: "preferred"
   })
 

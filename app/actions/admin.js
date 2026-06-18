@@ -204,6 +204,23 @@ export async function deletePoemAdmin(poemId) {
   }
 }
 
+export async function reinstatePoemAdmin(poemId) {
+  if (!(await verifyAdminOrMod())) return { error: "Unauthorized" }
+
+  try {
+    await prisma.poem.update({
+      where: { id: poemId },
+      data: { status: "PUBLISHED" }
+    })
+    revalidatePath("/admin/content")
+    revalidatePath(`/poem/${poemId}`)
+    return { success: true }
+  } catch (error) {
+    console.error("Error reinstating poem:", error)
+    return { error: "Failed to reinstate poem" }
+  }
+}
+
 export async function fetchDashboardMetrics() {
   if (!(await verifyAdminOrMod())) return { error: "Unauthorized" }
 
@@ -276,7 +293,7 @@ export async function deleteUser(userId) {
 
     // Delete user's poems, likes, follows, but comments are preserved as [deleted]
     await prisma.poem.updateMany({
-      where: { userId },
+      where: { authorId: userId },
       data: { status: "DELETED" }
     })
     
@@ -357,7 +374,7 @@ export async function deleteUsersBulk(userIds) {
 
     // Delete their content
     await prisma.poem.updateMany({
-      where: { userId: { in: activeIds } },
+      where: { authorId: { in: activeIds } },
       data: { status: "DELETED" }
     })
 

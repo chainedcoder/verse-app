@@ -13,27 +13,33 @@ export default async function AdminModerationPage() {
   ]
 
   return (
-    <div className="card" style={{ padding: "32px", animation: "fade-in 0.3s ease-out" }}>
-      <h2 style={{ fontSize: "20px", marginBottom: "24px", borderBottom: "1px solid var(--border-secondary)", paddingBottom: "12px" }}>
-        Moderation Hub
-      </h2>
+    <main className="admin-main">
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px" }}>
+      <div className="admin-page-header">
+        <div>
+          <h1 className="admin-page-title">Moderation</h1>
+          <p className="admin-page-subtitle">Configure auto-moderation filters and manage content policies.</p>
+        </div>
+        <div className="admin-page-actions">
+          <button className="btn btn-ghost btn-sm">Export Log</button>
+        </div>
+      </div>
+
+      <div className="moderation-grid">
         
         {/* Blacklists Section */}
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "16px" }}>
-            <h3 style={{ fontSize: "16px" }}>Global Blacklists</h3>
-            <button className="btn btn-ghost btn-sm">Add Word</button>
+        <div className="card">
+          <div className="moderation-section-header">
+            <h3 className="moderation-section-title">Global Blacklists</h3>
+            <button className="btn btn-ghost btn-sm">+ Add Word</button>
           </div>
-          <div style={{ backgroundColor: "var(--bg-secondary)", borderRadius: "8px", border: "1px solid var(--border-tertiary)", overflow: "hidden" }}>
-            <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--border-tertiary)", fontSize: "12px", color: "var(--text-secondary)", fontWeight: 600 }}>
-              BANNED WORDS
-            </div>
-            <div style={{ padding: "16px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
+          <div className="moderation-words-container">
+            <div className="moderation-words-header">Banned Words</div>
+            <div className="moderation-words-body">
               {blacklistedWords.map((word, i) => (
-                <span key={i} style={{ padding: "4px 12px", backgroundColor: "var(--bg-card)", border: "1px solid var(--danger)", color: "var(--danger)", borderRadius: "100px", fontSize: "12px", display: "flex", alignItems: "center", gap: "6px" }}>
-                  {word} <i className="ti ti-x" style={{ cursor: "pointer", opacity: 0.7 }}></i>
+                <span key={i} className="moderation-word-tag">
+                  {word}
+                  <i className="ti ti-x" style={{ cursor: "pointer", opacity: 0.6, fontSize: '12px' }} />
                 </span>
               ))}
             </div>
@@ -41,20 +47,24 @@ export default async function AdminModerationPage() {
         </div>
 
         {/* Auto-Mod Section */}
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "16px" }}>
-            <h3 style={{ fontSize: "16px" }}>Automated Rules</h3>
-            <button className="btn btn-ghost btn-sm">Create Rule</button>
+        <div className="card">
+          <div className="moderation-section-header">
+            <h3 className="moderation-section-title">Automated Rules</h3>
+            <button className="btn btn-ghost btn-sm">+ Create Rule</button>
           </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {autoModRules.map((rule, i) => (
-              <div key={i} style={{ padding: "16px", backgroundColor: "var(--bg-secondary)", borderRadius: "8px", border: "1px solid var(--border-tertiary)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div key={i} className="moderation-rule-item">
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: "14px", marginBottom: "4px" }}>{rule.name}</div>
-                  <div style={{ fontSize: "12px", color: "var(--text-tertiary)" }}>If {rule.condition} &rarr; <strong>{rule.action}</strong></div>
+                  <div className="moderation-rule-name">{rule.name}</div>
+                  <div className="moderation-rule-desc">If {rule.condition} → {rule.action}</div>
                 </div>
-                <label style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
-                  <input type="checkbox" defaultChecked={rule.active} style={{ accentColor: "var(--primary)", width: "16px", height: "16px" }} />
+                <label style={{ display: "flex", alignItems: "center", cursor: "pointer", flexShrink: 0 }}>
+                  <input
+                    type="checkbox"
+                    defaultChecked={rule.active}
+                    style={{ accentColor: "var(--accent)", width: "16px", height: "16px" }}
+                  />
                 </label>
               </div>
             ))}
@@ -62,6 +72,6 @@ export default async function AdminModerationPage() {
         </div>
 
       </div>
-    </div>
+    </main>
   )
 }

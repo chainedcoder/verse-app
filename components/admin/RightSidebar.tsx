@@ -13,64 +13,64 @@ const RightSidebar = () => {
     <div className="admin-sidebar-right" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
       {/* Top Cards */}
       <div style={{ display: 'flex', gap: '16px' }}>
-        <button className="card" style={{ flex: 1, background: '#e8ece8', padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', border: 'none', cursor: 'pointer', borderRadius: '24px' }}>
-          <div style={{ width: '48px', height: '48px', background: 'white', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', color: '#111827' }}>
+        <button className="card" style={{ flex: 1, background: 'var(--bg-card)', padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', border: 'none', cursor: 'pointer', borderRadius: '32px' }}>
+          <div style={{ width: '48px', height: '48px', background: 'var(--bg-secondary)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', color: 'var(--text-primary)' }}>
             <IconMsg />
           </div>
-          <span style={{ fontWeight: 500, fontSize: '15px', color: '#111827' }}>Community</span>
+          <span style={{ fontWeight: 500, fontSize: '15px', color: 'var(--text-primary)' }}>Poet Guild</span>
         </button>
-        <button className="card" style={{ flex: 1, background: 'rgba(232, 236, 232, 0.5)', padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', border: 'none', cursor: 'pointer', borderRadius: '24px' }}>
-          <div style={{ width: '48px', height: '48px', background: 'white', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', color: '#111827' }}>
+        <button className="card" style={{ flex: 1, background: 'var(--bg-card)', padding: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', border: 'none', cursor: 'pointer', borderRadius: '32px' }}>
+          <div style={{ width: '48px', height: '48px', background: 'var(--bg-secondary)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', color: 'var(--text-primary)' }}>
             <IconGrad />
           </div>
-          <span style={{ fontWeight: 500, fontSize: '15px', color: '#111827' }}>Academy</span>
+          <span style={{ fontWeight: 500, fontSize: '15px', color: 'var(--text-primary)' }}>Poem Academy</span>
         </button>
       </div>
 
       {/* Links List */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px' }}>
-        <a href="#" className="card" style={{ background: '#e8ece8', padding: '20px', borderRadius: '24px', textDecoration: 'none', border: 'none', display: 'block' }}>
+        <a href="#" className="card" style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '32px', textDecoration: 'none', border: 'none', display: 'block' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-            <div style={{ width: '48px', height: '48px', background: 'white', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', color: '#111827' }}>
+            <div style={{ width: '48px', height: '48px', background: 'var(--bg-secondary)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', color: 'var(--text-primary)' }}>
               <IconHelp />
             </div>
-            <span style={{ color: '#111827' }}><IconArrowUpRight /></span>
+            <span style={{ color: 'var(--text-primary)' }}><IconArrowUpRight /></span>
           </div>
-          <h4 style={{ fontWeight: 500, fontSize: '18px', marginBottom: '4px', color: '#111827' }}>Help Center</h4>
-          <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: 1.5 }}>Explore our detailed documentatio...</p>
+          <h4 style={{ fontWeight: 500, fontSize: '18px', marginBottom: '4px', color: 'var(--text-primary)' }}>Poet Help</h4>
+          <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>Explore our detailed guidelines on verse formatting, vibes...</p>
         </a>
 
-        <a href="#" className="card" style={{ background: '#e8ece8', padding: '20px', borderRadius: '24px', textDecoration: 'none', border: 'none', display: 'block' }}>
+        <a href="#" className="card" style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '32px', textDecoration: 'none', border: 'none', display: 'block' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-            <div style={{ width: '48px', height: '48px', background: 'white', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', color: '#111827' }}>
+            <div style={{ width: '48px', height: '48px', background: 'var(--bg-secondary)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', color: 'var(--text-primary)' }}>
               <IconUsers />
             </div>
-            <span style={{ color: '#111827' }}><IconArrowUpRight /></span>
+            <span style={{ color: 'var(--text-primary)' }}><IconArrowUpRight /></span>
           </div>
-          <h4 style={{ fontWeight: 500, fontSize: '18px', marginBottom: '4px', color: '#111827' }}>Partner Directory</h4>
-          <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: 1.5 }}>Find the perfect partner to suppor...</p>
+          <h4 style={{ fontWeight: 500, fontSize: '18px', marginBottom: '4px', color: 'var(--text-primary)' }}>Publisher Hub</h4>
+          <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>Find the perfect publisher to support your physical print runs...</p>
         </a>
 
-        <a href="#" className="card" style={{ background: '#e8ece8', padding: '20px', borderRadius: '24px', textDecoration: 'none', border: 'none', display: 'block' }}>
+        <a href="#" className="card" style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '32px', textDecoration: 'none', border: 'none', display: 'block' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-            <div style={{ width: '48px', height: '48px', background: 'white', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', color: '#111827' }}>
+            <div style={{ width: '48px', height: '48px', background: 'var(--bg-secondary)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', color: 'var(--text-primary)' }}>
               <IconFile />
             </div>
-            <span style={{ color: '#111827' }}><IconArrowUpRight /></span>
+            <span style={{ color: 'var(--text-primary)' }}><IconArrowUpRight /></span>
           </div>
-          <h4 style={{ fontWeight: 500, fontSize: '18px', marginBottom: '4px', color: '#111827' }}>Blog</h4>
-          <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: 1.5 }}>Access popular guides & stories ab...</p>
+          <h4 style={{ fontWeight: 500, fontSize: '18px', marginBottom: '4px', color: 'var(--text-primary)' }}>Verse Blog</h4>
+          <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>Access popular guides & stories about poetry and digital layout...</p>
         </a>
 
-        <a href="#" className="card" style={{ background: '#e8ece8', padding: '20px', borderRadius: '24px', textDecoration: 'none', border: 'none', display: 'block' }}>
+        <a href="#" className="card" style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: '32px', textDecoration: 'none', border: 'none', display: 'block' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-            <div style={{ width: '48px', height: '48px', background: 'white', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', color: '#111827' }}>
+            <div style={{ width: '48px', height: '48px', background: 'var(--bg-secondary)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)', color: 'var(--text-primary)' }}>
               <IconChart />
             </div>
-            <span style={{ color: '#111827' }}><IconArrowUpRight /></span>
+            <span style={{ color: 'var(--text-primary)' }}><IconArrowUpRight /></span>
           </div>
-          <h4 style={{ fontWeight: 500, fontSize: '18px', marginBottom: '4px', color: '#111827' }}>Use Cases</h4>
-          <p style={{ fontSize: '14px', color: '#6b7280', lineHeight: 1.5 }}>Get inspired by all the ways you ca...</p>
+          <h4 style={{ fontWeight: 500, fontSize: '18px', marginBottom: '4px', color: 'var(--text-primary)' }}>Vibe Guidelines</h4>
+          <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>Get inspired by all the ways you can configure immersive vibes...</p>
         </a>
       </div>
     </div>

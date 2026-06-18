@@ -64,6 +64,17 @@ const mockUsers = [
     createdAt: "2024-02-20T00:00:00.000Z",
     image: null,
     _count: { poems: 0, reportsReceived: 1 }
+  },
+  {
+    id: "u4",
+    name: "Dave",
+    email: "dave@test.com",
+    status: "ARCHIVED",
+    role: "USER",
+    createdAt: "2024-04-10T00:00:00.000Z",
+    image: null,
+    deletedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    _count: { poems: 0, reportsReceived: 0 }
   }
 ]
 
@@ -80,6 +91,12 @@ describe("AdminUsersClient — rendering", () => {
     expect(screen.getAllByText("Alice").length).toBeGreaterThan(0)
     expect(screen.getAllByText("Bob").length).toBeGreaterThan(0)
     expect(screen.getAllByText("Carol").length).toBeGreaterThan(0)
+    expect(screen.getAllByText("Dave").length).toBeGreaterThan(0)
+  })
+
+  it("renders 'To be deleted' status with countdown for ARCHIVED users", () => {
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    expect(screen.getByText("To be deleted (25d left)")).toBeInTheDocument()
   })
 
   it("renders report count highlighted for users with reports", () => {
@@ -96,7 +113,7 @@ describe("AdminUsersClient — rendering", () => {
 
   it("shows user row count in toolbar", () => {
     render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
-    expect(screen.getByText(/3 users/i)).toBeInTheDocument()
+    expect(screen.getByText(/4 users/i)).toBeInTheDocument()
   })
 
   it("renders Delete button only for ADMIN role", () => {
@@ -171,14 +188,14 @@ describe("AdminUsersClient — sorting", () => {
     // Second click = desc
     fireEvent.click(nameHeader)
     const rowsDesc = screen.getAllByTestId("avatar").map(el => el.textContent)
-    expect(rowsDesc[0]).toBe("Carol")
+    expect(rowsDesc[0]).toBe("Dave")
   })
 
   it("sorts by joined date by default (desc)", () => {
     render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
     const rows = screen.getAllByTestId("avatar").map(el => el.textContent)
-    // Bob joined latest (2024-03-10)
-    expect(rows[0]).toBe("Bob")
+    // Dave joined latest (2024-04-10)
+    expect(rows[0]).toBe("Dave")
   })
 })
 
@@ -252,7 +269,7 @@ describe("AdminUsersClient — checkbox selection", () => {
     const selectAll = screen.getByLabelText(/select all users on page/i)
     fireEvent.click(selectAll)
     expect(screen.getByRole("status")).toBeInTheDocument()
-    expect(screen.getByRole("status").textContent).toMatch(/3/)
+    expect(screen.getByRole("status").textContent).toMatch(/4/)
   })
 
   it("clicking select-all again deselects all", () => {

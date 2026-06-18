@@ -48,6 +48,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null
         }
 
+        // --- ACCOUNT RESTORATION LOGIC ---
+        if (user.status === "ARCHIVED") {
+          if (user.deletedAt) {
+            const daysSinceDeletion = (Date.now() - new Date(user.deletedAt).getTime()) / (1000 * 60 * 60 * 24)
+            if (daysSinceDeletion <= 30) {
+              // Restore account
+              await prisma.user.update({
+                where: { id: user.id },
+                data: { status: "ACTIVE", deletedAt: null }
+              })
+              user.status = "ACTIVE"
+              user.deletedAt = null
+            } else {
+              throw new Error("ACCOUNT_PERMANENTLY_DELETED")
+            }
+          }
+        }
+
+        if (user.status === "BANNED") {
+          throw new Error("ACCOUNT_BANNED")
+        }
+
         // --- PASSKEY LOGIN FLOW ---
         if (credentials.passkeyResponse) {
           const { verifyAuthenticationResponse } = await import('@simplewebauthn/server')
@@ -76,10 +98,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               expectedOrigin: "http://localhost:3000",
               expectedRPID: "localhost",
               authenticator: {
-                credentialID: authenticator.credentialID,
+                credentialID: Buffer.from(authenticator.credentialID, 'base64url'),
                 credentialPublicKey: Buffer.from(authenticator.credentialPublicKey, 'base64url'),
                 counter: authenticator.counter,
-                transports: authenticator.transports ? authenticator.transports.split(',') : []
+                transports: authenticator.transports ? authenticator.transports.split(',') : undefined
               }
             })
           } catch (error) {

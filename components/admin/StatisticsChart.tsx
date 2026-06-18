@@ -25,37 +25,43 @@ const data: DataPoint[] = [
 
 const yAxis = ['1.0', '0.9', '0.8', '0.7', '0.6', '0.5', '0.4', '0.3', '0.2', '0.1'];
 
-const StatisticsChart = () => {
+interface StatisticsChartProps {
+  dataPoints?: DataPoint[];
+}
+
+const StatisticsChart = ({ dataPoints }: StatisticsChartProps) => {
+  const chartData = dataPoints || data;
+
   return (
-    <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'rgba(255,255,255,0.5)', backdropFilter: 'blur(4px)', padding: '24px', borderRadius: '24px', border: 'none', color: '#111827' }}>
+    <div className="card" style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'rgba(255,255,255,0.5)', backdropFilter: 'blur(4px)', padding: '24px', borderRadius: '24px', border: 'none', color: 'var(--text-primary)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#1f2937' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)' }}>
             <IconBarChart />
             <h2 style={{ fontSize: '20px', fontWeight: 500, margin: 0 }}>Statistics</h2>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#161616' }} />
-              <span style={{ color: '#4b5563' }}>Operations</span>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: 'var(--text-primary)' }} />
+              <span style={{ color: 'var(--text-secondary)' }}>Daily Verses</span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#E6F89F' }} />
-              <span style={{ color: '#4b5563' }}>Data transfer</span>
+              <span style={{ color: 'var(--text-secondary)' }}>Poet Sign-ups</span>
             </div>
           </div>
         </div>
         
-        <button className="btn" style={{ background: 'white', color: '#111827', border: 'none', padding: '8px 16px', borderRadius: '100px', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}>
+        <button className="btn" style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: 'none', padding: '8px 16px', borderRadius: '100px', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}>
           2025
-          <span style={{ color: '#6b7280' }}><IconChevronDown /></span>
+          <span style={{ color: 'var(--text-secondary)' }}><IconChevronDown /></span>
         </button>
       </div>
 
       <div style={{ flex: 1, position: 'relative', display: 'flex', marginTop: '16px', overflowX: 'auto' }}>
         <div style={{ minWidth: '500px', flex: 1, display: 'flex' }}>
           {/* Y-axis */}
-          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', fontSize: '12px', color: '#9ca3af', paddingRight: '16px', paddingBottom: '32px', height: '100%', flexShrink: 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-tertiary)', paddingRight: '16px', paddingBottom: '32px', height: '100%', flexShrink: 0 }}>
             {yAxis.map((val) => (
               <span key={val}>{val}</span>
             ))}
@@ -66,31 +72,31 @@ const StatisticsChart = () => {
             {/* Grid lines */}
             <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', paddingBottom: '32px' }}>
               {yAxis.map((val) => (
-                <div key={val} style={{ width: '100%', borderTop: '1px dashed #e5e7eb', marginTop: '7px' }} />
+                <div key={val} style={{ width: '100%', borderTop: '1px dashed var(--border-secondary)', marginTop: '7px' }} />
               ))}
             </div>
 
             {/* Bars */}
             <div style={{ position: 'absolute', inset: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', paddingBottom: '32px', paddingLeft: '16px', paddingRight: '16px' }}>
-              {data.map((item, index) => (
+              {chartData.map((item, index) => (
                 <div key={index} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', width: '48px', flexShrink: 0 }}>
-                  <div style={{ position: 'absolute', bottom: '-32px', fontSize: '12px', color: '#9ca3af', whiteSpace: 'nowrap' }}>
+                  <div style={{ position: 'absolute', bottom: '-32px', fontSize: '12px', color: 'var(--text-tertiary)', whiteSpace: 'nowrap' }}>
                     {item.day}
                   </div>
 
                   {item.empty ? (
-                    <div style={{ width: '32px', height: '100%', border: '2px dashed #d1d5db', borderRadius: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '8px 0', opacity: 0.5 }}>
-                      <div style={{ width: '12px', height: '12px', background: '#d1d5db', borderRadius: '50%' }} />
+                    <div style={{ width: '32px', height: '100%', border: '2px dashed var(--border-secondary)', borderRadius: '100px', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '8px 0', opacity: 0.5 }}>
+                      <div style={{ width: '12px', height: '12px', background: 'var(--border-secondary)', borderRadius: '50%' }} />
                     </div>
                   ) : (
                     <div style={{ width: '32px', height: '100%', position: 'relative' }}>
                       {/* Ops Bar (Black) */}
                       <div 
-                        style={{ position: 'absolute', bottom: 0, width: '100%', background: '#161616', borderRadius: '16px 16px 0 0', transition: 'all 0.3s', zIndex: 10, height: `${(item.ops || 0) * 100}%` }}
+                        style={{ position: 'absolute', bottom: 0, width: '100%', background: 'var(--text-primary)', borderRadius: '16px 16px 0 0', transition: 'all 0.3s', zIndex: 10, height: `${(item.ops || 0) * 100}%` }}
                       >
-                        <div style={{ width: '12px', height: '12px', background: 'white', borderRadius: '50%', position: 'absolute', top: '8px', left: '50%', transform: 'translateX(-50%)' }} />
+                        <div style={{ width: '12px', height: '12px', background: 'var(--bg-secondary)', borderRadius: '50%', position: 'absolute', top: '8px', left: '50%', transform: 'translateX(-50%)' }} />
                         {item.tooltipOps && (
-                          <div style={{ position: 'absolute', right: '-48px', top: '8px', background: '#161616', color: 'white', fontSize: '12px', padding: '4px 8px', borderRadius: '8px' }}>
+                          <div style={{ position: 'absolute', right: '-48px', top: '8px', background: 'var(--text-primary)', color: 'white', fontSize: '12px', padding: '4px 8px', borderRadius: '8px' }}>
                             {item.tooltipOps}
                           </div>
                         )}
@@ -100,9 +106,9 @@ const StatisticsChart = () => {
                       <div 
                         style={{ position: 'absolute', bottom: 0, width: '100%', background: '#E6F89F', borderRadius: '16px', transition: 'all 0.3s', zIndex: 20, height: `${(item.data || 0) * 100}%` }}
                       >
-                        <div style={{ width: '12px', height: '12px', background: '#161616', borderRadius: '50%', position: 'absolute', top: '8px', left: '50%', transform: 'translateX(-50%)' }} />
+                        <div style={{ width: '12px', height: '12px', background: 'var(--text-primary)', borderRadius: '50%', position: 'absolute', top: '8px', left: '50%', transform: 'translateX(-50%)' }} />
                         {item.tooltipData && (
-                          <div style={{ position: 'absolute', left: '-48px', top: '8px', background: '#E6F89F', color: '#161616', fontWeight: 500, fontSize: '12px', padding: '4px 8px', borderRadius: '8px', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}>
+                          <div style={{ position: 'absolute', left: '-48px', top: '8px', background: '#E6F89F', color: 'var(--text-primary)', fontWeight: 500, fontSize: '12px', padding: '4px 8px', borderRadius: '8px', boxShadow: '0 1px 2px 0 rgb(0 0 0 / 0.05)' }}>
                             {item.tooltipData}
                           </div>
                         )}

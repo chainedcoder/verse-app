@@ -4,14 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const tabs = [
-  { name: 'Organization', href: '/admin' },
-  { name: 'Teams', href: '/admin' },
-  { name: 'Users', href: '/admin/users' },
-  { name: 'Subscription', href: '/admin' },
-  { name: 'Payment', href: '/admin' },
-  { name: 'Installed Apps', href: '/admin' },
-  { name: 'Variables', href: '/admin' },
-  { name: 'Scenario Properties', href: '/admin' }
+  { name: 'Dashboard', href: '/admin' },
+  { name: 'Published Poems', href: '/admin' },
+  { name: 'Poets Community', href: '/admin/users' },
+  { name: 'Report Queue', href: '/admin' },
+  { name: 'Vibe Playlists', href: '/admin' },
+  { name: 'Tag Taxonomies', href: '/admin' },
+  { name: 'Platform System', href: '/admin' },
+  { name: 'Verse Settings', href: '/admin' }
 ];
 
 const Tabs = () => {

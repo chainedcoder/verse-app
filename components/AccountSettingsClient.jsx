@@ -326,8 +326,7 @@ export default function AccountSettingsClient({ user }) {
               if (isConfirmed) {
                 const res = await deleteAccount()
                 if (res.success) {
-                  // NextAuth session is invalidated in DB, just redirect to home
-                  window.location.href = "/"
+                  await signOut({ callbackUrl: "/" })
                 } else {
                   setError(res.error || "Failed to delete account")
                 }

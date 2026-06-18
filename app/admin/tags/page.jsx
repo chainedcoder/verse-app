@@ -19,16 +19,24 @@ export default async function AdminTagsPage() {
   const { tags, error } = await fetchTagsAdmin()
 
   return (
-    <div className="card" style={{ padding: "32px" }}>
-      <h2 style={{ fontSize: "20px", marginBottom: "24px", borderBottom: "1px solid var(--border-secondary)", paddingBottom: "12px" }}>
-        Tag Management
-      </h2>
-      
-      {error ? (
-        <div className="form-error">{error}</div>
-      ) : (
-        <AdminTagsClient initialTags={JSON.parse(JSON.stringify(tags || []))} currentUserRole={user.role} />
-      )}
-    </div>
+    <main className="admin-main">
+      <div className="max-w-full space-y-6">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <div>
+            <h2 className="serif text-3xl font-bold" style={{ margin: 0, color: 'var(--text-primary)' }}>Tag Management</h2>
+            <p className="text-sm text-gray-500" style={{ color: 'var(--text-secondary)', marginTop: '4px' }}>Organize and curate content discovery tags.</p>
+          </div>
+        </div>
+
+        <div>
+          
+          {error ? (
+            <div className="form-error">{error}</div>
+          ) : (
+            <AdminTagsClient initialTags={JSON.parse(JSON.stringify(tags || []))} currentUserRole={user.role} />
+          )}
+        </div>
+      </div>
+    </main>
   )
 }

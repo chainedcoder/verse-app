@@ -29,12 +29,14 @@ export const metadata = {
 export default async function RootLayout({ children }) {
   const session = await auth()
   let dbTheme = null
+  let dbAccent = null
   if (session?.user?.id) {
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { theme: true }
+      select: { theme: true, preferences: true }
     })
     dbTheme = user?.theme
+    dbAccent = user?.preferences?.accent
   }
 
   return (
@@ -51,6 +53,7 @@ export default async function RootLayout({ children }) {
             __html: `
               try {
                 ${dbTheme ? `localStorage.setItem('verse_theme', '${dbTheme}');` : ''}
+                ${dbAccent ? `localStorage.setItem('verse_accent', '${dbAccent}');` : ''}
                 var theme = localStorage.getItem('verse_theme');
                 var accent = localStorage.getItem('verse_accent');
                 if (theme && theme !== 'system') document.documentElement.setAttribute('data-theme', theme);

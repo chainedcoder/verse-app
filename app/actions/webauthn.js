@@ -24,11 +24,16 @@ export async function getRegistrationOptions() {
     userID: user.id,
     userName: user.email,
     attestationType: "none",
-    excludeCredentials: user.authenticators.map(auth => ({
-      id: auth.credentialID,
-      type: 'public-key',
-      transports: auth.transports ? auth.transports.split(',') : []
-    })),
+    excludeCredentials: user.authenticators.map(auth => {
+      const descriptor = {
+        id: Buffer.from(auth.credentialID, 'base64url'),
+        type: 'public-key',
+      };
+      if (auth.transports) {
+        descriptor.transports = auth.transports.split(',');
+      }
+      return descriptor;
+    }),
     authenticatorSelection: {
       residentKey: "preferred",
       userVerification: "preferred",

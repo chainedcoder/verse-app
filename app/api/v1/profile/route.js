@@ -1,9 +1,18 @@
 import { prisma } from "@/lib/prisma"
 import { authenticateRequest } from "@/lib/apiAuth"
+import { auth } from "@/auth"
 
 export async function GET(request) {
   try {
-    const { user, error } = await authenticateRequest(request)
+    let { user, error } = await authenticateRequest(request)
+    if (!user) {
+      const session = await auth()
+      if (session?.user) {
+        user = session.user
+        error = null
+      }
+    }
+
     if (!user) {
       return Response.json({ error: error || "Unauthorized" }, { status: 401 })
     }
@@ -49,13 +58,25 @@ export async function GET(request) {
 
 export async function PUT(request) {
   try {
-    const { user, error } = await authenticateRequest(request)
+    let { user, error } = await authenticateRequest(request)
+    if (!user) {
+      const session = await auth()
+      if (session?.user) {
+        user = session.user
+        error = null
+      }
+    }
+
     if (!user) {
       return Response.json({ error: error || "Unauthorized" }, { status: 401 })
     }
 
     const body = await request.json()
-    const { name, username, bio, location, website, theme, immersiveMode, isPrivateAccount, emailNotifications } = body
+    const { name, username, bio, location, website, theme, accent, immersiveMode, isPrivateAccount, emailNotifications } = body
+
+    // Fetch existing user to safely merge preferences
+    const currentUser = await prisma.user.findUnique({ where: { id: user.id }, select: { preferences: true } })
+    const existingPrefs = currentUser?.preferences || {}
 
     const updateData = {}
     if (name !== undefined) updateData.name = name
@@ -64,6 +85,7 @@ export async function PUT(request) {
     if (location !== undefined) updateData.location = location
     if (website !== undefined) updateData.website = website
     if (theme !== undefined) updateData.theme = theme
+    if (accent !== undefined) updateData.preferences = { ...existingPrefs, accent }
     if (immersiveMode !== undefined) updateData.immersiveMode = immersiveMode
     if (isPrivateAccount !== undefined) updateData.isPrivateAccount = isPrivateAccount
     if (emailNotifications !== undefined) updateData.emailNotifications = emailNotifications

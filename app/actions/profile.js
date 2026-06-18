@@ -148,35 +148,25 @@ export async function deleteAccount() {
   const userId = session.user.id
 
   try {
-    await prisma.$transaction([
-      prisma.user.update({
-        where: { id: userId },
-        data: {
-          status: "DELETED",
-          name: "[deleted]",
-          username: `deleted-${userId}`,
-          email: `deleted-${userId}@deleted.local`,
-          bio: null,
-          website: null,
-          location: null,
-          image: null,
-          password: null,
-          twoFactorSecret: null,
-        }
-      }),
-      prisma.account.deleteMany({ where: { userId } }),
-      prisma.session.deleteMany({ where: { userId } }),
-      prisma.authenticator.deleteMany({ where: { userId } }),
-      prisma.poem.deleteMany({ where: { authorId: userId } }),
-      prisma.like.deleteMany({ where: { userId } }),
-      prisma.follow.deleteMany({ where: { OR: [{ followerId: userId }, { followingId: userId }] } }),
-      prisma.collection.deleteMany({ where: { authorId: userId } }),
-      prisma.notification.deleteMany({ where: { OR: [{ userId }, { actorId: userId }] } })
-    ])
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        status: "ARCHIVED",
+        deletedAt: new Date()
+      }
+    })
+    
+    // Attempt to invalidate existing active sessions.
+    // This is a no-op for JWT strategy (no rows in Session table), but works for DB sessions.
+    try {
+      await prisma.session.deleteMany({ where: { userId } })
+    } catch (_sessionErr) {
+      // Ignore — JWT-strategy apps don't persist sessions in the database
+    }
     
     return { success: true }
   } catch (error) {
-    console.error("Error soft deleting account:", error)
-    return { error: "Failed to delete account" }
+    console.error("Error archiving account:", error)
+    return { error: `Failed to delete account: ${error.message}` }
   }
 }

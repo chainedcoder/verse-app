@@ -8,7 +8,6 @@ body:has(.admin-layout) {
   overflow: hidden !important;
   height: 100vh !important;
   max-height: 100vh !important;
-  background-color: #F9FAFB !important; /* Matches content background exactly to avoid exposure */
 }
 
 /* Force layout constraints on the main admin layout wrapper to lock the sidebar and match backgrounds */
@@ -18,14 +17,13 @@ body:has(.admin-layout) {
   height: 100vh !important;
   max-height: 100vh !important;
   overflow: hidden !important;
-  background-color: #F9FAFB !important; /* Matches content background perfectly behind the sidebar */
 }
 
 /* ── Custom Layout Main Overrides (Forcing Light Theme to match Design Screenshot) ── */
 .custom-admin-layout-main {
-  /* Design Screenshot Colors */
-  background-color: #F9FAFB !important; /* Very light gray */
-  color: #111827 !important;            /* Muted dark charcoal */
+  /* Use CSS variables instead of hardcoded hex values */
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
   font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
   display: flex;
   flex-direction: column;
@@ -664,48 +662,60 @@ body:has(.admin-layout) {
   border-radius: 50%;
 }
 
+/* Active status: clean green, theme-aware */
 .status-pill.status-active {
-  background-color: rgba(240, 253, 244, 0.5) !important; /* Soft green */
-  border: 1px solid #BCF0DA !important;
-  color: #15803D !important;
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border-secondary) !important;
+  color: var(--text-primary) !important;
 }
 
 .status-pill.status-active .status-dot {
-  background-color: #10B981 !important;
+  background-color: #22c55e !important;
 }
 
+/* Inactive status: muted, theme-aware */
 .status-pill.status-inactive {
-  background-color: rgba(254, 242, 242, 0.5) !important; /* Soft red */
-  border: 1px solid #FECDCA !important;
-  color: #B91C1C !important;
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border-secondary) !important;
+  color: var(--text-secondary) !important;
 }
 
 .status-pill.status-inactive .status-dot {
-  background-color: #EF4444 !important;
+  background-color: #ef4444 !important;
 }
 
-/* 2FA badge styles (gold badge matching screenshot) */
+.status-pill.status-archived {
+  background-color: #fef3c7 !important;
+  border: 1px solid #fde68a !important;
+  color: #92400e !important;
+}
+
+.status-pill.status-archived .status-dot {
+  background-color: #d97706 !important;
+}
+
+/* 2FA badge styles */
 .custom-mfa-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: 500;
-  height: 24px;
+  font-size: 11px;
+  font-weight: 600;
+  height: 22px;
   padding: 0 10px;
   border-radius: 6px;
 }
 
 .custom-mfa-badge.badge-enabled {
-  background-color: #FEF3C7 !important; /* Warm gold */
-  color: #78350F !important;            /* Gold-brown */
-  border: 1px solid #FDE68A !important;
+  background-color: var(--accent-soft) !important;
+  color: var(--accent) !important;
+  border: 1px solid transparent !important;
 }
 
 .custom-mfa-badge.badge-disabled {
-  background-color: #F3F4F6 !important; /* Muted gray */
-  color: #4B5563 !important;
-  border: 1px solid #E5E7EB !important;
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-tertiary) !important;
+  border: 1px solid var(--border-tertiary) !important;
 }
 
 /* Action button styles (border-less grey buttons) */
@@ -1060,4 +1070,201 @@ body:has(.admin-layout) {
 
 .mt-12 {
   margin-top: 12px;
+}
+
+/* =========================================================
+   DARK MODE OVERRIDES
+   Overrides all hardcoded #hex !important values above.
+   ========================================================= */
+
+/* Header text */
+.user-management-title { color: var(--text-primary) !important; }
+.user-management-subtitle { color: var(--text-secondary) !important; }
+.breadcrumb-muted { color: var(--text-secondary) !important; }
+.breadcrumb-muted:hover { color: var(--text-primary) !important; }
+.breadcrumb-separator { color: var(--border-primary) !important; }
+.breadcrumb-active { color: var(--text-primary) !important; }
+
+/* Badge */
+.user-management-badge {
+  background-color: var(--bg-tertiary) !important;
+  border-color: var(--border-secondary) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Toolbar views group */
+.toolbar-views-group {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-secondary) !important;
+}
+.view-toggle-btn { color: var(--text-secondary) !important; }
+.view-toggle-btn:hover { color: var(--text-primary) !important; }
+.view-toggle-btn.active {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Toolbar buttons */
+.option-action-btn,
+.add-user-btn,
+.action-search-input {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-secondary) !important;
+  color: var(--text-primary) !important;
+}
+.option-action-btn:hover,
+.add-user-btn:hover {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-primary) !important;
+}
+.action-search-input::placeholder { color: var(--text-tertiary) !important; }
+.action-search-input:focus { border-color: var(--border-primary) !important; }
+
+/* Filter pills */
+.filter-pill-container {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-secondary) !important;
+}
+.filter-pill-container:hover {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-primary) !important;
+}
+.filter-pill-label { color: var(--text-primary) !important; }
+.filter-pill-icon,
+.filter-pill-chevron { color: var(--text-tertiary) !important; }
+.filter-pill-add-btn { color: var(--text-secondary) !important; border-color: var(--border-secondary) !important; }
+.filter-pill-add-btn:hover { background-color: var(--bg-secondary) !important; border-color: var(--border-primary) !important; color: var(--text-primary) !important; }
+
+/* Table container */
+.custom-premium-table-container {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-secondary) !important;
+}
+
+/* Table header */
+.custom-premium-table thead {
+  background-color: var(--bg-secondary) !important;
+  border-bottom-color: var(--border-secondary) !important;
+}
+.custom-premium-table .adt-th {
+  color: var(--text-tertiary) !important;
+  border-bottom-color: var(--border-secondary) !important;
+}
+.custom-premium-table .adt-th--sortable:hover { color: var(--text-primary) !important; }
+.custom-premium-table .adt-th--sorted { color: var(--text-primary) !important; }
+
+/* Table body cells */
+.custom-premium-table .adt-td {
+  border-bottom-color: var(--border-tertiary) !important;
+}
+
+/* Row background */
+.custom-premium-row {
+  background-color: var(--bg-card) !important;
+  border-bottom-color: var(--border-tertiary) !important;
+}
+.custom-premium-row:hover {
+  background-color: var(--bg-secondary) !important;
+}
+.custom-premium-row.adt-row--selected {
+  background-color: var(--bg-secondary) !important;
+}
+
+/* Checkbox */
+.custom-table-checkbox {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-secondary) !important;
+}
+.custom-table-checkbox:hover { border-color: var(--border-primary) !important; }
+.custom-table-checkbox:checked {
+  background-color: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
+/* Avatar */
+.avatar-wrapper {
+  background-color: var(--bg-tertiary) !important;
+  border-color: var(--border-secondary) !important;
+}
+
+/* Cell text */
+.custom-premium-name-text { color: var(--text-primary) !important; }
+.custom-premium-email-link { color: var(--text-secondary) !important; text-decoration-color: var(--border-primary) !important; }
+.custom-premium-email-link:hover { color: var(--text-primary) !important; text-decoration-color: var(--text-primary) !important; }
+.custom-premium-joined-date { color: var(--text-tertiary) !important; }
+.role-display-text { color: var(--text-primary) !important; }
+
+/* Action buttons */
+.adt-action-btn { color: var(--text-secondary) !important; }
+.adt-action-btn:hover { background-color: var(--bg-secondary) !important; color: var(--text-primary) !important; }
+
+/* Footer / Pagination */
+.custom-premium-footer { border-top-color: var(--border-secondary) !important; }
+.rows-label { color: var(--text-secondary) !important; }
+.rows-select-container {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-secondary) !important;
+}
+.rows-select-container:hover { background-color: var(--bg-secondary) !important; }
+.rows-select-display { color: var(--text-primary) !important; }
+
+.pagination-arrow-btn,
+.pagination-number-btn {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-secondary) !important;
+  color: var(--text-secondary) !important;
+}
+.pagination-arrow-btn:hover,
+.pagination-number-btn:hover {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+.pagination-number-btn.active {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-primary) !important;
+  color: var(--text-primary) !important;
+}
+.pagination-ellipsis { color: var(--text-tertiary) !important; }
+
+/* Toast */
+.toast-premium {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-secondary) !important;
+}
+.toast-premium-title { color: var(--text-primary) !important; }
+.toast-premium-text { color: var(--text-secondary) !important; }
+.link-undo { color: var(--text-primary) !important; }
+.link-profile { color: var(--text-secondary) !important; }
+.toast-premium-close { color: var(--text-tertiary) !important; }
+.toast-premium-close:hover { background-color: var(--bg-secondary) !important; color: var(--text-primary) !important; }
+
+/* Modal */
+.adt-modal {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-secondary) !important;
+}
+.adt-modal-title-text { color: var(--text-primary) !important; }
+.adt-modal-sub-text { color: var(--text-secondary) !important; }
+.adt-modal-label { color: var(--text-primary) !important; }
+.adt-modal-textarea,
+.adt-modal-input {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-secondary) !important;
+  color: var(--text-primary) !important;
+}
+.adt-modal-input:focus { border-color: var(--accent) !important; }
+.adt-modal-foot { border-top-color: var(--border-tertiary) !important; }
+
+/* Modal secondary button */
+.btn-secondary {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-secondary) !important;
+  color: var(--text-primary) !important;
+}
+.btn-secondary:hover { background-color: var(--bg-tertiary) !important; }
+
+/* Custom admin layout main */
+.custom-admin-layout-main {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
 }

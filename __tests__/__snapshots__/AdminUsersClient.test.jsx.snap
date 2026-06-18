@@ -1,0 +1,1968 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`AdminUsersClient — Style Modularity & Design System Consistency matches full component rendering snapshot to lock the complete styling contract 1`] = `
+<DocumentFragment>
+  <main
+    class="admin-main custom-admin-layout-main"
+  >
+    <div
+      class="user-management-header"
+    >
+      <div
+        class="user-management-breadcrumb"
+      >
+        <a
+          class="breadcrumb-muted"
+          href="/admin"
+        >
+          Ventures
+        </a>
+        <span
+          class="breadcrumb-separator"
+        >
+          /
+        </span>
+        <span
+          class="breadcrumb-active"
+        >
+          👥 User management
+        </span>
+      </div>
+      <div
+        class="user-management-title-row"
+      >
+        <h1
+          class="user-management-title"
+        >
+          User management
+          <span
+            class="user-management-badge"
+          >
+            4 members
+          </span>
+        </h1>
+      </div>
+      <p
+        class="user-management-subtitle"
+      >
+        Manage your team members and their account permissions here.
+      </p>
+    </div>
+    <div
+      class="user-management-toolbar"
+    >
+      <div
+        class="toolbar-views-group"
+      >
+        <button
+          class="view-toggle-btn active"
+          type="button"
+        >
+          <svg
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+          >
+            <rect
+              height="18"
+              rx="2"
+              ry="2"
+              width="18"
+              x="3"
+              y="3"
+            />
+            <line
+              x1="3"
+              x2="21"
+              y1="9"
+              y2="9"
+            />
+            <line
+              x1="9"
+              x2="9"
+              y1="21"
+              y2="9"
+            />
+          </svg>
+          <span>
+            Table
+          </span>
+        </button>
+        <button
+          class="view-toggle-btn "
+          type="button"
+        >
+          <svg
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+          >
+            <line
+              x1="18"
+              x2="18"
+              y1="20"
+              y2="10"
+            />
+            <line
+              x1="12"
+              x2="12"
+              y1="20"
+              y2="4"
+            />
+            <line
+              x1="6"
+              x2="6"
+              y1="20"
+              y2="14"
+            />
+          </svg>
+          <span>
+            Board
+          </span>
+        </button>
+        <button
+          class="view-toggle-btn "
+          type="button"
+        >
+          <svg
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+          >
+            <line
+              x1="8"
+              x2="21"
+              y1="6"
+              y2="6"
+            />
+            <line
+              x1="8"
+              x2="21"
+              y1="12"
+              y2="12"
+            />
+            <line
+              x1="8"
+              x2="21"
+              y1="18"
+              y2="18"
+            />
+            <line
+              x1="3"
+              x2="3.01"
+              y1="6"
+              y2="6"
+            />
+            <line
+              x1="3"
+              x2="3.01"
+              y1="12"
+              y2="12"
+            />
+            <line
+              x1="3"
+              x2="3.01"
+              y1="18"
+              y2="18"
+            />
+          </svg>
+          <span>
+            List
+          </span>
+        </button>
+      </div>
+      <div
+        class="toolbar-options-group"
+      >
+        <div
+          class="action-search-container"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-search action-search-icon"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m21 21-4.34-4.34"
+            />
+            <circle
+              cx="11"
+              cy="11"
+              r="8"
+            />
+          </svg>
+          <input
+            aria-label="Search users"
+            class="action-search-input"
+            placeholder="Search by name or email…"
+            type="search"
+            value=""
+          />
+        </div>
+        <div
+          style="position: relative;"
+        >
+          <button
+            class="option-action-btn"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-sliders-horizontal"
+              fill="none"
+              height="14"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="14"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M10 5H3"
+              />
+              <path
+                d="M12 19H3"
+              />
+              <path
+                d="M14 3v4"
+              />
+              <path
+                d="M16 17v4"
+              />
+              <path
+                d="M21 12h-9"
+              />
+              <path
+                d="M21 19h-5"
+              />
+              <path
+                d="M21 5h-7"
+              />
+              <path
+                d="M8 10v4"
+              />
+              <path
+                d="M8 12H3"
+              />
+            </svg>
+            <span>
+              Hide
+            </span>
+          </button>
+        </div>
+        <button
+          class="option-action-btn"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-settings2 lucide-settings-2"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M14 17H5"
+            />
+            <path
+              d="M19 7h-9"
+            />
+            <circle
+              cx="17"
+              cy="17"
+              r="3"
+            />
+            <circle
+              cx="7"
+              cy="7"
+              r="3"
+            />
+          </svg>
+          <span>
+            Customize
+          </span>
+        </button>
+        <div
+          style="position: relative;"
+        >
+          <button
+            aria-label="More options"
+            class="option-action-btn icon-only"
+            type="button"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-ellipsis"
+              fill="none"
+              height="14"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="14"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="1"
+              />
+              <circle
+                cx="19"
+                cy="12"
+                r="1"
+              />
+              <circle
+                cx="5"
+                cy="12"
+                r="1"
+              />
+            </svg>
+          </button>
+        </div>
+        <button
+          aria-label="Export data"
+          class="option-action-btn"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-download"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M12 15V3"
+            />
+            <path
+              d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+            />
+            <path
+              d="m7 10 5 5 5-5"
+            />
+          </svg>
+          <span>
+            Export
+          </span>
+        </button>
+        <button
+          aria-label="Create new member"
+          class="add-user-btn"
+          type="button"
+        >
+          <span>
+            Add User
+          </span>
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-chevron-down"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m6 9 6 6 6-6"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div
+      class="user-management-filters-row"
+      style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center;"
+    >
+      <div
+        class="filter-pill-container"
+        style="position: relative;"
+      >
+        <button
+          style="display: flex; align-items: center; gap: 6px; background: none; padding: 0px; margin: 0px; width: 100%; height: 100%; cursor: pointer; outline: none;"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-user filter-pill-icon"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"
+            />
+            <circle
+              cx="12"
+              cy="7"
+              r="4"
+            />
+          </svg>
+          <span
+            class="filter-pill-label"
+          >
+            Role
+          </span>
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-chevron-down filter-pill-chevron"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m6 9 6 6 6-6"
+            />
+          </svg>
+        </button>
+        <select
+          aria-label="Filter by role"
+          style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
+        >
+          <option
+            value="ALL"
+          >
+            All Roles
+          </option>
+          <option
+            value="USER"
+          >
+            User
+          </option>
+          <option
+            value="MODERATOR"
+          >
+            Moderator
+          </option>
+          <option
+            value="ADMIN"
+          >
+            Admin
+          </option>
+        </select>
+      </div>
+      <div
+        class="filter-pill-container"
+        style="position: relative;"
+      >
+        <button
+          style="display: flex; align-items: center; gap: 6px; background: none; padding: 0px; margin: 0px; width: 100%; height: 100%; cursor: pointer; outline: none;"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-check filter-pill-icon"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M20 6 9 17l-5-5"
+            />
+          </svg>
+          <span
+            class="filter-pill-label"
+          >
+            Status
+          </span>
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-chevron-down filter-pill-chevron"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m6 9 6 6 6-6"
+            />
+          </svg>
+        </button>
+        <select
+          aria-label="Filter by status"
+          style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
+        >
+          <option
+            value="ALL"
+          >
+            All Status
+          </option>
+          <option
+            value="ACTIVE"
+          >
+            Active
+          </option>
+          <option
+            value="SUSPENDED"
+          >
+            Suspended
+          </option>
+          <option
+            value="BANNED"
+          >
+            Banned
+          </option>
+        </select>
+      </div>
+      <div
+        class="filter-pill-container"
+        style="position: relative;"
+      >
+        <button
+          style="display: flex; align-items: center; gap: 6px; background: none; padding: 0px; margin: 0px; width: 100%; height: 100%; cursor: pointer; outline: none;"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-shield filter-pill-icon"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+            />
+          </svg>
+          <span
+            class="filter-pill-label"
+          >
+            2F Auth
+          </span>
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-chevron-down filter-pill-chevron"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m6 9 6 6 6-6"
+            />
+          </svg>
+        </button>
+        <select
+          aria-label="Filter by 2fa status"
+          style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
+        >
+          <option
+            value="ALL"
+          >
+            All 2FA
+          </option>
+          <option
+            value="ENABLED"
+          >
+            Enabled
+          </option>
+          <option
+            value="DISABLED"
+          >
+            Disabled
+          </option>
+        </select>
+      </div>
+      <div
+        class="filter-pill-container"
+        style="position: relative; display: flex; align-items: center; background: none; padding: 0px;"
+      >
+        <button
+          class="filter-pill-add-btn"
+          style="display: flex; align-items: center; gap: 8px; cursor: pointer;"
+          type="button"
+        >
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-plus"
+            fill="none"
+            height="14"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="14"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M5 12h14"
+            />
+            <path
+              d="M12 5v14"
+            />
+          </svg>
+          <span>
+            Add filter
+          </span>
+        </button>
+      </div>
+      <span
+        class="adt-count hidden-testing-element admin-table-toolbar__count"
+      >
+        4 users
+      </span>
+    </div>
+    <div
+      class="adt-container custom-premium-table-container"
+    >
+      <div
+        class="adt-scroll"
+      >
+        <table
+          class="adt-table custom-premium-table admin-table"
+        >
+          <thead>
+            <tr>
+              <th
+                class="adt-th adt-th--check"
+              >
+                <input
+                  aria-label="Select all users on page"
+                  class="custom-table-checkbox"
+                  type="checkbox"
+                />
+              </th>
+              <th
+                aria-label="User"
+                aria-sort="none"
+                class="adt-th adt-th--sortable"
+                role="button"
+                tabindex="0"
+              >
+                <span
+                  class="adt-th-inner"
+                >
+                  Full name
+                  <span
+                    class="custom-sort-icon"
+                  >
+                    ⇅
+                  </span>
+                </span>
+              </th>
+              <th
+                aria-sort="none"
+                class="adt-th adt-th--sortable"
+                role="button"
+                tabindex="0"
+              >
+                <span
+                  class="adt-th-inner"
+                >
+                  @ Email
+                  <span
+                    class="custom-sort-icon"
+                  >
+                    ⇅
+                  </span>
+                </span>
+              </th>
+              <th
+                aria-sort="none"
+                class="adt-th adt-th--sortable"
+                role="button"
+                tabindex="0"
+              >
+                <span
+                  class="adt-th-inner"
+                >
+                  Role
+                  <span
+                    class="custom-sort-icon"
+                  >
+                    ⇅
+                  </span>
+                </span>
+              </th>
+              <th
+                aria-sort="none"
+                class="adt-th adt-th--sortable"
+                role="button"
+                tabindex="0"
+              >
+                <span
+                  class="adt-th-inner"
+                >
+                  Status
+                  <span
+                    class="custom-sort-icon"
+                  >
+                    ⇅
+                  </span>
+                </span>
+              </th>
+              <th
+                aria-sort="descending"
+                class="adt-th adt-th--sortable adt-th--sorted"
+                role="button"
+                tabindex="0"
+              >
+                <span
+                  class="adt-th-inner"
+                >
+                  Joined date
+                  <span
+                    class="custom-sort-icon"
+                  >
+                    ↓
+                  </span>
+                </span>
+              </th>
+              <th
+                class="adt-th adt-header-with-icon"
+              >
+                <div
+                  class="adt-th-inner"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="lucide lucide-shield header-icon"
+                    fill="none"
+                    height="13"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="13"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+                    />
+                  </svg>
+                  <span>
+                    2F Auth
+                  </span>
+                </div>
+              </th>
+              <th
+                class="adt-th adt-header-with-icon"
+              >
+                <div
+                  class="adt-th-inner"
+                >
+                  <svg
+                    aria-hidden="true"
+                    class="lucide lucide-settings header-icon"
+                    fill="none"
+                    height="13"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    viewBox="0 0 24 24"
+                    width="13"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"
+                    />
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="3"
+                    />
+                  </svg>
+                  <span>
+                    Actions
+                  </span>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              class="adt-row custom-premium-row "
+              style="opacity: 1;"
+            >
+              <td
+                class="adt-td adt-td-check"
+              >
+                <input
+                  aria-label="Select Dave"
+                  class="custom-table-checkbox"
+                  type="checkbox"
+                />
+              </td>
+              <td
+                class="adt-td"
+              >
+                <div
+                  class="adt-user-cell custom-premium-user-cell"
+                >
+                  <div
+                    class="avatar-wrapper"
+                  >
+                    <span
+                      data-testid="avatar"
+                    >
+                      Dave
+                    </span>
+                  </div>
+                  <div
+                    class="adt-user-text"
+                  >
+                    <a
+                      class="adt-user-name custom-premium-name-text"
+                      href="/author/u4"
+                    >
+                      Dave
+                    </a>
+                  </div>
+                </div>
+              </td>
+              <td
+                class="adt-td"
+              >
+                <span
+                  class="custom-premium-email-link"
+                  title="dave@test.com"
+                >
+                  dave@test.com
+                </span>
+              </td>
+              <td
+                class="adt-td"
+                style="position: relative;"
+              >
+                <div
+                  class="role-cell-container"
+                  style="position: relative;"
+                >
+                  <button
+                    class="role-badge-btn"
+                    style="background: none; padding: 0px; cursor: pointer; outline: none;"
+                    type="button"
+                  >
+                    <span
+                      class="role-display-text"
+                    >
+                      User
+                    </span>
+                  </button>
+                  <select
+                    aria-label="Role for user: User"
+                    class="role-cell-select-hidden-overlay"
+                    style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
+                  >
+                    <option
+                      value="USER"
+                    >
+                      User
+                    </option>
+                    <option
+                      value="MODERATOR"
+                    >
+                      Mod
+                    </option>
+                    <option
+                      value="ADMIN"
+                    >
+                      Admin
+                    </option>
+                  </select>
+                </div>
+              </td>
+              <td
+                class="adt-td"
+                style="position: relative;"
+              >
+                <div
+                  class="status-cell-container"
+                  style="position: relative;"
+                >
+                  <button
+                    class="status-pill-btn"
+                    style="background: none; padding: 0px; cursor: pointer; outline: none;"
+                    type="button"
+                  >
+                    <div
+                      class="status-pill status-archived"
+                    >
+                      <span
+                        class="status-dot"
+                      />
+                      <span>
+                        To be deleted (25d left)
+                      </span>
+                    </div>
+                  </button>
+                  <select
+                    aria-label="Status for user: To be deleted (25d left)"
+                    class="status-cell-select-hidden-overlay"
+                    style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
+                  >
+                    <option
+                      value="ACTIVE"
+                    >
+                      Active
+                    </option>
+                    <option
+                      value="SUSPENDED"
+                    >
+                      Suspended
+                    </option>
+                    <option
+                      value="BANNED"
+                    >
+                      Banned
+                    </option>
+                  </select>
+                </div>
+              </td>
+              <td
+                class="adt-td custom-premium-joined-date"
+              >
+                10 Apr 2024, 3:00 am
+              </td>
+              <td
+                class="adt-td"
+              >
+                <span
+                  class="custom-mfa-badge badge-disabled"
+                >
+                  Disabled
+                </span>
+              </td>
+              <td
+                class="hidden-testing-element"
+              >
+                <span>
+                  0
+                </span>
+              </td>
+              <td
+                class="hidden-testing-element"
+              >
+                <span>
+                  0
+                </span>
+              </td>
+              <td
+                class="adt-td"
+              >
+                <div
+                  class="adt-actions custom-premium-actions"
+                >
+                  <button
+                    class="adt-action-btn edit-btn"
+                    title="Edit user details"
+                    type="button"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="lucide lucide-pencil"
+                      fill="none"
+                      height="14"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="14"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
+                      />
+                      <path
+                        d="m15 5 4 4"
+                      />
+                    </svg>
+                    <span>
+                      Edit
+                    </span>
+                  </button>
+                  <button
+                    class="adt-action-btn delete-btn"
+                    title="Delete user and anonymize"
+                    type="button"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="lucide lucide-trash2 lucide-trash-2"
+                      fill="none"
+                      height="14"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="14"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M10 11v6"
+                      />
+                      <path
+                        d="M14 11v6"
+                      />
+                      <path
+                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"
+                      />
+                      <path
+                        d="M3 6h18"
+                      />
+                      <path
+                        d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                      />
+                    </svg>
+                    <span>
+                      Delete
+                    </span>
+                  </button>
+                  <button
+                    aria-label="Ban"
+                    class="adt-hidden-action-btn"
+                    title="Ban user"
+                    type="button"
+                  >
+                    Ban
+                  </button>
+                  <button
+                    aria-label="Nuclear"
+                    class="adt-hidden-action-btn"
+                    title="Nuclear delete user"
+                    type="button"
+                  >
+                    Nuclear
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr
+              class="adt-row custom-premium-row "
+              style="opacity: 1;"
+            >
+              <td
+                class="adt-td adt-td-check"
+              >
+                <input
+                  aria-label="Select Bob"
+                  class="custom-table-checkbox"
+                  type="checkbox"
+                />
+              </td>
+              <td
+                class="adt-td"
+              >
+                <div
+                  class="adt-user-cell custom-premium-user-cell"
+                >
+                  <div
+                    class="avatar-wrapper"
+                  >
+                    <span
+                      data-testid="avatar"
+                    >
+                      Bob
+                    </span>
+                  </div>
+                  <div
+                    class="adt-user-text"
+                  >
+                    <a
+                      class="adt-user-name custom-premium-name-text"
+                      href="/author/u2"
+                    >
+                      Bob
+                    </a>
+                  </div>
+                </div>
+              </td>
+              <td
+                class="adt-td"
+              >
+                <span
+                  class="custom-premium-email-link"
+                  title="bob@test.com"
+                >
+                  bob@test.com
+                </span>
+              </td>
+              <td
+                class="adt-td"
+                style="position: relative;"
+              >
+                <div
+                  class="role-cell-container"
+                  style="position: relative;"
+                >
+                  <button
+                    class="role-badge-btn"
+                    style="background: none; padding: 0px; cursor: pointer; outline: none;"
+                    type="button"
+                  >
+                    <span
+                      class="role-display-text"
+                    >
+                      Moderator
+                    </span>
+                  </button>
+                  <select
+                    aria-label="Role for user: Mod"
+                    class="role-cell-select-hidden-overlay"
+                    style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
+                  >
+                    <option
+                      value="USER"
+                    >
+                      User
+                    </option>
+                    <option
+                      value="MODERATOR"
+                    >
+                      Mod
+                    </option>
+                    <option
+                      value="ADMIN"
+                    >
+                      Admin
+                    </option>
+                  </select>
+                </div>
+              </td>
+              <td
+                class="adt-td"
+                style="position: relative;"
+              >
+                <div
+                  class="status-cell-container"
+                  style="position: relative;"
+                >
+                  <button
+                    class="status-pill-btn"
+                    style="background: none; padding: 0px; cursor: pointer; outline: none;"
+                    type="button"
+                  >
+                    <div
+                      class="status-pill status-suspended"
+                    >
+                      <span
+                        class="status-dot"
+                      />
+                      <span>
+                        Suspended
+                      </span>
+                    </div>
+                  </button>
+                  <select
+                    aria-label="Status for user: Suspended"
+                    class="status-cell-select-hidden-overlay"
+                    style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
+                  >
+                    <option
+                      value="ACTIVE"
+                    >
+                      Active
+                    </option>
+                    <option
+                      value="SUSPENDED"
+                    >
+                      Suspended
+                    </option>
+                    <option
+                      value="BANNED"
+                    >
+                      Banned
+                    </option>
+                  </select>
+                </div>
+              </td>
+              <td
+                class="adt-td custom-premium-joined-date"
+              >
+                10 Mar 2024, 3:00 am
+              </td>
+              <td
+                class="adt-td"
+              >
+                <span
+                  class="custom-mfa-badge badge-disabled"
+                >
+                  Disabled
+                </span>
+              </td>
+              <td
+                class="hidden-testing-element"
+              >
+                <span>
+                  2
+                </span>
+              </td>
+              <td
+                class="hidden-testing-element"
+              >
+                <span>
+                  3
+                </span>
+              </td>
+              <td
+                class="adt-td"
+              >
+                <div
+                  class="adt-actions custom-premium-actions"
+                >
+                  <button
+                    class="adt-action-btn edit-btn"
+                    title="Edit user details"
+                    type="button"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="lucide lucide-pencil"
+                      fill="none"
+                      height="14"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="14"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
+                      />
+                      <path
+                        d="m15 5 4 4"
+                      />
+                    </svg>
+                    <span>
+                      Edit
+                    </span>
+                  </button>
+                  <button
+                    class="adt-action-btn delete-btn"
+                    title="Delete user and anonymize"
+                    type="button"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="lucide lucide-trash2 lucide-trash-2"
+                      fill="none"
+                      height="14"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="14"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M10 11v6"
+                      />
+                      <path
+                        d="M14 11v6"
+                      />
+                      <path
+                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"
+                      />
+                      <path
+                        d="M3 6h18"
+                      />
+                      <path
+                        d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                      />
+                    </svg>
+                    <span>
+                      Delete
+                    </span>
+                  </button>
+                  <button
+                    aria-label="Ban"
+                    class="adt-hidden-action-btn"
+                    title="Ban user"
+                    type="button"
+                  >
+                    Ban
+                  </button>
+                  <button
+                    aria-label="Nuclear"
+                    class="adt-hidden-action-btn"
+                    title="Nuclear delete user"
+                    type="button"
+                  >
+                    Nuclear
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr
+              class="adt-row custom-premium-row "
+              style="opacity: 1;"
+            >
+              <td
+                class="adt-td adt-td-check"
+              >
+                <input
+                  aria-label="Select Carol"
+                  class="custom-table-checkbox"
+                  type="checkbox"
+                />
+              </td>
+              <td
+                class="adt-td"
+              >
+                <div
+                  class="adt-user-cell custom-premium-user-cell"
+                >
+                  <div
+                    class="avatar-wrapper"
+                  >
+                    <span
+                      data-testid="avatar"
+                    >
+                      Carol
+                    </span>
+                  </div>
+                  <div
+                    class="adt-user-text"
+                  >
+                    <a
+                      class="adt-user-name custom-premium-name-text"
+                      href="/author/u3"
+                    >
+                      Carol
+                    </a>
+                  </div>
+                </div>
+              </td>
+              <td
+                class="adt-td"
+              >
+                <span
+                  class="custom-premium-email-link"
+                  title="carol@test.com"
+                >
+                  carol@test.com
+                </span>
+              </td>
+              <td
+                class="adt-td"
+                style="position: relative;"
+              >
+                <div
+                  class="role-cell-container"
+                  style="position: relative;"
+                >
+                  <button
+                    class="role-badge-btn"
+                    style="background: none; padding: 0px; cursor: pointer; outline: none;"
+                    type="button"
+                  >
+                    <span
+                      class="role-display-text"
+                    >
+                      User
+                    </span>
+                  </button>
+                  <select
+                    aria-label="Role for user: User"
+                    class="role-cell-select-hidden-overlay"
+                    style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
+                  >
+                    <option
+                      value="USER"
+                    >
+                      User
+                    </option>
+                    <option
+                      value="MODERATOR"
+                    >
+                      Mod
+                    </option>
+                    <option
+                      value="ADMIN"
+                    >
+                      Admin
+                    </option>
+                  </select>
+                </div>
+              </td>
+              <td
+                class="adt-td"
+                style="position: relative;"
+              >
+                <div
+                  class="status-cell-container"
+                  style="position: relative;"
+                >
+                  <button
+                    class="status-pill-btn"
+                    style="background: none; padding: 0px; cursor: pointer; outline: none;"
+                    type="button"
+                  >
+                    <div
+                      class="status-pill status-banned"
+                    >
+                      <span
+                        class="status-dot"
+                      />
+                      <span>
+                        Banned
+                      </span>
+                    </div>
+                  </button>
+                  <select
+                    aria-label="Status for user: Banned"
+                    class="status-cell-select-hidden-overlay"
+                    style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
+                  >
+                    <option
+                      value="ACTIVE"
+                    >
+                      Active
+                    </option>
+                    <option
+                      value="SUSPENDED"
+                    >
+                      Suspended
+                    </option>
+                    <option
+                      value="BANNED"
+                    >
+                      Banned
+                    </option>
+                  </select>
+                </div>
+              </td>
+              <td
+                class="adt-td custom-premium-joined-date"
+              >
+                20 Feb 2024, 3:00 am
+              </td>
+              <td
+                class="adt-td"
+              >
+                <span
+                  class="custom-mfa-badge badge-disabled"
+                >
+                  Disabled
+                </span>
+              </td>
+              <td
+                class="hidden-testing-element"
+              >
+                <span>
+                  0
+                </span>
+              </td>
+              <td
+                class="hidden-testing-element"
+              >
+                <span>
+                  1
+                </span>
+              </td>
+              <td
+                class="adt-td"
+              >
+                <div
+                  class="adt-actions custom-premium-actions"
+                >
+                  <button
+                    class="adt-action-btn edit-btn"
+                    title="Edit user details"
+                    type="button"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="lucide lucide-pencil"
+                      fill="none"
+                      height="14"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="14"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
+                      />
+                      <path
+                        d="m15 5 4 4"
+                      />
+                    </svg>
+                    <span>
+                      Edit
+                    </span>
+                  </button>
+                  <button
+                    class="adt-action-btn delete-btn"
+                    title="Delete user and anonymize"
+                    type="button"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="lucide lucide-trash2 lucide-trash-2"
+                      fill="none"
+                      height="14"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="14"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M10 11v6"
+                      />
+                      <path
+                        d="M14 11v6"
+                      />
+                      <path
+                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"
+                      />
+                      <path
+                        d="M3 6h18"
+                      />
+                      <path
+                        d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                      />
+                    </svg>
+                    <span>
+                      Delete
+                    </span>
+                  </button>
+                  <button
+                    aria-label="Unban"
+                    class="adt-hidden-action-btn"
+                    title="Unban user"
+                    type="button"
+                  >
+                    Unban
+                  </button>
+                  <button
+                    aria-label="Nuclear"
+                    class="adt-hidden-action-btn"
+                    title="Nuclear delete user"
+                    type="button"
+                  >
+                    Nuclear
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr
+              class="adt-row custom-premium-row "
+              style="opacity: 1;"
+            >
+              <td
+                class="adt-td adt-td-check"
+              >
+                <input
+                  aria-label="Select Alice"
+                  class="custom-table-checkbox"
+                  type="checkbox"
+                />
+              </td>
+              <td
+                class="adt-td"
+              >
+                <div
+                  class="adt-user-cell custom-premium-user-cell"
+                >
+                  <div
+                    class="avatar-wrapper"
+                  >
+                    <span
+                      data-testid="avatar"
+                    >
+                      Alice
+                    </span>
+                  </div>
+                  <div
+                    class="adt-user-text"
+                  >
+                    <a
+                      class="adt-user-name custom-premium-name-text"
+                      href="/author/u1"
+                    >
+                      Alice
+                    </a>
+                  </div>
+                </div>
+              </td>
+              <td
+                class="adt-td"
+              >
+                <span
+                  class="custom-premium-email-link"
+                  title="alice@test.com"
+                >
+                  alice@test.com
+                </span>
+              </td>
+              <td
+                class="adt-td"
+                style="position: relative;"
+              >
+                <div
+                  class="role-cell-container"
+                  style="position: relative;"
+                >
+                  <button
+                    class="role-badge-btn"
+                    style="background: none; padding: 0px; cursor: pointer; outline: none;"
+                    type="button"
+                  >
+                    <span
+                      class="role-display-text"
+                    >
+                      User
+                    </span>
+                  </button>
+                  <select
+                    aria-label="Role for user: User"
+                    class="role-cell-select-hidden-overlay"
+                    style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
+                  >
+                    <option
+                      value="USER"
+                    >
+                      User
+                    </option>
+                    <option
+                      value="MODERATOR"
+                    >
+                      Mod
+                    </option>
+                    <option
+                      value="ADMIN"
+                    >
+                      Admin
+                    </option>
+                  </select>
+                </div>
+              </td>
+              <td
+                class="adt-td"
+                style="position: relative;"
+              >
+                <div
+                  class="status-cell-container"
+                  style="position: relative;"
+                >
+                  <button
+                    class="status-pill-btn"
+                    style="background: none; padding: 0px; cursor: pointer; outline: none;"
+                    type="button"
+                  >
+                    <div
+                      class="status-pill status-active"
+                    >
+                      <span
+                        class="status-dot"
+                      />
+                      <span>
+                        Active
+                      </span>
+                    </div>
+                  </button>
+                  <select
+                    aria-label="Status for user: Active"
+                    class="status-cell-select-hidden-overlay"
+                    style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
+                  >
+                    <option
+                      value="ACTIVE"
+                    >
+                      Active
+                    </option>
+                    <option
+                      value="SUSPENDED"
+                    >
+                      Suspended
+                    </option>
+                    <option
+                      value="BANNED"
+                    >
+                      Banned
+                    </option>
+                  </select>
+                </div>
+              </td>
+              <td
+                class="adt-td custom-premium-joined-date"
+              >
+                15 Jan 2024, 3:00 am
+              </td>
+              <td
+                class="adt-td"
+              >
+                <span
+                  class="custom-mfa-badge badge-disabled"
+                >
+                  Disabled
+                </span>
+              </td>
+              <td
+                class="hidden-testing-element"
+              >
+                <span>
+                  5
+                </span>
+              </td>
+              <td
+                class="hidden-testing-element"
+              >
+                <span>
+                  0
+                </span>
+              </td>
+              <td
+                class="adt-td"
+              >
+                <div
+                  class="adt-actions custom-premium-actions"
+                >
+                  <button
+                    class="adt-action-btn edit-btn"
+                    title="Edit user details"
+                    type="button"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="lucide lucide-pencil"
+                      fill="none"
+                      height="14"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="14"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
+                      />
+                      <path
+                        d="m15 5 4 4"
+                      />
+                    </svg>
+                    <span>
+                      Edit
+                    </span>
+                  </button>
+                  <button
+                    class="adt-action-btn delete-btn"
+                    title="Delete user and anonymize"
+                    type="button"
+                  >
+                    <svg
+                      aria-hidden="true"
+                      class="lucide lucide-trash2 lucide-trash-2"
+                      fill="none"
+                      height="14"
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      viewBox="0 0 24 24"
+                      width="14"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M10 11v6"
+                      />
+                      <path
+                        d="M14 11v6"
+                      />
+                      <path
+                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"
+                      />
+                      <path
+                        d="M3 6h18"
+                      />
+                      <path
+                        d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                      />
+                    </svg>
+                    <span>
+                      Delete
+                    </span>
+                  </button>
+                  <button
+                    aria-label="Ban"
+                    class="adt-hidden-action-btn"
+                    title="Ban user"
+                    type="button"
+                  >
+                    Ban
+                  </button>
+                  <button
+                    aria-label="Nuclear"
+                    class="adt-hidden-action-btn"
+                    title="Nuclear delete user"
+                    type="button"
+                  >
+                    Nuclear
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div
+      class="custom-premium-footer"
+    >
+      <div
+        class="footer-rows-options"
+      >
+        <span
+          class="rows-label"
+        >
+          Rows per page
+        </span>
+        <div
+          class="rows-select-container"
+        >
+          <span
+            class="rows-select-display"
+          >
+            15
+          </span>
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-chevron-down rows-select-chevron"
+            fill="none"
+            height="12"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            viewBox="0 0 24 24"
+            width="12"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m6 9 6 6 6-6"
+            />
+          </svg>
+          <select
+            aria-label="Rows per page"
+            class="rows-select-hidden-overlay"
+          >
+            <option
+              value="5"
+            >
+              5 rows
+            </option>
+            <option
+              value="10"
+            >
+              10 rows
+            </option>
+            <option
+              value="15"
+            >
+              15 rows
+            </option>
+            <option
+              value="25"
+            >
+              25 rows
+            </option>
+          </select>
+        </div>
+        <span
+          class="rows-info-text"
+        >
+          1-4 of 4 rows
+        </span>
+      </div>
+    </div>
+    <div
+      class="hidden-testing-element"
+    >
+      <div
+        data-testid="pagination"
+      >
+        page 1 of 1
+      </div>
+    </div>
+  </main>
+</DocumentFragment>
+`;

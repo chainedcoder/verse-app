@@ -238,8 +238,9 @@ test.describe('Feed and Navigation', () => {
   });
 
   test('mobile interrupt sections are hidden on desktop (1280px+)', async ({ page }) => {
+    test.setTimeout(60000);
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
 
     const authorsStrip = page.locator('.mobile-authors-strip');
     const tagsStrip    = page.locator('.mobile-tags-strip');

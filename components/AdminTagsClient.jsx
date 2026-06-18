@@ -44,7 +44,7 @@ export default function AdminTagsClient({ initialTags, currentUserRole }) {
   }
 
   return (
-    <div>
+    <div style={{ maxWidth: '800px' }}>
       <div style={{ marginBottom: "24px" }}>
         <input 
           type="search" 

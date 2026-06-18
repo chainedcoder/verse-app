@@ -12,7 +12,7 @@ import {
 import Link from "next/link"
 import Avatar from "./Avatar"
 import Pagination from "./Pagination"
-import Sidebar from "@/components/admin/Sidebar"
+
 import { useToast } from "./ToastProvider"
 import { useConfirm } from "./ConfirmProvider"
 import { useRouter } from "next/navigation"
@@ -59,6 +59,14 @@ function getUserStatusDisplay(user) {
   const email = (user.email || "").toLowerCase()
   if (email.startsWith("garcia@") || email.startsWith("davis@") || email.startsWith("moller@")) {
     return "Inactive"
+  }
+  if (user.status === "ARCHIVED") {
+    if (user.deletedAt) {
+      const daysSinceDeletion = Math.floor((Date.now() - new Date(user.deletedAt).getTime()) / (1000 * 60 * 60 * 24))
+      const daysLeft = Math.max(0, 30 - daysSinceDeletion)
+      return `To be deleted (${daysLeft}d left)`
+    }
+    return "To be deleted"
   }
   if (user.status === "ACTIVE") return "Active"
   if (user.status === "SUSPENDED") return "Suspended"
@@ -136,13 +144,18 @@ function ConfirmBulkDeleteModal({ users, onConfirm, onCancel, isPending }) {
   )
 }
 
-export default function AdminUsersClient({ initialUsers, currentUserRole, totalCount = 0, currentPage: serverPage = 1, itemsPerPage: serverLimit = 15, permissionGroups = [] }) {
+export default function AdminUsersClient({ initialUsers, currentUserRole, totalCount = 0, currentPage: serverPage = 1, itemsPerPage: serverLimit = 15, viewMode: initialViewMode = "table", permissionGroups = [] }) {
   const [users, setUsers] = useState(initialUsers)
+  const [viewMode, setViewMode] = useState(initialViewMode)
   
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setUsers(initialUsers)
   }, [initialUsers])
+
+  useEffect(() => {
+    setViewMode(initialViewMode)
+  }, [initialViewMode])
 
 
 
@@ -179,7 +192,6 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
   const [selectedIds, setSelectedIds] = useState(new Set())
   const [showBulkModal, setShowBulkModal] = useState(false)
   const [bulkError, setBulkError] = useState("")
-  const [viewMode, setViewMode] = useState("table")
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false)
 
   // Edit User States
@@ -208,7 +220,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
   const [localGroups, setLocalGroups] = useState([])
   const [showInlineCreate, setShowInlineCreate] = useState(false)
   const [inlineName, setInlineName] = useState("")
-  const [inlineColor, setInlineColor] = useState("#3b82f6")
+  const [inlineColor, setInlineColor] = useState("var(--accent)")
 
   // Sync prop permissionGroups with state safely preventing infinite loops
   useEffect(() => {
@@ -281,6 +293,15 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
       router.push(`/admin/users?${query.toString()}`)
     } catch (e) {}
   }, [router, isJest])
+
+  const handleViewModeChange = useCallback((mode) => {
+    setViewMode(mode)
+    if (isJest) {
+      setClientPage(1)
+    } else {
+      safePush({ viewMode: mode, page: 1 })
+    }
+  }, [safePush, isJest])
 
   const handleSort = useCallback((key) => {
     const nextDir = sortKey === key && sortDir === "asc" ? "desc" : "asc"
@@ -383,6 +404,27 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
         activePage * itemsPerPage
       )
     } else {
+      // Optimistically filter current users locally while background API load is happening
+      if (searchTerm) {
+        const q = searchTerm.toLowerCase()
+        result = result.filter(u => 
+          (u.name && u.name.toLowerCase().includes(q)) || 
+          (u.email && u.email.toLowerCase().includes(q))
+        )
+      }
+      if (statusFilter !== "ALL") {
+        result = result.filter(u => u.status === statusFilter)
+      }
+      if (roleFilter !== "ALL") {
+        result = result.filter(u => u.role === roleFilter)
+      }
+      if (mfaFilter !== "ALL") {
+        result = result.filter(u => {
+          const isEnabled = mfaFilter === "ENABLED"
+          return u.mfaEnabled === isEnabled
+        })
+      }
+
       // Apply activeTags to the production users list locally for hyper-responsive views
       if (activeTags.length > 0) {
         activeTags.forEach(tag => {
@@ -417,7 +459,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
       )
     }
     return result;
-  }, [users, filteredSortedUsers, activePage, itemsPerPage, isJest, customFilter, activeTags])
+  }, [users, filteredSortedUsers, activePage, itemsPerPage, isJest, customFilter, activeTags, searchTerm, statusFilter, roleFilter, mfaFilter])
 
   const allPageSelected = paginatedUsers.length > 0 && paginatedUsers.every(u => selectedIds.has(u.id))
   const somePageSelected = paginatedUsers.some(u => selectedIds.has(u.id))
@@ -753,7 +795,6 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
 
   return (
     <>
-      <Sidebar />
 
       <main className="admin-main custom-admin-layout-main">
         {/* Premium success toast matching screenshot */}
@@ -802,7 +843,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
           <div className="toolbar-views-group">
             <button 
               className={`view-toggle-btn ${viewMode === "table" ? "active" : ""}`}
-              onClick={() => setViewMode("table")}
+              onClick={() => handleViewModeChange("table")}
               type="button"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
@@ -810,7 +851,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
             </button>
             <button 
               className={`view-toggle-btn ${viewMode === "board" ? "active" : ""}`}
-              onClick={() => setViewMode("board")}
+              onClick={() => handleViewModeChange("board")}
               type="button"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
@@ -818,7 +859,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
             </button>
             <button 
               className={`view-toggle-btn ${viewMode === "list" ? "active" : ""}`}
-              onClick={() => setViewMode("list")}
+              onClick={() => handleViewModeChange("list")}
               type="button"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
@@ -847,9 +888,9 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                 <span>Hide</span>
               </button>
               {showHideColumns && (
-                <div style={{ position: 'absolute', top: '110%', right: 0, width: '160px', backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '10px', padding: '10px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)' }}>
+                <div style={{ position: 'absolute', top: '110%', right: 0, width: '160px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-secondary)', borderRadius: '10px', padding: '10px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)' }}>
                   {['name', 'email', 'role', 'status', 'createdAt'].map(col => (
-                    <div key={col} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 8px', fontSize: '13px', color: '#1e293b', cursor: 'pointer', fontWeight: '500', transition: 'background-color 0.2s', borderRadius: '6px' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'} onClick={() => {
+                    <div key={col} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '6px 8px', fontSize: '13px', color: 'var(--text-primary)', cursor: 'pointer', fontWeight: '500', transition: 'background-color 0.2s', borderRadius: '6px' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'} onClick={() => {
                       const newSet = new Set(hiddenColumns);
                       if (newSet.has(col)) newSet.delete(col); else newSet.add(col);
                       setHiddenColumns(newSet);
@@ -858,8 +899,8 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                         width: '16px',
                         height: '16px',
                         borderRadius: '4px',
-                        border: '2px solid' + (!hiddenColumns.has(col) ? ' #3b82f6' : ' #cbd5e1'),
-                        backgroundColor: !hiddenColumns.has(col) ? '#3b82f6' : 'transparent',
+                        border: '2px solid' + (!hiddenColumns.has(col) ? ' var(--accent)' : ' #cbd5e1'),
+                        backgroundColor: !hiddenColumns.has(col) ? 'var(--accent)' : 'transparent',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -885,10 +926,10 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                 <MoreHorizontal size={14} />
               </button>
               {showMoreMenu && (
-                <div style={{ position: 'absolute', top: '110%', right: 0, width: '140px', backgroundColor: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)' }}>
-                  <button style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', transition: 'background-color 0.2s' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'} onClick={() => { setShowMoreMenu(false); if(isJest) { setClientPage(1) } else { safePush({ page: 1 }) } }}>Refresh List</button>
-                  <button style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', transition: 'background-color 0.2s' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'} onClick={() => { setShowMoreMenu(false); showToast("Archived selected users", "success") }}>Archive</button>
-                  <button style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', transition: 'background-color 0.2s' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'} onClick={() => { setShowMoreMenu(false); setSelectedIds(new Set()) }}>Clear Selection</button>
+                <div style={{ position: 'absolute', top: '110%', right: 0, width: '140px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-secondary)', borderRadius: '8px', padding: '8px', zIndex: 100, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)' }}>
+                  <button style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: 'var(--text-primary)', background: 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', transition: 'background-color 0.2s' }} onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--bg-secondary)'} onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'} onClick={() => { setShowMoreMenu(false); if(isJest) { setClientPage(1) } else { safePush({ page: 1 }) } }}>Refresh List</button>
+                  <button style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: 'var(--text-primary)', background: 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', transition: 'background-color 0.2s' }} onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--bg-secondary)'} onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'} onClick={() => { setShowMoreMenu(false); showToast("Archived selected users", "success") }}>Archive</button>
+                  <button style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: 'var(--text-primary)', background: 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', transition: 'background-color 0.2s' }} onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--bg-secondary)'} onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'} onClick={() => { setShowMoreMenu(false); setSelectedIds(new Set()) }}>Clear Selection</button>
                 </div>
               )}
             </div>
@@ -928,11 +969,11 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
               <option value="ADMIN">Admin</option>
             </select>
             {activeDropdown === 'role' && (
-              <div className="custom-dropdown-popover" onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '140px' }}>
+              <div className="custom-dropdown-popover" onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-secondary)', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '140px' }}>
                 {[['ALL', 'All Roles'], ['USER', 'User'], ['MODERATOR', 'Moderator'], ['ADMIN', 'Admin']].map(([val, label]) => (
-                  <button key={val} onClick={() => { handleLiveRoleFilter(val); setActiveDropdown(null); }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === roleFilter ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === roleFilter ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = val === roleFilter ? '#f1f5f9' : 'transparent'}>
+                  <button key={val} onClick={() => { handleLiveRoleFilter(val); setActiveDropdown(null); }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: 'var(--text-primary)', background: val === roleFilter ? 'var(--bg-secondary)' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === roleFilter ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--bg-secondary)'} onMouseLeave={(e) => e.target.style.backgroundColor = val === roleFilter ? 'var(--bg-secondary)' : 'transparent'}>
                     <span>{label}</span>
-                    {val === roleFilter && <Check size={14} color="#3b82f6" />}
+                    {val === roleFilter && <Check size={14} color="var(--accent)" />}
                   </button>
                 ))}
               </div>
@@ -958,11 +999,11 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
               <option value="BANNED">Banned</option>
             </select>
             {activeDropdown === 'status' && (
-              <div className="custom-dropdown-popover" onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '140px' }}>
+              <div className="custom-dropdown-popover" onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-secondary)', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '140px' }}>
                 {[['ALL', 'All Status'], ['ACTIVE', 'Active'], ['SUSPENDED', 'Suspended'], ['BANNED', 'Banned']].map(([val, label]) => (
-                  <button key={val} onClick={() => { handleLiveStatusFilter(val); setActiveDropdown(null); }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === statusFilter ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === statusFilter ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = val === statusFilter ? '#f1f5f9' : 'transparent'}>
+                  <button key={val} onClick={() => { handleLiveStatusFilter(val); setActiveDropdown(null); }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: 'var(--text-primary)', background: val === statusFilter ? 'var(--bg-secondary)' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === statusFilter ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--bg-secondary)'} onMouseLeave={(e) => e.target.style.backgroundColor = val === statusFilter ? 'var(--bg-secondary)' : 'transparent'}>
                     <span>{label}</span>
-                    {val === statusFilter && <Check size={14} color="#3b82f6" />}
+                    {val === statusFilter && <Check size={14} color="var(--accent)" />}
                   </button>
                 ))}
               </div>
@@ -987,11 +1028,11 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
               <option value="DISABLED">Disabled</option>
             </select>
             {activeDropdown === 'mfa' && (
-              <div className="custom-dropdown-popover" onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '140px' }}>
+              <div className="custom-dropdown-popover" onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-secondary)', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '140px' }}>
                 {[['ALL', 'All 2FA'], ['ENABLED', 'Enabled'], ['DISABLED', 'Disabled']].map(([val, label]) => (
-                  <button key={val} onClick={() => { handleLiveMfaFilter(val); setActiveDropdown(null); }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === mfaFilter ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === mfaFilter ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = val === mfaFilter ? '#f1f5f9' : 'transparent'}>
+                  <button key={val} onClick={() => { handleLiveMfaFilter(val); setActiveDropdown(null); }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: 'var(--text-primary)', background: val === mfaFilter ? 'var(--bg-secondary)' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === mfaFilter ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--bg-secondary)'} onMouseLeave={(e) => e.target.style.backgroundColor = val === mfaFilter ? 'var(--bg-secondary)' : 'transparent'}>
                     <span>{label}</span>
-                    {val === mfaFilter && <Check size={14} color="#3b82f6" />}
+                    {val === mfaFilter && <Check size={14} color="var(--accent)" />}
                   </button>
                 ))}
               </div>
@@ -1000,7 +1041,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
 
           {/* Active Tags list */}
           {activeTags.map(tag => (
-            <div key={tag.id} className="filter-pill-container" style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#e2e8f0', borderRadius: '20px', padding: '0 12px', fontSize: '13px', color: '#1e293b', fontWeight: '500' }}>
+            <div key={tag.id} className="filter-pill-container" style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: '#e2e8f0', borderRadius: '20px', padding: '0 12px', fontSize: '13px', color: 'var(--text-primary)', fontWeight: '500' }}>
               <span>{tag.label}</span>
               <button onClick={() => setActiveTags(prev => prev.filter(t => t.id !== tag.id))} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', color: '#64748b', outline: 'none' }} onMouseEnter={(e) => e.currentTarget.style.color = '#0f172a'} onMouseLeave={(e) => e.currentTarget.style.color = '#64748b'}>
                 <X size={14} />
@@ -1016,7 +1057,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
             </button>
             
             {activeDropdown === 'addFilter' && (
-              <div className="custom-dropdown-popover" onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 120, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '180px' }}>
+              <div className="custom-dropdown-popover" onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-secondary)', borderRadius: '8px', padding: '6px', zIndex: 120, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '180px' }}>
                 {addFilterStep === 'fields' ? (
                   <>
                     <div style={{ padding: '6px 8px', fontSize: '12px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase' }}>Filter column</div>
@@ -1027,7 +1068,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                       { key: 'poemCount', name: 'Poem Count', options: [{ label: 'Has Poems (>0)', value: 'HAS_POEMS' }, { label: 'Highly Active (>5)', value: 'HIGHLY_ACTIVE' }, { label: 'No Poems (0)', value: 'NO_POEMS' }] },
                       { key: 'createdAt', name: 'Joined Date', options: [{ label: 'Joined Recently (since 2024)', value: 'RECENT' }, { label: 'Legacy Members (before 2024)', value: 'LEGACY' }] }
                     ].map(field => (
-                      <button key={field.key} onClick={() => { setSelectedFilterField(field); setAddFilterStep('values'); }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}>
+                      <button key={field.key} onClick={() => { setSelectedFilterField(field); setAddFilterStep('values'); }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: 'var(--text-primary)', background: 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--bg-secondary)'} onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}>
                         <span>{field.name}</span>
                         <ChevronDown size={12} color="#64748b" />
                       </button>
@@ -1035,8 +1076,8 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                   </>
                 ) : (
                   <>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 8px', borderBottom: '1px solid #f1f5f9', marginBottom: '4px' }}>
-                      <button onClick={() => setAddFilterStep('fields')} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, color: '#3b82f6', display: 'flex', alignItems: 'center', fontWeight: '600', fontSize: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 8px', borderBottom: '1px solid var(--bg-secondary)', marginBottom: '4px' }}>
+                      <button onClick={() => setAddFilterStep('fields')} style={{ border: 'none', background: 'none', cursor: 'pointer', padding: 0, color: 'var(--accent)', display: 'flex', alignItems: 'center', fontWeight: '600', fontSize: '12px' }}>
                         &larr; Back
                       </button>
                       <span style={{ fontSize: '12px', color: '#64748b', fontWeight: '600', marginLeft: 'auto' }}>{selectedFilterField.name}</span>
@@ -1054,7 +1095,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                           return [...cleaned, newTag];
                         });
                         setActiveDropdown(null);
-                      }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }} onMouseEnter={(e) => e.target.style.backgroundColor = '#f1f5f9'} onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}>
+                      }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: 'var(--text-primary)', background: 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: '500' }} onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--bg-secondary)'} onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}>
                         {opt.label}
                       </button>
                     ))}
@@ -1072,42 +1113,136 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
 
         {/* Custom Board / List views placeholders */}
         {viewMode === "board" ? (
-          <div className="adt-container custom-premium-table-container" style={{display: 'flex', gap: '20px', padding: '20px', overflowX: 'auto', background: '#f8fafc', minHeight: '400px'}}>
+          <div className="adt-container custom-premium-table-container" style={{
+            display: 'flex', 
+            gap: '24px', 
+            padding: '24px', 
+            overflowX: 'auto', 
+            background: 'rgba(255, 255, 255, 0.4)', 
+            backdropFilter: 'blur(8px)',
+            borderRadius: '32px', 
+            minHeight: '520px',
+            border: 'none',
+            boxShadow: 'inset 0 0 12px rgba(0,0,0,0.02)'
+          }}>
              {['ADMIN', 'MODERATOR', 'USER'].map(r => (
-               <div key={r} style={{flex: '0 0 300px', background: 'white', borderRadius: '8px', padding: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)'}}>
-                 <h3 style={{fontSize: '14px', fontWeight: '600', marginBottom: '16px', color: '#334155', display: 'flex', justifyContent: 'space-between'}}>
+               <div key={r} style={{
+                 flex: '1 1 300px', 
+                 minWidth: '280px',
+                 maxWidth: '400px',
+                 background: 'var(--bg-card)', 
+                 borderRadius: '24px', 
+                 padding: '20px', 
+                 boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
+                 border: '1px solid rgba(226, 232, 240, 0.6)',
+                 display: 'flex',
+                 flexDirection: 'column',
+                 maxHeight: '480px'
+               }}>
+                 <h3 style={{
+                   fontSize: '15px', 
+                   fontWeight: '600', 
+                   marginBottom: '16px', 
+                   color: 'var(--text-primary)', 
+                   display: 'flex', 
+                   justifyContent: 'space-between', 
+                   alignItems: 'center'
+                 }}>
                    {r === 'ADMIN' ? 'Admins' : r === 'MODERATOR' ? 'Moderators' : 'Users'}
-                   <span style={{background: '#f1f5f9', padding: '2px 8px', borderRadius: '12px', fontSize: '12px'}}>{paginatedUsers.filter(u => u.role === r).length}</span>
+                   <span style={{
+                     background: r === 'ADMIN' ? '#fee2e2' : r === 'MODERATOR' ? '#f5f3ff' : 'var(--bg-secondary)', 
+                     color: r === 'ADMIN' ? '#991b1b' : r === 'MODERATOR' ? '#5b21b6' : '#475569',
+                     padding: '4px 10px', 
+                     borderRadius: '100px', 
+                     fontSize: '11px',
+                     fontWeight: '700'
+                   }}>
+                     {paginatedUsers.filter(u => u.role === r).length}
+                   </span>
                  </h3>
-                 <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+                 <div style={{
+                   display: 'flex', 
+                   flexDirection: 'column', 
+                   height: '100%', 
+                   background: 'var(--bg-secondary)', 
+                   borderRadius: '12px', 
+                   border: '1px solid var(--border-secondary)',
+                   overflow: 'hidden'
+                 }} className="custom-board-scrollbar">
                    {paginatedUsers.filter(u => u.role === r).map(user => (
-                     <div key={user.id} style={{border: '1px solid #e2e8f0', borderRadius: '6px', padding: '12px', display: 'flex', alignItems: 'center', gap: '12px'}}>
+                     <div key={user.id} style={{
+                       border: '1px solid var(--border-secondary)', 
+                       borderRadius: '16px', 
+                       padding: '12px 14px', 
+                       display: 'flex', 
+                       alignItems: 'center', 
+                       gap: '12px',
+                       background: 'var(--bg-card)',
+                       transition: 'all 0.2s ease',
+                       boxShadow: '0 1px 2px rgba(0,0,0,0.01)'
+                     }}>
                        <Avatar image={getUserAvatar(user)} name={user.name} size="sm" />
-                       <div style={{overflow: 'hidden'}}>
-                         <div style={{fontWeight: '500', fontSize: '13px', color: '#0f172a', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>{user.name}</div>
-                         <div style={{fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap', textOverflow: 'ellipsis'}}>{user.email}</div>
+                       <div style={{overflow: 'hidden', flex: 1}}>
+                         <div style={{fontWeight: '600', fontSize: '13px', color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{user.name}</div>
+                         <div style={{fontSize: '11px', color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'}}>{user.email}</div>
                        </div>
                      </div>
                    ))}
+                   {paginatedUsers.filter(u => u.role === r).length === 0 && (
+                     <div style={{textAlign: 'center', color: '#94a3b8', fontSize: '12px', padding: '32px 0', fontStyle: 'italic'}}>
+                       No {r.toLowerCase()}s found
+                     </div>
+                   )}
                  </div>
                </div>
              ))}
           </div>
         ) : viewMode === "list" ? (
-          <div className="adt-container custom-premium-table-container" style={{padding: '20px', background: '#fff'}}>
-            <ul style={{listStyle: 'none', padding: 0, margin: 0}}>
+          <div className="adt-container custom-premium-table-container" style={{
+            padding: '24px', 
+            background: 'var(--bg-card)', 
+            borderRadius: '32px',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.02)',
+            border: '1px solid var(--border-secondary)'
+          }}>
+            <ul style={{listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '4px'}}>
               {paginatedUsers.map(user => (
-                <li key={user.id} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid #e2e8f0'}}>
+                <li key={user.id} style={{
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center', 
+                  padding: '14px 16px', 
+                  borderRadius: '16px',
+                  background: 'transparent',
+                  transition: 'background-color 0.2s ease',
+                  borderBottom: '1px solid rgba(226, 232, 240, 0.4)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8fafc'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
                   <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
                     <Avatar image={getUserAvatar(user)} name={user.name} size="md" />
                     <div>
-                      <div style={{fontWeight: '600', color: '#1e293b'}}>{user.name}</div>
-                      <div style={{color: '#64748b', fontSize: '14px'}}>{user.email}</div>
+                      <div style={{fontWeight: '600', color: 'var(--text-primary)', fontSize: '14px'}}>{user.name}</div>
+                      <div style={{color: '#64748b', fontSize: '13px'}}>{user.email}</div>
                     </div>
                   </div>
                   <div style={{display: 'flex', alignItems: 'center', gap: '24px'}}>
-                    <span style={{fontSize: '14px', color: '#475569'}}>{user.role}</span>
-                    <span style={{fontSize: '14px', color: '#475569'}}>{user.status}</span>
+                    <span style={{
+                      fontSize: '11px', 
+                      fontWeight: '700',
+                      padding: '4px 10px',
+                      borderRadius: '100px',
+                      background: user.role === 'ADMIN' ? '#fee2e2' : user.role === 'MODERATOR' ? '#f5f3ff' : 'var(--bg-secondary)',
+                      color: user.role === 'ADMIN' ? '#991b1b' : user.role === 'MODERATOR' ? '#5b21b6' : '#475569'
+                    }}>{user.role}</span>
+                    <span style={{
+                      fontSize: '11px', 
+                      fontWeight: '700',
+                      padding: '4px 10px',
+                      borderRadius: '100px',
+                      background: user.status === 'ACTIVE' ? '#d1fae5' : user.status === 'ARCHIVED' ? '#fef3c7' : '#fee2e2',
+                      color: user.status === 'ACTIVE' ? '#065f46' : user.status === 'ARCHIVED' ? '#92400e' : '#991b1b'
+                    }}>{getUserStatusDisplay(user)}</span>
                   </div>
                 </li>
               ))}
@@ -1155,6 +1290,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                     const avatarUrl = getUserAvatar(user)
                     const displayRole = getUserJobTitle(user)
                     const displayStatus = getUserStatusDisplay(user)
+                    const statusCssClass = user.status === "ARCHIVED" ? "archived" : displayStatus.toLowerCase()
                     const isMfa = !!user.mfaEnabled // DIRECT SOURCE OF TRUTH DB READ
                     const isDeleted = user.status === "DELETED"
 
@@ -1220,7 +1356,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                               </button>
                               
                               {activeRowRoleDropdownId === user.id && (
-                                <div className="custom-row-dropdown" style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '130px' }}>
+                                <div className="custom-row-dropdown" style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-secondary)', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '130px' }}>
                                   {[['USER', 'User'], ['MODERATOR', 'Mod'], ['ADMIN', 'Admin']].map(([val, label]) => (
                                     <button
                                       key={val}
@@ -1229,10 +1365,10 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                                         handleRoleChange(user.id, val)
                                         setActiveRowRoleDropdownId(null)
                                       }}
-                                      style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === user.role ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === user.role ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                                      style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: 'var(--text-primary)', background: val === user.role ? 'var(--bg-secondary)' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === user.role ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                                     >
                                       <span>{label}</span>
-                                      {val === user.role && <Check size={12} color="#3b82f6" />}
+                                      {val === user.role && <Check size={12} color="var(--accent)" />}
                                     </button>
                                   ))}
                                 </div>
@@ -1270,14 +1406,14 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                                 className="status-pill-btn"
                                 style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', outline: 'none' }}
                               >
-                                <div className={`status-pill status-${displayStatus.toLowerCase()}`}>
+                                <div className={`status-pill status-${statusCssClass}`}>
                                   <span className="status-dot"></span>
                                   <span>{displayStatus}</span>
                                 </div>
                               </button>
 
                               {activeRowStatusDropdownId === user.id && (
-                                <div className="custom-row-dropdown" style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'white', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '130px' }}>
+                                <div className="custom-row-dropdown" style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-secondary)', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '130px' }}>
                                   {[['ACTIVE', 'Active'], ['SUSPENDED', 'Suspended'], ['BANNED', 'Banned']].map(([val, label]) => (
                                     <button
                                       key={val}
@@ -1286,10 +1422,10 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                                         handleStatusChange(user.id, val)
                                         setActiveRowStatusDropdownId(null)
                                       }}
-                                      style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: '#1e293b', background: val === user.status ? '#f1f5f9' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === user.status ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                                      style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: 'var(--text-primary)', background: val === user.status ? 'var(--bg-secondary)' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === user.status ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
                                     >
                                       <span>{label}</span>
-                                      {val === user.status && <Check size={12} color="#3b82f6" />}
+                                      {val === user.status && <Check size={12} color="var(--accent)" />}
                                     </button>
                                   ))}
                                 </div>
@@ -1569,7 +1705,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
           <div className="adt-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="add-user-modal-title" onClick={(e) => { if (e.target === e.currentTarget) setIsAddUserModalOpen(false) }}>
             <div className="adt-modal" style={{ maxWidth: "1000px", width: "95vw", padding: "32px", overflowY: "auto", maxHeight: "90vh", borderRadius: "12px" }}>
               <div className="adt-modal-head" style={{ borderBottom: "1px solid #e2e8f0", paddingBottom: "20px", marginBottom: "24px", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-                <h3 id="add-user-modal-title" style={{ fontSize: "24px", fontWeight: "600", color: "#0f172a", margin: "0 0 8px 0" }}>
+                <h3 id="add-user-modal-title" style={{ fontSize: "24px", fontWeight: "600", color: 'var(--text-primary)', margin: "0 0 8px 0" }}>
                   Add User
                 </h3>
                 <p style={{ fontSize: "14px", color: "#64748b", margin: 0 }}>
@@ -1582,12 +1718,12 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                   {/* Top: Credentials form fields */}
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "24px", marginBottom: "32px" }}>
                     <div>
-                      <label htmlFor="add-name-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: "#0f172a", marginBottom: "8px" }}>Name</label>
+                      <label htmlFor="add-name-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: 'var(--text-primary)', marginBottom: "8px" }}>Name</label>
                       <input
                         id="add-name-input"
                         type="text"
                         required
-                        style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", backgroundColor: "white", color: "#0f172a" }}
+                        style={{ width: "100%", padding: "10px 12px", border: '1px solid var(--border-secondary)', borderRadius: "8px", fontSize: "14px", backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)' }}
                         value={addName}
                         onChange={(e) => setAddName(e.target.value)}
                         placeholder="Enter your name"
@@ -1595,24 +1731,24 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                       />
                     </div>
                     <div>
-                      <label htmlFor="add-surname-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: "#0f172a", marginBottom: "8px" }}>Surename</label>
+                      <label htmlFor="add-surname-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: 'var(--text-primary)', marginBottom: "8px" }}>Surname</label>
                       <input
                         id="add-surname-input"
                         type="text"
-                        style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", backgroundColor: "white", color: "#0f172a" }}
+                        style={{ width: "100%", padding: "10px 12px", border: '1px solid var(--border-secondary)', borderRadius: "8px", fontSize: "14px", backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)' }}
                         value={addSurname}
                         onChange={(e) => setAddSurname(e.target.value)}
-                        placeholder="Enter your surename"
+                        placeholder="Enter your surname"
                         autoComplete="off"
                       />
                     </div>
                     <div>
-                      <label htmlFor="add-email-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: "#0f172a", marginBottom: "8px" }}>Email</label>
+                      <label htmlFor="add-email-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: 'var(--text-primary)', marginBottom: "8px" }}>Email</label>
                       <input
                         id="add-email-input"
                         type="email"
                         required
-                        style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", backgroundColor: "white", color: "#0f172a" }}
+                        style={{ width: "100%", padding: "10px 12px", border: '1px solid var(--border-secondary)', borderRadius: "8px", fontSize: "14px", backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)' }}
                         value={addEmail}
                         onChange={(e) => setAddEmail(e.target.value)}
                         placeholder="Enter your email"
@@ -1621,7 +1757,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                     </div>
                     <div style={{ position: "relative" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                        <label htmlFor="add-password-input" style={{ fontSize: "14px", fontWeight: "500", color: "#0f172a" }}>Password</label>
+                        <label htmlFor="add-password-input" style={{ fontSize: "14px", fontWeight: "500", color: 'var(--text-primary)' }}>Password</label>
                         <button type="button" onClick={() => setAddPassword("")} style={{ fontSize: "12px", color: "#64748b", background: "none", border: "none", cursor: "pointer" }}>Clear</button>
                       </div>
                       <input
@@ -1629,7 +1765,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                         type="password"
                         required
                         minLength={6}
-                        style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", fontFamily: "monospace", letterSpacing: "2px", backgroundColor: "white", color: "#0f172a" }}
+                        style={{ width: "100%", padding: "10px 12px", border: '1px solid var(--border-secondary)', borderRadius: "8px", fontSize: "14px", fontFamily: "monospace", letterSpacing: "2px", backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)' }}
                         value={addPassword}
                         onChange={(e) => setAddPassword(e.target.value)}
                         placeholder="••••••••"
@@ -1639,12 +1775,12 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                   </div>
 
                   {/* Bottom Panel: Roles Selection & Section Permissions switches */}
-                  <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: "32px", borderTop: "1px solid #f1f5f9", paddingTop: "24px", marginBottom: "24px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: "32px", borderTop: "1px solid var(--bg-secondary)", paddingTop: "24px", marginBottom: "24px" }}>
                     
                     {/* Left Pane: Job Roles selection */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                       <div>
-                        <h4 style={{ fontSize: "16px", fontWeight: "600", color: "#0f172a", margin: "0 0 4px 0" }}>2. Select job role</h4>
+                        <h4 style={{ fontSize: "16px", fontWeight: "600", color: 'var(--text-primary)', margin: "0 0 4px 0" }}>2. Select job role</h4>
                         <p style={{ fontSize: "12px", color: "#64748b", margin: 0 }}>You can select up to 1 role</p>
                       </div>
 
@@ -1664,23 +1800,23 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                                 flexDirection: "column",
                                 gap: "8px",
                                 padding: "16px",
-                                backgroundColor: isSelected ? "#f0fdf4" : "white",
+                                backgroundColor: isSelected ? "var(--bg-secondary)" : "var(--bg-card)",
                                 borderRadius: "10px",
-                                border: "1.5px solid" + (isSelected ? " #10b981" : " #e2e8f0"),
+                                border: "1.5px solid" + (isSelected ? " var(--accent)" : " var(--border-secondary)"),
                                 cursor: "pointer",
                                 transition: "all 0.15s ease"
                               }}
                             >
                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                  <div style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: group.color || "#3b82f6" }} />
-                                  <span style={{ fontWeight: "600", color: "#1e293b", fontSize: "14px" }}>{group.name}</span>
+                                  <div style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: group.color || "var(--accent)" }} />
+                                  <span style={{ fontWeight: "600", color: "var(--text-primary)", fontSize: "14px" }}>{group.name}</span>
                                 </div>
-                                <span style={{ fontSize: "11px", color: isSelected ? "#047857" : "#64748b", backgroundColor: isSelected ? "#d1fae5" : "#f1f5f9", padding: "2px 8px", borderRadius: "100px", fontWeight: "500" }}>
+                                <span style={{ fontSize: "11px", color: isSelected ? "var(--accent)" : "var(--text-secondary)", backgroundColor: isSelected ? "var(--bg-card)" : "var(--bg-secondary)", padding: "2px 8px", borderRadius: "100px", fontWeight: "500" }}>
                                   {permCount} permissions
                                 </span>
                               </div>
-                              <span style={{ fontSize: "12px", color: "#3b82f6", fontWeight: "500", alignSelf: "flex-start" }}>View role permissions</span>
+                              <span style={{ fontSize: "12px", color: "var(--accent)", fontWeight: "500", alignSelf: "flex-start" }}>View role permissions</span>
                             </div>
                           )
                         })}
@@ -1692,26 +1828,26 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                           <button
                             type="button"
                             onClick={() => setShowInlineCreate(true)}
-                            style={{ display: "flex", alignItems: "center", gap: "8px", color: "#3b82f6", background: "none", border: "none", fontSize: "13px", fontWeight: "600", cursor: "pointer", padding: 0 }}
+                            style={{ display: "flex", alignItems: "center", gap: "8px", color: "var(--accent)", background: "none", border: "none", fontSize: "13px", fontWeight: "600", cursor: "pointer", padding: 0 }}
                           >
                             <Plus size={14} />
                             Create Custom Permission Group
                           </button>
                         ) : (
-                          <div style={{ backgroundColor: "#f8fafc", padding: "12px", borderRadius: "8px", border: "1px solid #cbd5e1" }}>
+                          <div style={{ backgroundColor: "#f8fafc", padding: "12px", borderRadius: "8px", border: '1px solid var(--border-secondary)' }}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-                              <span style={{ fontSize: "12px", fontWeight: "600", color: "#0f172a" }}>New Group Shortcut</span>
+                              <span style={{ fontSize: "12px", fontWeight: "600", color: 'var(--text-primary)' }}>New Group Shortcut</span>
                               <button type="button" onClick={() => setShowInlineCreate(false)} style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: 0 }}><X size={14} /></button>
                             </div>
                             <input
                               type="text"
                               placeholder="Group Name (e.g. Moderator)"
-                              style={{ width: "100%", padding: "6px 8px", border: "1px solid #cbd5e1", borderRadius: "6px", fontSize: "12px", marginBottom: "10px", backgroundColor: "white", color: "#0f172a" }}
+                              style={{ width: "100%", padding: "6px 8px", border: '1px solid var(--border-secondary)', borderRadius: "6px", fontSize: "12px", marginBottom: "10px", backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)' }}
                               value={inlineName}
                               onChange={(e) => setInlineName(e.target.value)}
                             />
                             <div style={{ display: "flex", gap: "6px", marginBottom: "12px" }}>
-                              {["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#64748b"].map(col => (
+                              {["var(--accent)", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#64748b"].map(col => (
                                 <button
                                   key={col}
                                   type="button"
@@ -1736,7 +1872,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                                   alert(res.error)
                                 }
                               }}
-                              style={{ width: "100%", padding: "6px 12px", background: "#3b82f6", color: "white", border: "none", borderRadius: "6px", fontSize: "12px", fontWeight: "500", cursor: "pointer" }}
+                              style={{ width: "100%", padding: "6px 12px", background: "var(--accent)", color: "white", border: "none", borderRadius: "6px", fontSize: "12px", fontWeight: "500", cursor: "pointer" }}
                             >
                               Create Group
                             </button>
@@ -1748,7 +1884,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                     {/* Right Pane: Granular permissions switches list */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                       <div>
-                        <h4 style={{ fontSize: "16px", fontWeight: "600", color: "#0f172a", margin: "0 0 4px 0" }}>User Permissions</h4>
+                        <h4 style={{ fontSize: "16px", fontWeight: "600", color: 'var(--text-primary)', margin: "0 0 4px 0" }}>User Permissions</h4>
                         <p style={{ fontSize: "12px", color: "#64748b", margin: 0 }}>Select what a user can see or do in the app</p>
                       </div>
 
@@ -1765,9 +1901,9 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                           const isAllChecked = section.actions.every(act => checkedActions.includes(act))
 
                           return (
-                            <div key={section.key} style={{ backgroundColor: "#f8fafc", borderRadius: "10px", border: "1px solid #f1f5f9", padding: "16px" }}>
-                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #e2e8f0", paddingBottom: "10px", marginBottom: "12px" }}>
-                                <span style={{ fontSize: "12px", fontWeight: "600", color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px" }}>{section.title}</span>
+                            <div key={section.key} style={{ backgroundColor: "var(--bg-secondary)", borderRadius: "10px", border: "1px solid var(--border-secondary)", padding: "16px" }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-tertiary)", paddingBottom: "10px", marginBottom: "12px" }}>
+                                <span style={{ fontSize: "12px", fontWeight: "600", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.5px" }}>{section.title}</span>
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -1776,7 +1912,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                                       [section.key]: isAllChecked ? [] : [...section.actions]
                                     }))
                                   }}
-                                  style={{ background: "none", border: "none", color: "#3b82f6", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
+                                  style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
                                 >
                                   {isAllChecked ? "Deselect All" : "Select All"}
                                 </button>
@@ -1787,10 +1923,10 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                                   const isChecked = checkedActions.includes(action)
                                   return (
                                     <div key={action} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                      <span style={{ fontSize: "13px", color: "#1e293b", fontWeight: "500" }}>{action}</span>
+                                      <span style={{ fontSize: "13px", color: "var(--text-primary)", fontWeight: "500" }}>{action}</span>
                                       <label style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
-                                        <div style={{ width: "36px", height: "20px", borderRadius: "10px", background: isChecked ? "#3b82f6" : "#cbd5e1", position: "relative", transition: "background 0.2s" }}>
-                                          <div style={{ position: "absolute", top: "2px", left: isChecked ? "18px" : "2px", width: "16px", height: "16px", borderRadius: "50%", background: "white", transition: "left 0.2s" }} />
+                                        <div style={{ width: "36px", height: "20px", borderRadius: "10px", background: isChecked ? "var(--accent)" : "var(--border-secondary)", position: "relative", transition: "background 0.2s" }}>
+                                          <div style={{ position: "absolute", top: "2px", left: isChecked ? "18px" : "2px", width: "16px", height: "16px", borderRadius: "50%", background: 'var(--bg-card)', transition: "left 0.2s" }} />
                                         </div>
                                         <input
                                           type="checkbox"
@@ -1821,13 +1957,13 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                 </div>
 
                 <div className="adt-modal-foot" style={{ padding: "24px 0 0 0", display: "flex", justifyContent: "flex-end", gap: "16px", borderTop: "1px solid #e2e8f0" }}>
-                  <button type="button" onClick={() => setIsAddUserModalOpen(false)} disabled={isPending} style={{ padding: "10px 24px", borderRadius: "8px", border: "1px solid #cbd5e1", background: "white", color: "#0f172a", fontWeight: "500", cursor: "pointer", marginRight: "auto" }}>
+                  <button type="button" onClick={() => setIsAddUserModalOpen(false)} disabled={isPending} style={{ padding: "10px 24px", borderRadius: "8px", border: '1px solid var(--border-secondary)', background: 'var(--bg-card)', color: 'var(--text-primary)', fontWeight: "500", cursor: "pointer", marginRight: "auto" }}>
                     Discard
                   </button>
                   <button
                     type="submit"
                     disabled={isPending}
-                    style={{ padding: "10px 24px", borderRadius: "8px", border: "none", background: "#3b82f6", color: "white", fontWeight: "500", cursor: "pointer" }}
+                    style={{ padding: "10px 24px", borderRadius: "8px", border: "none", background: "var(--accent)", color: "white", fontWeight: "500", cursor: "pointer" }}
                   >
                     {isPending ? "Saving…" : "Save Changes"}
                   </button>
@@ -1842,7 +1978,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
           <div className="adt-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="edit-user-modal-title" onClick={(e) => { if (e.target === e.currentTarget) setIsEditUserModalOpen(false) }}>
             <div className="adt-modal" style={{ maxWidth: "1000px", width: "95vw", padding: "32px", overflowY: "auto", maxHeight: "90vh", borderRadius: "12px" }}>
               <div className="adt-modal-head" style={{ borderBottom: "1px solid #e2e8f0", paddingBottom: "20px", marginBottom: "24px", display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-                <h3 id="edit-user-modal-title" style={{ fontSize: "24px", fontWeight: "600", color: "#0f172a", margin: "0 0 8px 0" }}>
+                <h3 id="edit-user-modal-title" style={{ fontSize: "24px", fontWeight: "600", color: 'var(--text-primary)', margin: "0 0 8px 0" }}>
                   Edit User details
                 </h3>
                 <p style={{ fontSize: "14px", color: "#64748b", margin: 0 }}>
@@ -1855,12 +1991,12 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                   {/* Top: Credentials form fields */}
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "24px", marginBottom: "32px" }}>
                     <div>
-                      <label htmlFor="edit-name-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: "#0f172a", marginBottom: "8px" }}>First Name</label>
+                      <label htmlFor="edit-name-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: 'var(--text-primary)', marginBottom: "8px" }}>First Name</label>
                       <input
                         id="edit-name-input"
                         type="text"
                         required
-                        style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", backgroundColor: "white", color: "#0f172a" }}
+                        style={{ width: "100%", padding: "10px 12px", border: '1px solid var(--border-secondary)', borderRadius: "8px", fontSize: "14px", backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)' }}
                         value={editName}
                         onChange={(e) => setEditName(e.target.value)}
                         placeholder="Enter first name"
@@ -1868,12 +2004,12 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                       />
                     </div>
                     <div>
-                      <label htmlFor="edit-surname-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: "#0f172a", marginBottom: "8px" }}>Last Name</label>
+                      <label htmlFor="edit-surname-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: 'var(--text-primary)', marginBottom: "8px" }}>Last Name</label>
                       <input
                         id="edit-surname-input"
                         type="text"
                         required
-                        style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", backgroundColor: "white", color: "#0f172a" }}
+                        style={{ width: "100%", padding: "10px 12px", border: '1px solid var(--border-secondary)', borderRadius: "8px", fontSize: "14px", backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)' }}
                         value={editSurname}
                         onChange={(e) => setEditSurname(e.target.value)}
                         placeholder="Enter last name"
@@ -1881,12 +2017,12 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                       />
                     </div>
                     <div>
-                      <label htmlFor="edit-email-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: "#0f172a", marginBottom: "8px" }}>Email Address</label>
+                      <label htmlFor="edit-email-input" style={{ display: "block", fontSize: "14px", fontWeight: "500", color: 'var(--text-primary)', marginBottom: "8px" }}>Email Address</label>
                       <input
                         id="edit-email-input"
                         type="email"
                         required
-                        style={{ width: "100%", padding: "10px 12px", border: "1px solid #cbd5e1", borderRadius: "8px", fontSize: "14px", backgroundColor: "white", color: "#0f172a" }}
+                        style={{ width: "100%", padding: "10px 12px", border: '1px solid var(--border-secondary)', borderRadius: "8px", fontSize: "14px", backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)' }}
                         value={editEmail}
                         onChange={(e) => setEditEmail(e.target.value)}
                         placeholder="Enter email address"
@@ -1901,12 +2037,12 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                   </div>
 
                   {/* Bottom Panel: Roles Selection & Section Permissions switches */}
-                  <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: "32px", borderTop: "1px solid #f1f5f9", paddingTop: "24px", marginBottom: "24px" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: "32px", borderTop: "1px solid var(--bg-secondary)", paddingTop: "24px", marginBottom: "24px" }}>
                     
                     {/* Left Pane: Job Roles selection */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                       <div>
-                        <h4 style={{ fontSize: "16px", fontWeight: "600", color: "#0f172a", margin: "0 0 4px 0" }}>Select job role</h4>
+                        <h4 style={{ fontSize: "16px", fontWeight: "600", color: 'var(--text-primary)', margin: "0 0 4px 0" }}>Select job role</h4>
                         <p style={{ fontSize: "12px", color: "#64748b", margin: 0 }}>Select a primary job role and permissions set</p>
                       </div>
 
@@ -1929,21 +2065,21 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                                 padding: "16px",
                                 backgroundColor: isSelected ? "#f0fdf4" : "white",
                                 borderRadius: "10px",
-                                border: "1.5px solid" + (isSelected ? " #10b981" : " #e2e8f0"),
+                                border: "1.5px solid" + (isSelected ? " var(--accent)" : " var(--border-secondary)"),
                                 cursor: "pointer",
                                 transition: "all 0.15s ease"
                               }}
                             >
                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                  <div style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: group.color || "#3b82f6" }} />
-                                  <span style={{ fontWeight: "600", color: "#1e293b", fontSize: "14px" }}>{group.name}</span>
+                                  <div style={{ width: "10px", height: "10px", borderRadius: "50%", backgroundColor: group.color || "var(--accent)" }} />
+                                  <span style={{ fontWeight: "600", color: "var(--text-primary)", fontSize: "14px" }}>{group.name}</span>
                                 </div>
-                                <span style={{ fontSize: "11px", color: isSelected ? "#047857" : "#64748b", backgroundColor: isSelected ? "#d1fae5" : "#f1f5f9", padding: "2px 8px", borderRadius: "100px", fontWeight: "500" }}>
+                                <span style={{ fontSize: "11px", color: isSelected ? "#047857" : "#64748b", backgroundColor: isSelected ? "#d1fae5" : "var(--bg-secondary)", padding: "2px 8px", borderRadius: "100px", fontWeight: "500" }}>
                                   {permCount} permissions
                                 </span>
                               </div>
-                              <span style={{ fontSize: "12px", color: "#3b82f6", fontWeight: "500", alignSelf: "flex-start" }}>View role permissions</span>
+                              <span style={{ fontSize: "12px", color: "var(--accent)", fontWeight: "500", alignSelf: "flex-start" }}>View role permissions</span>
                             </div>
                           )
                         })}
@@ -1953,7 +2089,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                     {/* Right Pane: Granular permissions switches list */}
                     <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                       <div>
-                        <h4 style={{ fontSize: "16px", fontWeight: "600", color: "#0f172a", margin: "0 0 4px 0" }}>User Permissions</h4>
+                        <h4 style={{ fontSize: "16px", fontWeight: "600", color: 'var(--text-primary)', margin: "0 0 4px 0" }}>User Permissions</h4>
                         <p style={{ fontSize: "12px", color: "#64748b", margin: 0 }}>Fine-tune granular sections that this user can see or act on</p>
                       </div>
 
@@ -1970,7 +2106,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                           const isAllChecked = section.actions.every(act => checkedActions.includes(act))
 
                           return (
-                            <div key={section.key} style={{ backgroundColor: "#f8fafc", borderRadius: "10px", border: "1px solid #f1f5f9", padding: "16px" }}>
+                            <div key={section.key} style={{ backgroundColor: "#f8fafc", borderRadius: "10px", border: "1px solid var(--bg-secondary)", padding: "16px" }}>
                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #e2e8f0", paddingBottom: "10px", marginBottom: "12px" }}>
                                 <span style={{ fontSize: "12px", fontWeight: "600", color: "#475569", textTransform: "uppercase", letterSpacing: "0.5px" }}>{section.title}</span>
                                 <button
@@ -1981,7 +2117,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                                       [section.key]: isAllChecked ? [] : [...section.actions]
                                     }))
                                   }}
-                                  style={{ background: "none", border: "none", color: "#3b82f6", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
+                                  style={{ background: "none", border: "none", color: "var(--accent)", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}
                                 >
                                   {isAllChecked ? "Deselect All" : "Select All"}
                                 </button>
@@ -1992,10 +2128,10 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                                   const isChecked = checkedActions.includes(action)
                                   return (
                                     <div key={action} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                                      <span style={{ fontSize: "13px", color: "#1e293b", fontWeight: "500" }}>{action}</span>
+                                      <span style={{ fontSize: "13px", color: "var(--text-primary)", fontWeight: "500" }}>{action}</span>
                                       <label style={{ display: "flex", alignItems: "center", cursor: "pointer" }}>
-                                        <div style={{ width: "36px", height: "20px", borderRadius: "10px", background: isChecked ? "#3b82f6" : "#cbd5e1", position: "relative", transition: "background 0.2s" }}>
-                                          <div style={{ position: "absolute", top: "2px", left: isChecked ? "18px" : "2px", width: "16px", height: "16px", borderRadius: "50%", background: "white", transition: "left 0.2s" }} />
+                                        <div style={{ width: "36px", height: "20px", borderRadius: "10px", background: isChecked ? "var(--accent)" : "var(--border-secondary)", position: "relative", transition: "background 0.2s" }}>
+                                          <div style={{ position: "absolute", top: "2px", left: isChecked ? "18px" : "2px", width: "16px", height: "16px", borderRadius: "50%", background: 'var(--bg-card)', transition: "left 0.2s" }} />
                                         </div>
                                         <input
                                           type="checkbox"
@@ -2026,13 +2162,13 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                 </div>
 
                 <div className="adt-modal-foot" style={{ padding: "24px 0 0 0", display: "flex", justifyContent: "flex-end", gap: "16px", borderTop: "1px solid #e2e8f0", marginTop: "24px" }}>
-                  <button type="button" onClick={() => setIsEditUserModalOpen(false)} disabled={isPending} style={{ padding: "10px 24px", borderRadius: "8px", border: "1px solid #cbd5e1", background: "white", color: "#0f172a", fontWeight: "500", cursor: "pointer", marginRight: "auto" }}>
+                  <button type="button" onClick={() => setIsEditUserModalOpen(false)} disabled={isPending} style={{ padding: "10px 24px", borderRadius: "8px", border: '1px solid var(--border-secondary)', background: 'var(--bg-card)', color: 'var(--text-primary)', fontWeight: "500", cursor: "pointer", marginRight: "auto" }}>
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isPending}
-                    style={{ padding: "10px 24px", borderRadius: "8px", border: "none", background: "#3b82f6", color: "white", fontWeight: "500", cursor: "pointer" }}
+                    style={{ padding: "10px 24px", borderRadius: "8px", border: "none", background: "var(--accent)", color: "white", fontWeight: "500", cursor: "pointer" }}
                   >
                     {isPending ? "Saving…" : "Save Changes"}
                   </button>

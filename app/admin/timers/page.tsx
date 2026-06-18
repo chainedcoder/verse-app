@@ -1,11 +1,9 @@
 "use client";
 
 import React, { useState } from 'react';
-import Sidebar from '@/components/admin/Sidebar';
 import { TimerList } from '@/components/admin/TimerList';
 import { useTimers } from '@/components/admin/context/TimerContext';
 import { Plus } from 'lucide-react';
-import styles from './TimersPage.module.css';
 
 const TimersPage = () => {
   const { addTimer } = useTimers();
@@ -22,57 +20,52 @@ const TimersPage = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.sidebarWrapper}>
-        <Sidebar />
-      </div>
+    <main className="admin-main">
 
-      <div className={styles.mainContent}>
-        <h1 className={styles.title}>Timers & Countdowns</h1>
-
-        <div className={styles.contentWrapper}>
-          {/* Create New Timer Form */}
-          <div className={styles.formCard}>
-            <h2 className={styles.cardTitle}>Create New Timer</h2>
-            <form onSubmit={handleCreate} className={styles.form}>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Timer Name</label>
-                <input 
-                  type="text" 
-                  value={name} 
-                  onChange={e => setName(e.target.value)} 
-                  placeholder="e.g. Deep Work, Review" 
-                  className={styles.input} 
-                  required 
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Duration (Minutes)</label>
-                <input 
-                  type="number" 
-                  min="1" 
-                  value={minutes} 
-                  onChange={e => setMinutes(e.target.value)} 
-                  className={styles.input} 
-                  required 
-                />
-              </div>
-              <button 
-                type="submit" 
-                className={styles.submitBtn}
-              >
-                <Plus size={20} /> Create Timer
-              </button>
-            </form>
-          </div>
-
-          {/* List of Timers */}
-          <div className={styles.timersListWrapper}>
-            <TimerList />
-          </div>
+      <div className="admin-page-header">
+        <div>
+          <h1 className="admin-page-title">Timers &amp; Countdowns</h1>
+          <p className="admin-page-subtitle">Create and manage admin task timers.</p>
         </div>
       </div>
-    </div>
+
+      <div className="timers-page-layout">
+        {/* Create Form */}
+        <div className="timers-form-card">
+          <h2 className="timers-form-title">Create New Timer</h2>
+          <form onSubmit={handleCreate}>
+            <div className="timers-form-group">
+              <label className="timers-form-label">Timer Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="e.g. Deep Work, Review"
+                className="input"
+                required
+              />
+            </div>
+            <div className="timers-form-group">
+              <label className="timers-form-label">Duration (Minutes)</label>
+              <input
+                type="number"
+                min="1"
+                value={minutes}
+                onChange={e => setMinutes(e.target.value)}
+                className="input"
+                required
+              />
+            </div>
+            <button type="submit" className="timers-submit-btn">
+              <Plus size={18} /> Create Timer
+            </button>
+          </form>
+        </div>
+
+        {/* Timer List */}
+        <TimerList />
+      </div>
+    </main>
   );
 };
 

@@ -27,7 +27,8 @@ export default async function AdminUsersPage(props) {
   const sortKey = searchParams?.sortKey || "createdAt"
   const sortDir = searchParams?.sortDir || "desc"
   const page = Number(searchParams?.page) || 1
-  const limit = Number(searchParams?.limit) || 15
+  const viewMode = searchParams?.viewMode || "table"
+  const limit = viewMode === "board" ? 300 : (Number(searchParams?.limit) || 15)
 
   // Build the dynamic where clause for database-level filtering
   const where = {
@@ -39,7 +40,7 @@ export default async function AdminUsersPage(props) {
       ]
     } : {}),
     ...(role !== "ALL" ? { role } : {}),
-    ...(status !== "ALL" ? { status } : {}),
+    ...(status !== "ALL" ? { status } : { status: { not: "DELETED" } }),
     ...(mfa !== "ALL" ? { mfaEnabled: mfa === "ENABLED" } : {})
   }
 
@@ -56,6 +57,7 @@ export default async function AdminUsersPage(props) {
       image: true,
       role: true,
       status: true,
+      deletedAt: true,
       mfaEnabled: true,
       createdAt: true,
       _count: { select: { poems: true, reportsReceived: true } }
@@ -137,6 +139,7 @@ export default async function AdminUsersPage(props) {
       totalCount={totalCount}
       currentPage={page}
       itemsPerPage={limit}
+      viewMode={viewMode}
       permissionGroups={JSON.parse(JSON.stringify(permissionGroups || []))}
     />
   )

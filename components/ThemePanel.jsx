@@ -58,14 +58,23 @@ export default function ThemePanel() {
         <button 
           className={`theme-mode-option ${theme === "light" ? "active" : ""}`} 
           onClick={() => handleSetTheme("light")}
+          title="Light Mode"
         >
-          <i className="ti ti-sun" style={{ fontSize: "14px" }} aria-hidden="true"></i> Light
+          <i className="ti ti-sun" style={{ fontSize: "16px" }} aria-hidden="true"></i> Light
         </button>
         <button 
           className={`theme-mode-option ${theme === "dark" ? "active" : ""}`} 
           onClick={() => handleSetTheme("dark")}
+          title="Dark Mode"
         >
-          <i className="ti ti-moon" style={{ fontSize: "14px" }} aria-hidden="true"></i> Dark
+          <i className="ti ti-moon" style={{ fontSize: "16px" }} aria-hidden="true"></i> Dark
+        </button>
+        <button 
+          className={`theme-mode-option ${theme === "system" ? "active" : ""}`} 
+          onClick={() => handleSetTheme("system")}
+          title="System Preference"
+        >
+          <i className="ti ti-device-desktop" style={{ fontSize: "16px" }} aria-hidden="true"></i> System
         </button>
       </div>
 

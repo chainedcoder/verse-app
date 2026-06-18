@@ -22,6 +22,7 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     env: {
       AUTH_TRUST_HOST: 'true',
+      DATABASE_URL: process.env.DATABASE_URL || 'postgresql://steve@localhost:5432/posts',
     }
   }
 });

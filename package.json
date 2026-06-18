@@ -23,6 +23,7 @@
     "@prisma/client": "^7.8.0",
     "@simplewebauthn/browser": "^9.0.1",
     "@simplewebauthn/server": "^9.0.3",
+    "@stripe/stripe-js": "^9.8.0",
     "bcryptjs": "^3.0.3",
     "date-fns": "^4.4.0",
     "html-to-image": "^1.11.13",
@@ -36,7 +37,8 @@
     "react": "19.2.4",
     "react-big-calendar": "^1.20.0",
     "react-dom": "19.2.4",
-    "speakeasy": "^2.0.0"
+    "speakeasy": "^2.0.0",
+    "stripe": "^22.2.1"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.2.1",

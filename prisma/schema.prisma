@@ -1,76 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
 datasource db {
   provider = "postgresql"
 }
 
-generator client {
-  provider = "prisma-client-js"
-    output   = "../node_modules/.prisma/client"
-
-}
-
 model User {
-  permissions   Json?
-  id            String          @id @default(cuid())
-  name          String?
-  username      String?         @unique
-  website       String?
-  theme         String          @default("system")
-  immersiveMode Boolean         @default(false)
-  exportPreferences Json?
-  email         String?         @unique
-  emailVerified DateTime?
-  password      String?
-  image         String?
-  bio                String?
-  location           String?
-  isPrivateAccount   Boolean @default(false)
-  mfaEnabled         Boolean @default(false)
-  twoFactorSecret    String?
-  twoFactorMethod    String?
-  currentChallenge   String?
-  emailNotifications Boolean @default(true)
-  role               String  @default("USER") // USER, MODERATOR, ADMIN
-  status             String  @default("ACTIVE") // ACTIVE, SUSPENDED, BANNED
-   
-  accounts      Account[]
-  sessions      Session[]
-  poems         Poem[]
-  likes         Like[]
-  comments           Comment[]
-  notifications      Notification[] @relation("userNotifications")
-  actorNotifications Notification[] @relation("actorNotifications")
-   
-  followers     Follow[] @relation("following")
-  following     Follow[] @relation("follower")
-  collections   Collection[]
-
-  reportsSubmitted   Report[] @relation("reporter")
-  reportsReceived    Report[] @relation("reportedUser")
-   
-  authenticators     Authenticator[]
-
-  permissionGroupId String?
-  permissionGroup   PermissionGroup? @relation(fields: [permissionGroupId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                     String           @id @default(cuid())
+  name                   String?
+  email                  String?          @unique
+  emailVerified          DateTime?
+  password               String?
+  image                  String?
+  bio                    String?
+  location               String?
+  isPrivateAccount       Boolean          @default(false)
+  mfaEnabled             Boolean          @default(false)
+  emailNotifications     Boolean          @default(true)
+  role                   String           @default("USER")
+  status                 String           @default("ACTIVE")
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  immersiveMode          Boolean          @default(false)
+  theme                  String           @default("system")
+  username               String?          @unique
+  website                String?
+  twoFactorMethod        String?
+  twoFactorSecret        String?
+  currentChallenge       String?
+  exportPreferences      Json?
+  permissions            Json?
+  permissionGroupId      String?
+  coverImage             String?
+  firstName              String?
+  jobTitle               String?
+  lastName               String?
+  notificationMatrix     Json?
+  plan                   String           @default("FREE")
+  preferences            Json?
+  professionalInfo       Json?
+  socialLinks            Json?
+  stripeCurrentPeriodEnd DateTime?
+  stripeCustomerId       String?
+  stripePriceId          String?
+  stripeSubscriptionId   String?
+  deletedAt              DateTime?
+  accounts               Account[]
+  apiKeys                ApiKey[]
+  authenticators         Authenticator[]
+  collections            Collection[]
+  comments               Comment[]
+  following              Follow[]         @relation("follower")
+  followers              Follow[]         @relation("following")
+  likes                  Like[]
+  actorNotifications     Notification[]   @relation("actorNotifications")
+  notifications          Notification[]   @relation("userNotifications")
+  poems                  Poem[]
+  reportsReceived        Report[]         @relation("reportedUser")
+  reportsSubmitted       Report[]         @relation("reporter")
+  sessions               Session[]
+  permissionGroup        PermissionGroup? @relation(fields: [permissionGroupId], references: [id])
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?
-  access_token       String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
-  session_state      String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -80,6 +87,11 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
+  browser      String?
+  device       String?
+  ipAddress    String?
+  lastActive   DateTime @default(now())
+  location     String?
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -92,25 +104,25 @@ model VerificationToken {
 }
 
 model Poem {
-  id        String   @id @default(cuid())
-  title     String
-  excerpt   String
-  fullText  String
-  featured  Boolean  @default(false)
-  images    PoemImage[]
-  status    String   @default("PUBLISHED")
-  isPrivate Boolean  @default(false)
-  vibeConfig Json?
+  id               String         @id @default(cuid())
+  title            String
+  excerpt          String
+  fullText         String
+  featured         Boolean        @default(false)
+  status           String         @default("PUBLISHED")
+  isPrivate        Boolean        @default(false)
+  authorId         String
+  createdAt        DateTime       @default(now())
+  vibeConfig       Json?
   customAuthorName String?
-  authorId  String
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  likes     Like[]
-  comments  Comment[]
-  tags      Tag[]    @relation("PoemTags")
-  collections Collection[] @relation("CollectionPoems")
-  notifications Notification[] @relation("poemNotifications")
-  reports   Report[] @relation("reportedPoem")
-  createdAt DateTime @default(now())
+  comments         Comment[]
+  likes            Like[]
+  notifications    Notification[] @relation("poemNotifications")
+  author           User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  images           PoemImage[]
+  reports          Report[]       @relation("reportedPoem")
+  collections      Collection[]   @relation("CollectionPoems")
+  tags             Tag[]          @relation("PoemTags")
 }
 
 model PoemImage {
@@ -118,24 +130,24 @@ model PoemImage {
   url       String
   alt       String?
   poemId    String
-  poem      Poem     @relation(fields: [poemId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+  poem      Poem     @relation(fields: [poemId], references: [id], onDelete: Cascade)
 }
 
 model Tag {
   id        String   @id @default(cuid())
   name      String   @unique
-  poems     Poem[]   @relation("PoemTags")
   createdAt DateTime @default(now())
+  poems     Poem[]   @relation("PoemTags")
 }
 
 model Like {
   id        String   @id @default(cuid())
   poemId    String
   userId    String
+  createdAt DateTime @default(now())
   poem      Poem     @relation(fields: [poemId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
 
   @@unique([poemId, userId])
 }
@@ -145,11 +157,11 @@ model Comment {
   content   String
   poemId    String
   authorId  String
-  poem      Poem     @relation(fields: [poemId], references: [id], onDelete: Cascade)
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  reports   Report[] @relation("reportedComment")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  poem      Poem     @relation(fields: [poemId], references: [id], onDelete: Cascade)
+  reports   Report[] @relation("reportedComment")
 
   @@index([poemId, createdAt])
 }
@@ -158,9 +170,9 @@ model Follow {
   id          String   @id @default(cuid())
   followerId  String
   followingId String
+  createdAt   DateTime @default(now())
   follower    User     @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
   following   User     @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
 
   @@unique([followerId, followingId])
 }
@@ -171,24 +183,24 @@ model Collection {
   description String?
   isPublic    Boolean  @default(true)
   authorId    String
-  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  poems       Poem[]   @relation("CollectionPoems")
   status      String   @default("ACTIVE")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  poems       Poem[]   @relation("CollectionPoems")
 }
 
 model Notification {
   id        String   @id @default(cuid())
   userId    String
-  type      String   // "LIKE", "COMMENT", "FOLLOW"
+  type      String
   actorId   String
   poemId    String?
   read      Boolean  @default(false)
-  user      User     @relation("userNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
   actor     User     @relation("actorNotifications", fields: [actorId], references: [id], onDelete: Cascade)
   poem      Poem?    @relation("poemNotifications", fields: [poemId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  user      User     @relation("userNotifications", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }
@@ -196,17 +208,17 @@ model Notification {
 model Report {
   id                String   @id @default(cuid())
   reporterId        String
-  reporter          User     @relation("reporter", fields: [reporterId], references: [id], onDelete: Cascade)
   reportedUserId    String?
-  reportedUser      User?    @relation("reportedUser", fields: [reportedUserId], references: [id], onDelete: Cascade)
   reportedPoemId    String?
-  reportedPoem      Poem?    @relation("reportedPoem", fields: [reportedPoemId], references: [id], onDelete: Cascade)
   reportedCommentId String?
-  reportedComment   Comment? @relation("reportedComment", fields: [reportedCommentId], references: [id], onDelete: Cascade)
   reason            String
-  status            String   @default("PENDING") // PENDING, RESOLVED, DISMISSED
+  status            String   @default("PENDING")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  reportedComment   Comment? @relation("reportedComment", fields: [reportedCommentId], references: [id], onDelete: Cascade)
+  reportedPoem      Poem?    @relation("reportedPoem", fields: [reportedPoemId], references: [id], onDelete: Cascade)
+  reportedUser      User?    @relation("reportedUser", fields: [reportedUserId], references: [id], onDelete: Cascade)
+  reporter          User     @relation("reporter", fields: [reporterId], references: [id], onDelete: Cascade)
 }
 
 model Authenticator {
@@ -218,8 +230,7 @@ model Authenticator {
   credentialDeviceType String
   credentialBackedUp   Boolean
   transports           String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                 User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, credentialID])
 }
@@ -228,8 +239,20 @@ model PermissionGroup {
   id          String   @id @default(cuid())
   name        String   @unique
   color       String   @default("blue")
-  permissions Json     // Section-based permissions JSON
-  users       User[]
+  permissions Json
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  users       User[]
+}
+
+model ApiKey {
+  id         String    @id @default(cuid())
+  name       String
+  hashedKey  String
+  prefix     String
+  userId     String
+  lastUsedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

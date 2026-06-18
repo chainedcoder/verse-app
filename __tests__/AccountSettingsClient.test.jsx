@@ -95,7 +95,7 @@ describe("AccountSettingsClient", () => {
     })
 
     // Expect success message
-    expect(screen.getByText(/Settings updated successfully/i)).toBeInTheDocument()
+    expect(await screen.findByText(/Settings updated successfully/i)).toBeInTheDocument()
   })
 
   it("displays error message if update fails", async () => {

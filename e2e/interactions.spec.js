@@ -67,8 +67,9 @@ test.describe('Interactions Flow (Likes & Follows)', () => {
     // Navigate to author page via hard navigation to avoid Next.js routing race conditions
     await page.goto(authorUrl);
 
-    // Get follow button
-    const followButton = page.getByTestId('follow-button');
+    // Get follow button — use first() to avoid strict mode violation if button appears in
+    // multiple places on the page (e.g. profile hero + sidebar)
+    const followButton = page.getByTestId('follow-button').first();
     
     // Check initial text
     await expect(followButton).toHaveText('Follow');
@@ -84,7 +85,7 @@ test.describe('Interactions Flow (Likes & Follows)', () => {
     await page.waitForTimeout(4000);
     await page.reload();
 
-    const reloadedFollowButton = page.getByTestId('follow-button');
+    const reloadedFollowButton = page.getByTestId('follow-button').first();
     await expect(reloadedFollowButton).toHaveText('Following');
     await expect(reloadedFollowButton).toHaveClass(/btn-primary/);
   });
