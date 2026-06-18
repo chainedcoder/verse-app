@@ -26,7 +26,7 @@ test('setup admin session', async ({ page }) => {
   
   // 4. Set the role to ADMIN using the local script (if registration succeeded or already existed)
   try {
-    execSync(`node --env-file=.env scripts/set-role.mjs ${adminEmail} ADMIN`)
+    execSync(`node --env-file=.env.test scripts/set-role.mjs ${adminEmail} ADMIN`)
     console.log('Successfully set role to ADMIN via script')
   } catch (error) {
     console.error('Error setting role to ADMIN (might already exist):', error.message)

@@ -1,7 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { config } from 'dotenv'
 import { resolve } from 'path'
-config({ path: resolve(process.cwd(), '.env') })
 import { prisma } from '../lib/prisma.js'
 
 test.describe('Admin Users Page — Custom Dropdowns and Dynamic Tag Filters', () => {
