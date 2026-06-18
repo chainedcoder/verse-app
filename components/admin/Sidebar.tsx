@@ -229,7 +229,7 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation List */}
-      <nav style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, padding: isExpanded ? '0 4px' : '0 16px' }}>
+      <nav style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, padding: isExpanded ? '0 4px' : '0 16px', overflowY: isExpanded ? 'auto' : 'visible', overflowX: isExpanded ? 'hidden' : 'visible' }}>
         {navSchema.map((item) => {
           const hasSubItems = !!item.subItems;
           const isFolderOpen = !!expandedFolders[item.id];

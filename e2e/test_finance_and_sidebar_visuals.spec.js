@@ -29,7 +29,7 @@ test('capture custom finance dashboard and expanded sidebar screenshots', async 
   await page.waitForTimeout(600) // Wait for width transition to finish
 
   // Verify it is expanded by checking brand name
-  await expect(page.locator('text=Smart System')).toBeVisible()
+  await expect(page.locator('text=verse')).toBeVisible()
 
   // Take an expanded sidebar screenshot showing visual tree lines and full layout!
   await page.screenshot({ path: 'admin-sidebar-expanded.png' })

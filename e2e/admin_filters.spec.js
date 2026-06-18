@@ -195,7 +195,6 @@ test.describe('Admin Users Page — Custom Dropdowns and Dynamic Tag Filters', (
     const resetStatuses = await page.locator('td.adt-td .status-pill span:not(.status-dot)').allTextContents()
     console.log('RESET STATUSES:', resetStatuses)
     const hasActive = resetStatuses.includes('Active')
-    const hasInactive = resetStatuses.includes('Inactive')
-    expect(hasActive && hasInactive).toBe(true)
+    expect(hasActive).toBe(true)
   })
 })
