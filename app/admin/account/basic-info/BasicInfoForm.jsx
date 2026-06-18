@@ -8,7 +8,7 @@ import { useToast } from "@/components/ToastProvider"
 export default function BasicInfoForm({ user }) {
   const [isPending, startTransition] = useTransition()
   const { showToast } = useToast()
-  
+
   const coverRef = useRef(null)
   const avatarRef = useRef(null)
 
@@ -53,7 +53,7 @@ export default function BasicInfoForm({ user }) {
     }
   }
 
-  const joinDate = user.createdAt 
+  const joinDate = user.createdAt
     ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     : 'Unknown'
 
@@ -66,18 +66,18 @@ export default function BasicInfoForm({ user }) {
       {/* My Profile Header Card (Clean Design with Cover) */}
       <h2 className="font-semibold text-lg" style={{ marginBottom: '16px' }}>My Profile</h2>
       <div className="card" style={{ padding: 0, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-tertiary)', borderRadius: '12px', overflow: 'hidden' }}>
-        
+
         {/* Restored Cover Image Section */}
         <div style={{ height: '140px', position: 'relative', overflow: 'hidden', backgroundColor: 'var(--bg-secondary)' }}>
-           {user.coverImage ? (
-             <img src={user.coverImage} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-           ) : (
-             <img src="https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2000&auto=format&fit=crop" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }} alt="Default Cover" />
-           )}
-           <button type="button" onClick={handleCoverClick} className="btn btn-ghost" style={{ position: 'absolute', top: '16px', right: '16px', backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-secondary)', padding: '6px 12px', fontSize: '13px' }}>
-             <Camera size={14} className="inline mr-2" />
-             Edit Cover
-           </button>
+          {user.coverImage ? (
+            <img src={user.coverImage} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <img src="https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=2000&auto=format&fit=crop" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.7 }} alt="Default Cover" />
+          )}
+          <button type="button" onClick={handleCoverClick} className="btn btn-ghost" style={{ position: 'absolute', top: '16px', right: '16px', backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--border-secondary)', padding: '6px 12px', fontSize: '13px' }}>
+            <Camera size={14} className="inline mr-2" />
+            Edit Cover
+          </button>
         </div>
 
         <div style={{ padding: '24px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginTop: '-48px', position: 'relative' }}>
@@ -85,14 +85,14 @@ export default function BasicInfoForm({ user }) {
             {/* Avatar */}
             <div style={{ width: '96px', height: '96px', borderRadius: '50%', backgroundColor: 'var(--bg-primary)', border: '4px solid var(--bg-card)', overflow: 'hidden', position: 'relative', flexShrink: 0 }}>
               {user.image ? (
-                 <img src={user.image} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-               ) : (
-                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--accent-soft)', color: 'var(--accent)', fontSize: '32px', fontWeight: 600 }}>
-                   {user.name?.[0] || user.username?.[0] || "U"}
-                 </div>
-               )}
+                <img src={user.image} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--accent-soft)', color: 'var(--accent)', fontSize: '32px', fontWeight: 600 }}>
+                  {user.name?.[0] || user.username?.[0] || "U"}
+                </div>
+              )}
             </div>
-            
+
             {/* Info */}
             <div style={{ paddingBottom: '8px' }}>
               <h3 style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
@@ -112,11 +112,10 @@ export default function BasicInfoForm({ user }) {
           </div>
         </div>
 
-        {/* Restored Profile Completion Section */}
         <div style={{ padding: '0 24px 24px 24px' }}>
           <div style={{ borderTop: '1px solid var(--border-tertiary)', paddingTop: '20px' }}>
             <div className="flex justify-between" style={{ marginBottom: '8px' }}>
-              <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Profile Completion</span>
+              <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Profile Completion </span>
               <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 500 }}>50%</span>
             </div>
             <div style={{ height: '8px', backgroundColor: 'var(--border-tertiary)', borderRadius: '9999px', overflow: 'hidden' }}>
@@ -139,7 +138,7 @@ export default function BasicInfoForm({ user }) {
         })
       }}>
         <div className="card" style={{ padding: '24px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-tertiary)', borderRadius: '12px' }}>
-          
+
           <div className="grid md:grid-cols-2 gap-6" style={{ marginBottom: '24px' }}>
             <div className="form-group">
               <label className="form-label" style={{ color: 'var(--text-secondary)' }}>First Name</label>
@@ -150,7 +149,7 @@ export default function BasicInfoForm({ user }) {
               <input type="text" name="lastName" defaultValue={user.lastName || ''} placeholder="Last Name" className="input bg-transparent border-none p-0 text-base font-medium shadow-none focus:ring-0 focus:border-none" style={{ color: 'var(--text-primary)' }} />
             </div>
           </div>
-          
+
           <div className="grid md:grid-cols-2 gap-6" style={{ marginBottom: '24px' }}>
             <div className="form-group">
               <label className="form-label" style={{ color: 'var(--text-secondary)' }}>Job Title</label>
@@ -161,7 +160,7 @@ export default function BasicInfoForm({ user }) {
               <input type="text" name="location" defaultValue={user.location || ''} placeholder="Location" className="input bg-transparent border-none p-0 text-base font-medium shadow-none focus:ring-0 focus:border-none" style={{ color: 'var(--text-primary)' }} />
             </div>
           </div>
-          
+
           <div className="form-group" style={{ marginBottom: '24px' }}>
             <label className="form-label" style={{ color: 'var(--text-secondary)' }}>Bio</label>
             <textarea name="bio" defaultValue={user.bio || ''} placeholder="Bio" rows={3} className="input bg-transparent border-none p-0 text-base font-medium shadow-none focus:ring-0 focus:border-none" style={{ resize: 'vertical', color: 'var(--text-primary)' }}></textarea>
