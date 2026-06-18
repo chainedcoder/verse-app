@@ -9,7 +9,7 @@ export default function SupportSettings() {
   const [toastMessage, setToastMessage] = useState("");
   const [isFocused, setIsFocused] = useState(false);
 
-  // Workspace Layout Preferences states initialized synchronously from localStorage
+  // Workspace Layout Preferences state initialized synchronously from localStorage
   const [openAsChatTabs, setOpenAsChatTabs] = useState(() => {
     if (typeof window !== "undefined") {
       const setting = localStorage.getItem("support_open_as_chat_tabs");
@@ -17,19 +17,11 @@ export default function SupportSettings() {
     }
     return true;
   });
-  const [openInNewTab, setOpenInNewTab] = useState(() => {
-    if (typeof window !== "undefined") {
-      const setting = localStorage.getItem("support_open_in_browser_tab");
-      return setting === "true";
-    }
-    return false;
-  });
 
   const handleSave = (e) => {
     e.preventDefault();
     if (typeof window !== "undefined") {
       localStorage.setItem("support_open_as_chat_tabs", String(openAsChatTabs));
-      localStorage.setItem("support_open_in_browser_tab", String(openInNewTab));
     }
     setToastMessage("Settings saved successfully!");
     setTimeout(() => setToastMessage(""), 3000);
@@ -130,40 +122,6 @@ export default function SupportSettings() {
               backgroundColor: "white",
               top: "3px",
               left: openAsChatTabs ? "19px" : "3px",
-              transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.15)"
-            }} />
-          </div>
-        </div>
-
-        {/* Switch: Open in New Browser Tab */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ marginRight: "16px", flex: 1 }}>
-            <label style={{ fontSize: "14px", fontWeight: "600", color: "#111", display: "block", marginBottom: "4px" }}>Open in New Browser Tab</label>
-            <span style={{ fontSize: "12px", color: "#666" }}>Launch a focused full-screen ticket view in a new browser tab or window when clicked. (Takes precedence over Chat Tabs).</span>
-          </div>
-          {/* Custom Switch Toggle Slider */}
-          <div 
-            onClick={() => setOpenInNewTab(!openInNewTab)}
-            style={{
-              position: "relative",
-              width: "36px",
-              height: "20px",
-              backgroundColor: openInNewTab ? "var(--accent, #7c3aed)" : "#cbd5e1",
-              borderRadius: "20px",
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-              flexShrink: 0
-            }}
-          >
-            <div style={{
-              position: "absolute",
-              width: "14px",
-              height: "14px",
-              borderRadius: "50%",
-              backgroundColor: "white",
-              top: "3px",
-              left: openInNewTab ? "19px" : "3px",
               transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
               boxShadow: "0 1px 3px rgba(0,0,0,0.15)"
             }} />

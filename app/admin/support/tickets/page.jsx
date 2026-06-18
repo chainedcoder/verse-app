@@ -604,26 +604,12 @@ export default function TicketsPage() {
   const [replyText, setReplyText] = useState("Hi there,\n\nThank you for reaching out to Verse Support. I've taken a look at your request and reviewed the details.\n\nEverything looks in order now. We've updated the status on our end. Please let us know if there is anything else we can assist you with!\n\nBest regards,\nVerse Customer Care");
   const [showToast, setShowToast] = useState("");
   const [showExpandModal, setShowExpandModal] = useState(false);
-  
+
   // Custom styled dropdown state variables
   const [showGroupMenu, setShowGroupMenu] = useState(false);
   const [showSortMenu, setShowSortMenu] = useState(false);
 
   // Settings & Toggling
-  const [openInNewTab, setOpenInNewTab] = useState(() => {
-    if (typeof window !== "undefined") {
-      const setting = localStorage.getItem("support_open_in_browser_tab");
-      return setting === "true";
-    }
-    return false;
-  });
-  const [openAsChatTabs, setOpenAsChatTabs] = useState(() => {
-    if (typeof window !== "undefined") {
-      const setting = localStorage.getItem("support_open_as_chat_tabs");
-      return setting !== "false"; // Default to true
-    }
-    return true;
-  });
   const [contextMenu, setContextMenu] = useState(null); // { x: 0, y: 0, ticketId: "" }
   const [urlTicketId, setUrlTicketId] = useState(null);
 
@@ -639,7 +625,7 @@ export default function TicketsPage() {
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
 
-  // Parse query parameter ?id=128
+  // Parse query parameter ?id=128 (Sets focused view)
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -649,13 +635,13 @@ export default function TicketsPage() {
           setUrlTicketId(id);
           setActiveTabId(id);
           const ticketObj = activeTickets.find(t => t.id === id);
-          if (ticketObj && !activeTabs.find(t => t.id === id)) {
+          if (ticketObj) {
             setActiveTabs([ticketObj]);
           }
         }, 0);
       }
     }
-  }, [activeTickets, activeTabs]);
+  }, [activeTickets]);
 
   // Listen to outer window clicks to close right-click context menu and dropdown menus
   useEffect(() => {
@@ -879,8 +865,8 @@ export default function TicketsPage() {
     );
   }
 
+  // STANDARD CLICK: Replaces the current active tab's ticket (or single view)
   const handleTicketClick = (ticket) => {
-    // Mark ticket as read on click
     const updatedTickets = activeTickets.map(t => {
       if (t.id === ticket.id) {
         return { ...t, read: true, unread: 0 };
@@ -891,20 +877,37 @@ export default function TicketsPage() {
 
     const clickedTicket = updatedTickets.find(t => t.id === ticket.id);
 
-    if (openInNewTab) {
-      window.open(`/admin/support/tickets?id=${ticket.id}`, "_blank");
-    } else if (openAsChatTabs) {
-      if (!activeTabs.find(t => t.id === ticket.id)) {
+    // If the ticket is already open in one of the tabs, just switch focus to it!
+    const alreadyExists = activeTabs.some(t => t.id === ticket.id);
+    if (alreadyExists) {
+      setActiveTabId(ticket.id);
+      return;
+    }
+
+    if (activeTabs.length <= 1 || !activeTabId) {
+      // Single view/replace mode
+      setActiveTabs([clickedTicket]);
+    } else {
+      // Replaces the currently active tab inside the tabs strip!
+      setActiveTabs(prev => prev.map(t => t.id === activeTabId ? clickedTicket : t));
+    }
+    setActiveTabId(ticket.id);
+  };
+
+  // RIGHT CLICK ➔ "Open in New Tab" (Forcibly opens as a new separate app tab!)
+  const handleOpenSpecificNewTab = (ticketId) => {
+    const clickedTicket = activeTickets.find(t => t.id === ticketId);
+    if (clickedTicket) {
+      const alreadyExists = activeTabs.some(t => t.id === ticketId);
+      if (!alreadyExists) {
         setActiveTabs([...activeTabs, clickedTicket]);
       }
-      setActiveTabId(ticket.id);
-    } else {
-      setActiveTabs([clickedTicket]);
-      setActiveTabId(ticket.id);
+      setActiveTabId(ticketId);
     }
   };
 
-  const handleOpenSpecificNewTab = (ticketId) => {
+  // RIGHT CLICK ➔ "Open in New Browser Tab" (Spawns a new independent browser tab!)
+  const handleOpenNewBrowserWindow = (ticketId) => {
     window.open(`/admin/support/tickets?id=${ticketId}`, "_blank");
   };
 
@@ -966,6 +969,9 @@ export default function TicketsPage() {
       setIsRightPaneCollapsed(true);
     }
   };
+
+  // Determine if we should show the full browser-like tab bar (Show only if activeTabs.length > 1)
+  const isTabModeActive = activeTabs.length > 1;
 
   return (
     <div className={styles.container} ref={containerRef}>
@@ -1048,8 +1054,8 @@ export default function TicketsPage() {
       {/* Middle & Right Combined Main Panel */}
       {activeTicket ? (
         <div className={styles.mainCombinedCol} style={{ margin: urlTicketId ? "0px" : "" }}>
-          {/* Top: Sleek Browser-Like Tab strip or Thin Header depending on openAsChatTabs setting */}
-          {openAsChatTabs ? (
+          {/* Top: Sleek Browser-Like Tab strip (Shown ONLY if 2 or more tabs are open!) */}
+          {isTabModeActive ? (
             <div className={styles.tabsHeaderRow}>
               <div className={styles.tabsContainer}>
                 {activeTabs.map(tab => (
@@ -1275,7 +1281,13 @@ export default function TicketsPage() {
             className={styles.contextMenuItem}
             onClick={() => handleOpenSpecificNewTab(contextMenu.ticketId)}
           >
-            <span>🔗</span> Open in New Tab
+            <span>💬</span> Open in New Tab
+          </div>
+          <div 
+            className={styles.contextMenuItem}
+            onClick={() => handleOpenNewBrowserWindow(contextMenu.ticketId)}
+          >
+            <span>🌐</span> Open in new browser tab
           </div>
           <div 
             className={styles.contextMenuItem}
