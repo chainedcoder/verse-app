@@ -61,12 +61,7 @@ function getUserStatusDisplay(user) {
     return "Inactive"
   }
   if (user.status === "ARCHIVED") {
-    if (user.deletedAt) {
-      const daysSinceDeletion = Math.floor((Date.now() - new Date(user.deletedAt).getTime()) / (1000 * 60 * 60 * 24))
-      const daysLeft = Math.max(0, 30 - daysSinceDeletion)
-      return `To be deleted (${daysLeft}d left)`
-    }
-    return "To be deleted"
+    return "Archived"
   }
   if (user.status === "ACTIVE") return "Active"
   if (user.status === "SUSPENDED") return "Suspended"
@@ -1405,6 +1400,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                                 }}
                                 className="status-pill-btn"
                                 style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', outline: 'none' }}
+                                title={user.status === "ARCHIVED" && user.deletedAt ? `Scheduled deletion (${Math.max(0, 30 - Math.floor((Date.now() - new Date(user.deletedAt).getTime()) / (1000 * 60 * 60 * 24)))}d left)` : ""}
                               >
                                 <div className={`status-pill status-${statusCssClass}`}>
                                   <span className="status-dot"></span>
@@ -1663,23 +1659,26 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
             <span className="adt-bar-count admin-selection-bar__count">
               <strong>{selectedIds.size}</strong> user{selectedIds.size !== 1 ? "s" : ""} selected
             </span>
-            <button
-              className="adt-bar-clear"
-              onClick={() => setSelectedIds(new Set())}
-              type="button"
-            >
-              Clear
-            </button>
-            <button
-              className="adt-bar-delete"
-              aria-label="Delete Selected"
-              onClick={() => { setBulkError(""); setShowBulkModal(true) }}
-              disabled={isPending}
-              type="button"
-            >
-              <Trash2 size={14} />
-              Delete {selectedIds.size} User{selectedIds.size !== 1 ? "s" : ""}
-            </button>
+            <div className="admin-selection-bar__actions">
+              <button
+                className="adt-bar-clear admin-selection-bar__btn-clear"
+                onClick={() => setSelectedIds(new Set())}
+                type="button"
+              >
+                Clear
+              </button>
+              <button
+                className="adt-bar-delete admin-selection-bar__btn-danger"
+                aria-label="Delete Selected"
+                onClick={() => { setBulkError(""); setShowBulkModal(true) }}
+                disabled={isPending}
+                type="button"
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <Trash2 size={14} />
+                Delete {selectedIds.size} User{selectedIds.size !== 1 ? "s" : ""}
+              </button>
+            </div>
           </div>
         )}
 

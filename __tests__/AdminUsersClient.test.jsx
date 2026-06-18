@@ -94,9 +94,14 @@ describe("AdminUsersClient — rendering", () => {
     expect(screen.getAllByText("Dave").length).toBeGreaterThan(0)
   })
 
-  it("renders 'To be deleted' status with countdown for ARCHIVED users", () => {
+  it("renders 'Archived' status with tooltip for ARCHIVED users", () => {
     render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
-    expect(screen.getByText("To be deleted (25d left)")).toBeInTheDocument()
+    const archivedPill = screen.getByText("Archived")
+    expect(archivedPill).toBeInTheDocument()
+    
+    // Check that the parent button has the title tooltip
+    const pillBtn = archivedPill.closest('button')
+    expect(pillBtn).toHaveAttribute('title', expect.stringContaining('Scheduled deletion (25d left)'))
   })
 
   it("renders report count highlighted for users with reports", () => {

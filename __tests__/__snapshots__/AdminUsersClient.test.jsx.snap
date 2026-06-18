@@ -948,6 +948,7 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                   <button
                     class="status-pill-btn"
                     style="background: none; padding: 0px; cursor: pointer; outline: none;"
+                    title="Scheduled deletion (25d left)"
                     type="button"
                   >
                     <div
@@ -957,12 +958,12 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                         class="status-dot"
                       />
                       <span>
-                        To be deleted (25d left)
+                        Archived
                       </span>
                     </div>
                   </button>
                   <select
-                    aria-label="Status for user: To be deleted (25d left)"
+                    aria-label="Status for user: Archived"
                     class="status-cell-select-hidden-overlay"
                     style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
                   >
@@ -1203,6 +1204,7 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                   <button
                     class="status-pill-btn"
                     style="background: none; padding: 0px; cursor: pointer; outline: none;"
+                    title=""
                     type="button"
                   >
                     <div
@@ -1458,6 +1460,7 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                   <button
                     class="status-pill-btn"
                     style="background: none; padding: 0px; cursor: pointer; outline: none;"
+                    title=""
                     type="button"
                   >
                     <div
@@ -1713,6 +1716,7 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                   <button
                     class="status-pill-btn"
                     style="background: none; padding: 0px; cursor: pointer; outline: none;"
+                    title=""
                     type="button"
                   >
                     <div
