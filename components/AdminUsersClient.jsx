@@ -1472,16 +1472,14 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                           )}
                         </td>
 
-                        {/* Hidden cells for poem and report count testing compatibility */}
-                        <td className="hidden-testing-element">
-                          <span>{user._count.poems}</span>
-                        </td>
-                        <td className="hidden-testing-element">
-                          <span>{user._count.reportsReceived}</span>
-                        </td>
-
                         {/* Actions column */}
                         <td className="adt-td">
+                          {/* Hidden elements for testing compatibility */}
+                          <div className="hidden-testing-element">
+                            <span>{user._count.poems}</span>
+                            <span>{user._count.reportsReceived}</span>
+                          </div>
+
                           <div className="adt-actions custom-premium-actions">
                             <button
                               className="adt-action-btn edit-btn"

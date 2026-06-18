@@ -455,6 +455,7 @@ body:has(.admin-layout) {
   color: #4B5563 !important; /* Muted header text */
   text-transform: none !important;
   letter-spacing: normal !important;
+  text-align: left !important;
   border-bottom: 1px solid #E5E7EB !important;
 }
 

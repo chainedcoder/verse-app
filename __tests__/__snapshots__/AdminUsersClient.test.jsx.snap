@@ -999,22 +999,18 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                 </span>
               </td>
               <td
-                class="hidden-testing-element"
-              >
-                <span>
-                  0
-                </span>
-              </td>
-              <td
-                class="hidden-testing-element"
-              >
-                <span>
-                  0
-                </span>
-              </td>
-              <td
                 class="adt-td"
               >
+                <div
+                  class="hidden-testing-element"
+                >
+                  <span>
+                    0
+                  </span>
+                  <span>
+                    0
+                  </span>
+                </div>
                 <div
                   class="adt-actions custom-premium-actions"
                 >
@@ -1258,22 +1254,18 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                 </span>
               </td>
               <td
-                class="hidden-testing-element"
-              >
-                <span>
-                  2
-                </span>
-              </td>
-              <td
-                class="hidden-testing-element"
-              >
-                <span>
-                  3
-                </span>
-              </td>
-              <td
                 class="adt-td"
               >
+                <div
+                  class="hidden-testing-element"
+                >
+                  <span>
+                    2
+                  </span>
+                  <span>
+                    3
+                  </span>
+                </div>
                 <div
                   class="adt-actions custom-premium-actions"
                 >
@@ -1517,22 +1509,18 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                 </span>
               </td>
               <td
-                class="hidden-testing-element"
-              >
-                <span>
-                  0
-                </span>
-              </td>
-              <td
-                class="hidden-testing-element"
-              >
-                <span>
-                  1
-                </span>
-              </td>
-              <td
                 class="adt-td"
               >
+                <div
+                  class="hidden-testing-element"
+                >
+                  <span>
+                    0
+                  </span>
+                  <span>
+                    1
+                  </span>
+                </div>
                 <div
                   class="adt-actions custom-premium-actions"
                 >
@@ -1776,22 +1764,18 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                 </span>
               </td>
               <td
-                class="hidden-testing-element"
-              >
-                <span>
-                  5
-                </span>
-              </td>
-              <td
-                class="hidden-testing-element"
-              >
-                <span>
-                  0
-                </span>
-              </td>
-              <td
                 class="adt-td"
               >
+                <div
+                  class="hidden-testing-element"
+                >
+                  <span>
+                    5
+                  </span>
+                  <span>
+                    0
+                  </span>
+                </div>
                 <div
                   class="adt-actions custom-premium-actions"
                 >
