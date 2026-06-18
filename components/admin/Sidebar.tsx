@@ -12,6 +12,7 @@ const IconBox = () => <svg width="20" height="20" fill="none" stroke="currentCol
 const IconShield = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>;
 const IconCard = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>;
 const IconTimer = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>;
+const IconSupport = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>;
 
 const IconChevronRight = () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>;
 const IconChevronLeft = () => <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>;
@@ -33,6 +34,7 @@ export default function Sidebar() {
     content: true,
     safety: true,
     finance: true,
+    support: true,
   });
 
   // Active popup ID for collapsed state hover
@@ -150,6 +152,18 @@ export default function Sidebar() {
       label: 'Timer list',
       icon: <IconTimer />,
       href: '/admin/timers'
+    },
+    {
+      id: 'support',
+      label: 'Support',
+      icon: <IconSupport />,
+      subItems: [
+        { label: 'Dashboard', href: '/admin/support/dashboard' },
+        { label: 'Tickets', href: '/admin/support/tickets' },
+        { label: 'Live Chat', href: '/admin/support/chat' },
+        { label: 'History', href: '/admin/support/history' },
+        { label: 'Settings', href: '/admin/support/settings' }
+      ]
     }
   ];
 
