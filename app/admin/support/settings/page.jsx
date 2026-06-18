@@ -18,10 +18,20 @@ export default function SupportSettings() {
     return true;
   });
 
+  // Chat Notification preferences
+  const [chatEmailNotify, setChatEmailNotify] = useState(() => {
+    if (typeof window !== "undefined") {
+      const setting = localStorage.getItem("support_chat_email_notify");
+      return setting !== "false"; // Default to true
+    }
+    return true;
+  });
+
   const handleSave = (e) => {
     e.preventDefault();
     if (typeof window !== "undefined") {
       localStorage.setItem("support_open_as_chat_tabs", String(openAsChatTabs));
+      localStorage.setItem("support_chat_email_notify", String(chatEmailNotify));
     }
     setToastMessage("Settings saved successfully!");
     setTimeout(() => setToastMessage(""), 3000);
@@ -122,6 +132,40 @@ export default function SupportSettings() {
               backgroundColor: "white",
               top: "3px",
               left: openAsChatTabs ? "19px" : "3px",
+              transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.15)"
+            }} />
+          </div>
+        </div>
+
+        {/* Switch: Email Notification for New Messages */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ marginRight: "16px", flex: 1 }}>
+            <label style={{ fontSize: "14px", fontWeight: "600", color: "#111", display: "block", marginBottom: "4px" }}>Email Notification for New Messages</label>
+            <span style={{ fontSize: "12px", color: "#666" }}>Automatically send an email notification to online or offline agents when a new chat message is received.</span>
+          </div>
+          {/* Custom Switch Toggle Slider */}
+          <div 
+            onClick={() => setChatEmailNotify(!chatEmailNotify)}
+            style={{
+              position: "relative",
+              width: "36px",
+              height: "20px",
+              backgroundColor: chatEmailNotify ? "var(--accent, #7c3aed)" : "#cbd5e1",
+              borderRadius: "20px",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              flexShrink: 0
+            }}
+          >
+            <div style={{
+              position: "absolute",
+              width: "14px",
+              height: "14px",
+              borderRadius: "50%",
+              backgroundColor: "white",
+              top: "3px",
+              left: chatEmailNotify ? "19px" : "3px",
               transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
               boxShadow: "0 1px 3px rgba(0,0,0,0.15)"
             }} />

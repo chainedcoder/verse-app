@@ -314,46 +314,161 @@
   align-self: flex-end;
 }
 
-/* Footer / Input box */
-.chatFooter {
-  padding: 16px 24px;
-  border-top: 1px solid var(--border-primary);
-  background: var(--bg-card);
+/* HIGH-FIDELITY CONVERSATIONAL REPLY BOX (Exactly like Tickets) */
+.replyBox {
+  margin: 24px;
+  border: 1px solid var(--border-primary);
+  border-radius: 12px;
   display: flex;
-  gap: 12px;
-  align-items: center;
+  flex-direction: column;
   flex-shrink: 0;
+  background: var(--bg-card);
+  position: relative;
 }
 
-.chatInput {
-  flex: 1;
+.replyHeader {
   padding: 12px 16px;
-  border: 1px solid var(--border-primary);
-  border-radius: 8px;
-  outline: none;
+  border-bottom: 1px solid var(--border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* Drop reply email part, show only CC on the right */
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.replyCc {
+  font-weight: 700;
+  cursor: pointer;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 16px;
+  border: none;
+  resize: none;
   font-size: 14px;
-  background: var(--bg-secondary);
+  font-family: inherit;
+  outline: none;
+  color: var(--text-primary);
+  background: transparent;
+}
+
+.replyToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-primary);
+}
+
+.tools {
+  display: flex;
+  gap: 16px;
+  color: var(--text-secondary);
+}
+
+.toolIcon {
+  cursor: pointer;
+}
+
+.toolIcon:hover {
   color: var(--text-primary);
 }
 
-.chatInput:focus {
-  border-color: var(--accent);
-  background: var(--bg-card);
-  box-shadow: 0 0 0 2px var(--accent-soft);
-}
-
 .sendBtn {
-  padding: 10px 20px;
   background: var(--accent);
   color: var(--accent-text);
   border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: background 0.15s ease;
 }
 
 .sendBtn:hover {
   background: var(--accent-hover);
+}
+
+/* Custom CC Floating Settings Popover */
+.ccPopover {
+  position: absolute;
+  bottom: calc(100% - 8px);
+  right: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-primary);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+  border-radius: 8px;
+  padding: 16px;
+  width: 280px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.popoverTitle {
+  font-size: 12px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border-primary);
+  padding-bottom: 6px;
+}
+
+.popoverField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.popoverLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.popoverInput {
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 12px;
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  outline: none;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: all 0.15s ease;
+}
+
+.popoverInput:focus {
+  border-color: var(--accent);
+}
+
+.popoverRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.popoverCheckbox {
+  cursor: pointer;
+  width: 14px;
+  height: 14px;
+  accent-color: var(--accent);
+}
+
+.popoverCheckboxLabel {
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
 }

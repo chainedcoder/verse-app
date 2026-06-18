@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./Chat.module.css";
 
 const INITIAL_CHATS = {
@@ -248,12 +248,24 @@ export default function SupportChat() {
   const [activeId, setActiveId] = useState("david");
   const [inputText, setInputText] = useState("");
 
+  // CC settings state variables
+  const [showCcPopover, setShowCcPopover] = useState(false);
+  const [ccUsername, setCcUsername] = useState("");
+  const [ccEmailNotify, setCcEmailNotify] = useState(true);
+
+  // Close CC popover on window click
+  useEffect(() => {
+    const closePopover = () => setShowCcPopover(false);
+    window.addEventListener("click", closePopover);
+    return () => window.removeEventListener("click", closePopover);
+  }, []);
+
   const activeChat = 
     chats.pinned.find(c => c.id === activeId) || 
     chats.recent.find(c => c.id === activeId);
 
   const handleSend = (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     if (!inputText.trim() || !activeChat) return;
 
     const newBubbleText = inputText;
@@ -420,17 +432,67 @@ export default function SupportChat() {
             })}
           </div>
 
-          {/* Form Reply Footer */}
-          <form onSubmit={handleSend} className={styles.chatFooter}>
-            <input 
-              type="text" 
-              className={styles.chatInput} 
+          {/* High-Fidelity Themed Custom Reply Box */}
+          <div className={styles.replyBox} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.replyHeader}>
+              <span className={styles.replyCc} onClick={() => setShowCcPopover(!showCcPopover)}>CC</span>
+            </div>
+            
+            {/* CC Floating Popover Settings */}
+            {showCcPopover && (
+              <div className={styles.ccPopover}>
+                <h4 className={styles.popoverTitle}>CC Settings</h4>
+                <div className={styles.popoverField}>
+                  <label className={styles.popoverLabel}>Add user to conversation:</label>
+                  <input 
+                    type="text" 
+                    className={styles.popoverInput}
+                    placeholder="Username, e.g. @poet"
+                    value={ccUsername}
+                    onChange={(e) => setCcUsername(e.target.value)}
+                  />
+                </div>
+                <div className={styles.popoverRow}>
+                  <input 
+                    type="checkbox" 
+                    id="cc-email-notify" 
+                    className={styles.popoverCheckbox}
+                    checked={ccEmailNotify}
+                    onChange={(e) => setCcEmailNotify(e.target.checked)}
+                  />
+                  <label htmlFor="cc-email-notify" className={styles.popoverCheckboxLabel}>
+                    Send email notification on file
+                  </label>
+                </div>
+              </div>
+            )}
+
+            <textarea 
+              className={styles.textarea}
               placeholder={`Send message to ${activeChat.name}...`}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSend();
+                }
+              }}
             />
-            <button type="submit" className={styles.sendBtn}>Send</button>
-          </form>
+
+            <div className={styles.replyToolbar}>
+              <div className={styles.tools}>
+                <svg className={styles.toolIcon} width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                <svg className={styles.toolIcon} width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                <svg className={styles.toolIcon} width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg>
+                <svg className={styles.toolIcon} width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                <svg className={styles.toolIcon} width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+              </div>
+              <button className={styles.sendBtn} onClick={handleSend}>
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+              </button>
+            </div>
+          </div>
         </div>
       ) : (
         <div className={styles.chatContent} style={{ alignItems: "center", justifyContent: "center", color: "#888" }}>
