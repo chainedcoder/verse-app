@@ -1044,6 +1044,14 @@ export default function TicketsPage() {
     }
   };
 
+  const handleCloseTicketView = () => {
+    setActiveTabId(null);
+    setActiveTabs([]);
+    if (isMobile) {
+      setMobileView("list");
+    }
+  };
+
   // Draggable Pane resizing
   const startResize = (e) => {
     e.preventDefault();
