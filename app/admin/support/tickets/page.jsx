@@ -645,23 +645,25 @@ export default function TicketsPage() {
         
         if (storedTabsRaw) {
           const parsedIds = JSON.parse(storedTabsRaw);
-          const restoredTabs = activeTickets.filter(t => parsedIds.includes(t.id));
+          const restoredTabs = TICKETS_DATA.filter(t => parsedIds.includes(t.id));
           setActiveTabs(restoredTabs);
         } else {
           setActiveTabs([]);
         }
         
         if (storedTabId) {
-          const hasMatch = activeTickets.some(t => t.id === storedTabId);
+          const hasMatch = TICKETS_DATA.some(t => t.id === storedTabId);
           if (hasMatch) {
             setActiveTabId(storedTabId);
-            if (isMobile && storedMobileView) {
+            const isMob = window.innerWidth < 768;
+            if (isMob && storedMobileView) {
               setMobileView(storedMobileView);
             }
           }
         } else {
           setActiveTabId(null);
-          if (isMobile) {
+          const isMob = window.innerWidth < 768;
+          if (isMob) {
             setMobileView("list");
           }
         }
@@ -669,7 +671,7 @@ export default function TicketsPage() {
         console.error("Error restoring session state:", e);
       }
     }
-  }, [activeTickets, isMobile]);
+  }, []);
 
   // Persist session-level tab state
   useEffect(() => {
@@ -1262,7 +1264,7 @@ export default function TicketsPage() {
                   </div>
                 ))}
               </div>
-              {isTablet && (
+              {!isMobile && (
                 <button 
                   className={styles.tabletInfoToggleBtn} 
                   onClick={() => setIsRightPaneCollapsed(!isRightPaneCollapsed)}
@@ -1297,7 +1299,7 @@ export default function TicketsPage() {
                 <span className={styles.threadHeaderTitle} style={{ fontSize: '16px' }}>{activeTicket.title}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                {isTablet && (
+                {!isMobile && (
                   <button 
                     className={styles.tabletInfoToggleBtn} 
                     onClick={() => setIsRightPaneCollapsed(!isRightPaneCollapsed)}
@@ -1452,11 +1454,11 @@ export default function TicketsPage() {
               <div className={styles.metaSection}>
                 <div className={styles.metaHeader}>
                   <h2 className={styles.metaTitle}>Ticket #{activeTicket.id}</h2>
-                  {isTablet && (
+                  {!isMobile && (
                     <button 
                       className={styles.tabletCloseDrawerBtn}
                       onClick={() => setIsRightPaneCollapsed(true)}
-                      title="Close details drawer"
+                      title="Collapse details panel"
                     >
                       ✕
                     </button>
