@@ -51,7 +51,7 @@ describe('Admin Support Tickets Feature', () => {
       const searchInput = screen.getByPlaceholderText('Search');
       fireEvent.change(searchInput, { target: { value: 'OAuth Login Error' } });
       
-      expect(screen.getByText('OAuth Login Error', { selector: 'p' })).toBeInTheDocument();
+      expect(screen.getAllByText('OAuth Login Error', { selector: 'p' })[0]).toBeInTheDocument();
       expect(screen.queryByText('Reinstate Flagged Poem', { selector: 'p' })).not.toBeInTheDocument();
     });
 

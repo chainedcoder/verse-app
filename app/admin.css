@@ -818,3 +818,8 @@
   --comp-text: #d8b4fe;
   --comp-border: rgba(216, 180, 254, 0.2);
 }
+
+/* Hide admin sidebar hamburger on mobile when deep in pages */
+body.hide-admin-sidebar .admin-mobile-hamburger {
+  display: none !important;
+}

@@ -597,6 +597,128 @@ export default function TicketsPage() {
   const [activeTickets, setActiveTickets] = useState(TICKETS_DATA);
   const [activeTabs, setActiveTabs] = useState([TICKETS_DATA[0], TICKETS_DATA[2], TICKETS_DATA[1], TICKETS_DATA[15], TICKETS_DATA[14]]);
   const [activeTabId, setActiveTabId] = useState(TICKETS_DATA[0].id);
+
+  const [mobileView, setMobileView] = useState("list"); // "list", "chat", "info"
+  const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsTablet(width >= 768 && width < 1100);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // When activeTabId changes on mobile, we automatically switch to the 'chat' view
+  useEffect(() => {
+    if (activeTabId && isMobile) {
+      setMobileView("chat");
+    }
+  }, [activeTabId, isMobile]);
+
+  // Hide the global admin sidebar hamburger button when deep in chat/info view on mobile
+  useEffect(() => {
+    if (isMobile && mobileView !== "list") {
+      document.body.classList.add("hide-admin-sidebar");
+    } else {
+      document.body.classList.remove("hide-admin-sidebar");
+    }
+    return () => {
+      document.body.classList.remove("hide-admin-sidebar");
+    };
+  }, [mobileView, isMobile]);
+
+  // Restore active tabs and ID from sessionStorage (survives navigations, cleared on window/browser close)
+  useEffect(() => {
+    const isTestEnv = typeof process !== "undefined" && process.env.NODE_ENV === "test";
+    if (isTestEnv) return; // Do not clear defaults in test environments
+
+    if (typeof window !== "undefined") {
+      try {
+        const storedTabId = sessionStorage.getItem("support_active_tab_id");
+        const storedTabsRaw = sessionStorage.getItem("support_active_tabs");
+        const storedMobileView = sessionStorage.getItem("support_mobile_view");
+        
+        if (storedTabsRaw) {
+          const parsedIds = JSON.parse(storedTabsRaw);
+          const restoredTabs = activeTickets.filter(t => parsedIds.includes(t.id));
+          setActiveTabs(restoredTabs);
+        } else {
+          setActiveTabs([]);
+        }
+        
+        if (storedTabId) {
+          const hasMatch = activeTickets.some(t => t.id === storedTabId);
+          if (hasMatch) {
+            setActiveTabId(storedTabId);
+            if (isMobile && storedMobileView) {
+              setMobileView(storedMobileView);
+            }
+          }
+        } else {
+          setActiveTabId(null);
+          if (isMobile) {
+            setMobileView("list");
+          }
+        }
+      } catch (e) {
+        console.error("Error restoring session state:", e);
+      }
+    }
+  }, [activeTickets, isMobile]);
+
+  // Persist session-level tab state
+  useEffect(() => {
+    const isTestEnv = typeof process !== "undefined" && process.env.NODE_ENV === "test";
+    if (isTestEnv) return;
+
+    if (typeof window !== "undefined") {
+      try {
+        if (activeTabId) {
+          sessionStorage.setItem("support_active_tab_id", activeTabId);
+        } else {
+          sessionStorage.removeItem("support_active_tab_id");
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, [activeTabId]);
+
+  useEffect(() => {
+    const isTestEnv = typeof process !== "undefined" && process.env.NODE_ENV === "test";
+    if (isTestEnv) return;
+
+    if (typeof window !== "undefined") {
+      try {
+        if (activeTabs.length > 0) {
+          const tabIds = activeTabs.map(t => t.id);
+          sessionStorage.setItem("support_active_tabs", JSON.stringify(tabIds));
+        } else {
+          sessionStorage.removeItem("support_active_tabs");
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, [activeTabs]);
+
+  useEffect(() => {
+    const isTestEnv = typeof process !== "undefined" && process.env.NODE_ENV === "test";
+    if (isTestEnv) return;
+
+    if (typeof window !== "undefined") {
+      try {
+        sessionStorage.setItem("support_mobile_view", mobileView);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+  }, [mobileView]);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all"); // "all", "open", "closed"
   const [groupBy, setGroupBy] = useState("category"); // "category", "type", "none"

@@ -26,7 +26,16 @@ export default function Sidebar() {
   const pathname = usePathname();
   
   // Sidebar expand state (default to narrow/collapsed)
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpandedState, setIsExpandedState] = useState(false);
+
+  // Responsive mobile states
+  const [isMobile, setIsMobile] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+
+  // Auto-close mobile sidebar when navigating
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [pathname]);
 
   // Accordion expanded folders in wide state
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({
@@ -51,7 +60,7 @@ export default function Sidebar() {
     // Load from localStorage if present
     try {
       const storedExpand = localStorage.getItem('admin_sidebar_expanded');
-      if (storedExpand) setIsExpanded(storedExpand === 'true');
+      if (storedExpand) setIsExpandedState(storedExpand === 'true');
     } catch {}
 
     setThemeState(getTheme());
@@ -59,8 +68,14 @@ export default function Sidebar() {
     const handleThemeChange = (e: any) => setThemeState(e.detail.theme);
     const handleAccentChange = (e: any) => setAccentState(e.detail.accent);
 
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    handleResize();
+
     window.addEventListener('themechange', handleThemeChange);
     window.addEventListener('accentchange', handleAccentChange);
+    window.addEventListener('resize', handleResize);
 
     // Click outside to close menus
     const clickOutside = (e: MouseEvent) => {
@@ -81,13 +96,14 @@ export default function Sidebar() {
     return () => {
       window.removeEventListener('themechange', handleThemeChange);
       window.removeEventListener('accentchange', handleAccentChange);
+      window.removeEventListener('resize', handleResize);
       document.removeEventListener('click', clickOutside);
     };
   }, []);
 
   const handleToggleExpand = () => {
-    const nextVal = !isExpanded;
-    setIsExpanded(nextVal);
+    const nextVal = !isExpandedState;
+    setIsExpandedState(nextVal);
     try { localStorage.setItem('admin_sidebar_expanded', String(nextVal)); } catch {}
   };
 
@@ -167,55 +183,112 @@ export default function Sidebar() {
     }
   ];
 
+  const isExpanded = isMobile ? true : isExpandedState;
+
   return (
-    <aside 
-      className="admin-sidebar-left"
-      style={{
-        width: isExpanded ? '260px' : '80px',
-        transition: 'width 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-        alignItems: 'center',
-        padding: isExpanded ? '24px 16px' : '24px 0',
-        backgroundColor: theme === 'light' ? 'var(--accent, #7c3aed)' : '#111116',
-        color: 'rgba(255, 255, 255, 0.65)',
-        boxShadow: '4px 0 20px rgba(0,0,0,0.4)',
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        height: 'calc(100vh - 16px)',
-        margin: '8px',
-        borderRadius: '24px',
-        flexShrink: 0,
-        overflow: 'visible'
-      }}
-    >
-      {/* Absolute Toggle Button (hanging off right border) */}
-      <button 
-        onClick={handleToggleExpand}
-        title={isExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
+    <>
+      {/* Mobile Hamburger Button */}
+      {isMobile && (
+        <button
+          className="admin-mobile-hamburger"
+          onClick={() => setIsMobileOpen(!isMobileOpen)}
+          style={{
+            position: 'fixed',
+            top: '16px',
+            left: '16px',
+            zIndex: 99998,
+            backgroundColor: 'var(--bg-card)',
+            border: '1px solid var(--border-primary)',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            color: 'var(--text-primary)',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      )}
+
+      {/* Mobile Backdrop */}
+      {isMobile && isMobileOpen && (
+        <div 
+          onClick={() => setIsMobileOpen(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(4px)',
+            zIndex: 99999,
+            animation: 'fadeIn 0.2s ease-out'
+          }}
+        />
+      )}
+
+      <aside 
+        className="admin-sidebar-left"
         style={{
-          position: 'absolute',
-          right: '-14px',
-          top: '32px',
-          zIndex: 1000,
-          backgroundColor: '#1c1c24',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          cursor: 'pointer',
-          color: 'white',
-          width: '26px',
-          height: '26px',
-          borderRadius: '50%',
-          display: 'flex',
+          width: isExpanded ? '260px' : '80px',
+          transition: 'width 0.2s cubic-bezier(0.16, 1, 0.3, 1), left 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
           alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
-          outline: 'none',
-          transition: 'background-color 0.2s, transform 0.2s'
+          padding: isExpanded ? '24px 16px' : '24px 0',
+          backgroundColor: theme === 'light' ? 'var(--accent, #7c3aed)' : '#111116',
+          color: 'rgba(255, 255, 255, 0.65)',
+          boxShadow: '4px 0 20px rgba(0,0,0,0.4)',
+          position: isMobile ? 'fixed' : 'relative',
+          left: isMobile ? (isMobileOpen ? '0' : '-280px') : 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          height: isMobile ? '100vh' : 'calc(100vh - 16px)',
+          margin: isMobile ? '0' : '8px',
+          borderRadius: isMobile ? '0 24px 24px 0' : '24px',
+          flexShrink: 0,
+          overflow: 'visible',
+          zIndex: isMobile ? 100000 : 1
         }}
-        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2d2d3a'}
-        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1c1c24'}
       >
-        {isExpanded ? <IconChevronLeft /> : <IconChevronRight />}
-      </button>
+        {/* Absolute Toggle Button (hanging off right border) - Hidden on Mobile */}
+        {!isMobile && (
+          <button 
+            onClick={handleToggleExpand}
+            title={isExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
+            style={{
+              position: 'absolute',
+              right: '-14px',
+              top: '32px',
+              zIndex: 1000,
+              backgroundColor: '#1c1c24',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              cursor: 'pointer',
+              color: 'white',
+              width: '26px',
+              height: '26px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+              outline: 'none',
+              transition: 'background-color 0.2s, transform 0.2s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#2d2d3a'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#1c1c24'}
+          >
+            {isExpanded ? <IconChevronLeft /> : <IconChevronRight />}
+          </button>
+        )}
 
       {/* Header Brand Logo Block */}
       <div style={{ 
@@ -666,5 +739,6 @@ export default function Sidebar() {
         </div>
       </div>
     </aside>
+    </>
   );
 }
