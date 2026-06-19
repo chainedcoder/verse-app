@@ -860,11 +860,22 @@ export default function TicketsPage() {
   let listContentToRender = null;
 
   if (groupBy === "category") {
-    // CATEGORIZED DATE VIEW (Default Sections)
+    // CATEGORIZED DATE VIEW (Default Sections with Zero-Duplication across sections)
     const pinnedTickets = filteredTickets.filter(t => t.pinned).sort(comparator);
-    const recentTickets = [...filteredTickets].sort(comparator);
-    const unresolvedTickets = filteredTickets.filter(t => t.status !== "Closed").sort(comparator);
-    const resolvedTickets = filteredTickets.filter(t => t.status === "Closed").sort(comparator);
+    const nonPinned = filteredTickets.filter(t => !t.pinned).sort(comparator);
+    
+    // Recent Section shows up to recentLimit conversations (excluding pinned)
+    const recentTickets = nonPinned.slice(0, recentLimit);
+    
+    // Unresolved Section shows remaining unresolved conversations older than recent limit
+    const unresolvedTickets = nonPinned
+      .filter(t => t.status !== "Closed")
+      .filter(t => !recentTickets.some(r => r.id === t.id));
+      
+    // Resolved Section shows remaining resolved conversations older than recent limit
+    const resolvedTickets = nonPinned
+      .filter(t => t.status === "Closed")
+      .filter(t => !recentTickets.some(r => r.id === t.id));
 
     listContentToRender = (
       <>
