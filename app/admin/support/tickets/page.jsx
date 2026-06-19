@@ -1555,8 +1555,16 @@ export default function TicketsPage() {
           </div>
         </div>
       ) : (
-        <div className={styles.mainCol} style={{ alignItems: 'center', justifyContent: 'center', color: '#888' }}>
-          Select a ticket to view details
+        <div className={styles.emptyStateContainer}>
+          <div className={styles.emptyStateGraphic}>
+            <svg className={styles.emptyStateIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h2 className={styles.emptyStateTitle}>No Ticket Selected</h2>
+          <p className={styles.emptyStateText}>
+            Select a ticket from the list to view its details, conversation history, and more.
+          </p>
         </div>
       )}
 
