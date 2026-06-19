@@ -1648,3 +1648,71 @@
     display: none !important;
   }
 }
+
+/* Tablet Details Drawer Backdrop */
+.tabletBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  z-index: 99980;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Tablet sliding details drawer styling */
+.tabletMetaCol {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 380px !important;
+  background: var(--bg-card) !important;
+  border-left: 1px solid var(--border-primary) !important;
+  z-index: 99990 !important;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.2) !important;
+  animation: slideInRight 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  height: 100vh !important;
+}
+
+/* Tablet details drawer close button */
+.tabletCloseDrawerBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  margin-left: auto;
+}
+
+.tabletCloseDrawerBtn:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

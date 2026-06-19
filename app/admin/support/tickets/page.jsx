@@ -1098,8 +1098,8 @@ export default function TicketsPage() {
   return (
     <div className={styles.container} ref={containerRef}>
       {/* Left Column: Ticket List formatted exactly as Modern Chat List (hidden if loaded focused via query param) */}
-      {!urlTicketId && (
-        <div className={styles.ticketListCol}>
+      {!urlTicketId && (!isMobile || mobileView === "list") && (
+        <div className={styles.ticketListCol} style={{ width: isMobile ? "100%" : "320px" }}>
           <div className={styles.listHeader}>
             <h1 className={styles.title}>Tickets</h1>
             <div className={styles.searchBox}>
@@ -1174,10 +1174,71 @@ export default function TicketsPage() {
       )}
 
       {/* Middle & Right Combined Main Panel */}
-      {activeTicket ? (
-        <div className={styles.mainCombinedCol} style={{ margin: urlTicketId ? "0px" : "" }}>
+      {activeTicket && (!isMobile || mobileView === "chat" || mobileView === "info") ? (
+        <div 
+          className={styles.mainCombinedCol} 
+          style={{ 
+            margin: urlTicketId ? "0px" : "",
+            borderLeft: isMobile ? "none" : "1px solid var(--border-primary)"
+          }}
+        >
+          {/* Custom Mobile Header */}
+          {isMobile && (
+            <div className={styles.mobileHeader}>
+              {mobileView === "chat" && (
+                <div className={styles.mobileHeaderContent}>
+                  <button className={styles.backBtn} onClick={() => setMobileView("list")}>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    <span>&lt; Tickets</span>
+                  </button>
+                  
+                  <div className={styles.mobileHeaderTitleContainer}>
+                    <div className={styles.mobileHeaderAvatar}>{activeTicket.reporter?.initials}</div>
+                    <span className={styles.mobileHeaderTitle}>{activeTicket.title}</span>
+                  </div>
+                  
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <button className={styles.infoBtn} onClick={() => setMobileView("info")} title="View Details">
+                      <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                      </svg>
+                    </button>
+                    <button className={styles.closeHeaderBtn} onClick={handleCloseTicketView} title="Close Ticket">
+                      <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {mobileView === "info" && (
+                <div className={styles.mobileHeaderContent}>
+                  <button className={styles.backBtn} onClick={() => setMobileView("chat")}>
+                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                    <span>&lt; Chat</span>
+                  </button>
+                  <span className={styles.mobileHeaderTitle} style={{ textAlign: "center", flex: 1 }}>Ticket Details</span>
+                  <button className={styles.closeHeaderBtn} onClick={() => setMobileView("chat")} title="Close details, go back to Chat">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Top: Sleek Browser-Like Tab strip (Shown ONLY if 2 or more tabs are open!) */}
-          {isTabModeActive ? (
+          {!isMobile && isTabModeActive && (
             <div className={styles.tabsHeaderRow}>
               <div className={styles.tabsContainer}>
                 {activeTabs.map(tab => (
@@ -1193,16 +1254,96 @@ export default function TicketsPage() {
                   </div>
                 ))}
               </div>
+              {isTablet && (
+                <button 
+                  className={styles.tabletInfoToggleBtn} 
+                  onClick={() => setIsRightPaneCollapsed(!isRightPaneCollapsed)}
+                  title="Toggle details panel"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--text-secondary)',
+                    padding: '8px',
+                    marginRight: '16px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  </svg>
+                </button>
+              )}
             </div>
-          ) : (
-            <div className={styles.threadHeaderRow}>
-              <span className={styles.threadHeaderTitle}>{activeTicket.title}</span>
+          )}
+          {!isMobile && !isTabModeActive && (
+            <div className={styles.threadHeaderRow} style={{ padding: '0 24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className={styles.avatar}>{activeTicket.reporter?.initials}</div>
+                <span className={styles.threadHeaderTitle} style={{ fontSize: '16px' }}>{activeTicket.title}</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                {isTablet && (
+                  <button 
+                    className={styles.tabletInfoToggleBtn} 
+                    onClick={() => setIsRightPaneCollapsed(!isRightPaneCollapsed)}
+                    title="Toggle details panel"
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: 'var(--text-secondary)',
+                      padding: '8px',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="12" y1="16" x2="12" y2="12"></line>
+                      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                  </button>
+                )}
+                <button 
+                  className={styles.desktopCloseBtn} 
+                  onClick={handleCloseTicketView}
+                  title="Close Ticket panel"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--text-secondary)',
+                    padding: '8px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
             </div>
           )}
 
           {/* Bottom: Split screen (Left: Thread/Reply, Right: Metadata Panel, separated by Divider) */}
           <div className={styles.splitContentArea}>
-            <div className={styles.threadAndReplyContainer}>
+            {(!isMobile || mobileView === "chat") && (
+              <div className={styles.threadAndReplyContainer}>
               {/* Conversational Group Messages inside Thread */}
               <div className={styles.thread}>
                 {activeTicket.messages.map((group) => {
@@ -1268,25 +1409,50 @@ export default function TicketsPage() {
                 </div>
               </div>
             </div>
+            )}
 
             {/* Resizable Divider inside Split Content Area */}
-            <div 
-              className={`${styles.resizableDivider} ${isDragging ? styles.resizableDividerActive : ""}`} 
-              onMouseDown={startResize}
-            >
-              <button className={styles.resizeHandleBtn} onClick={toggleCollapse} title={isRightPaneCollapsed ? "Expand Details" : "Collapse Details"}>
-                {isRightPaneCollapsed ? "«" : "»"}
-              </button>
-            </div>
+            {!isMobile && !isTablet && (
+              <div 
+                className={`${styles.resizableDivider} ${isDragging ? styles.resizableDividerActive : ""}`} 
+                onMouseDown={startResize}
+              >
+                <button className={styles.resizeHandleBtn} onClick={toggleCollapse} title={isRightPaneCollapsed ? "Expand Details" : "Collapse Details"}>
+                  {isRightPaneCollapsed ? "«" : "»"}
+                </button>
+              </div>
+            )}
+
+            {/* Tablet Backdrop Overlay */}
+            {isTablet && !isRightPaneCollapsed && (
+              <div 
+                className={styles.tabletBackdrop} 
+                onClick={() => setIsRightPaneCollapsed(true)} 
+              />
+            )}
 
             {/* Right side Metadata column */}
-            <div 
-              className={styles.metaCol} 
-              style={{ width: isRightPaneCollapsed ? "0px" : `${rightPaneWidth}px`, overflow: "hidden" }}
-            >
+            {(!isMobile || mobileView === "info") && (isTablet ? !isRightPaneCollapsed : true) && (
+              <div 
+                className={`${styles.metaCol} ${isTablet ? styles.tabletMetaCol : ""}`} 
+                style={{ 
+                  width: isMobile ? "100%" : (isTablet ? "380px" : (isRightPaneCollapsed ? "0px" : `${rightPaneWidth}px`)), 
+                  overflow: "hidden",
+                  borderLeft: isMobile ? "none" : "1px solid var(--border-primary)"
+                }}
+              >
               <div className={styles.metaSection}>
                 <div className={styles.metaHeader}>
                   <h2 className={styles.metaTitle}>Ticket #{activeTicket.id}</h2>
+                  {isTablet && (
+                    <button 
+                      className={styles.tabletCloseDrawerBtn}
+                      onClick={() => setIsRightPaneCollapsed(true)}
+                      title="Close details drawer"
+                    >
+                      ✕
+                    </button>
+                  )}
                   <span className={`${styles.tag} ${getTagClass(activeTicket.status)}`}>{activeTicket.status}</span>
                 </div>
                 <div className={styles.metaRow}>
@@ -1385,6 +1551,7 @@ export default function TicketsPage() {
                 </div>
               </div>
             </div>
+            )}
           </div>
         </div>
       ) : (
