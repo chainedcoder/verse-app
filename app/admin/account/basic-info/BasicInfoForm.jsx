@@ -141,6 +141,20 @@ export default function BasicInfoForm({ user }) {
 
           <div className="grid md:grid-cols-2 gap-6" style={{ marginBottom: '24px' }}>
             <div className="form-group">
+              <label className="form-label" style={{ color: 'var(--text-secondary)' }}>Display Name</label>
+              <input type="text" name="name" defaultValue={user.name || ''} placeholder="Display Name" required className="input bg-transparent border-none p-0 text-base font-medium shadow-none focus:ring-0 focus:border-none" style={{ color: 'var(--text-primary)' }} />
+            </div>
+            <div className="form-group">
+              <label className="form-label" style={{ color: 'var(--text-secondary)' }}>Username</label>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span style={{ color: 'var(--text-secondary)', paddingRight: '4px', fontSize: '15px', fontWeight: 600 }}>@</span>
+                <input type="text" name="username" defaultValue={user.username || ''} placeholder="username" className="input bg-transparent border-none p-0 text-base font-medium shadow-none focus:ring-0 focus:border-none" style={{ color: 'var(--text-primary)', width: '100%' }} />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6" style={{ marginBottom: '24px' }}>
+            <div className="form-group">
               <label className="form-label" style={{ color: 'var(--text-secondary)' }}>First Name</label>
               <input type="text" name="firstName" defaultValue={user.firstName || ''} placeholder="First Name" className="input bg-transparent border-none p-0 text-base font-medium shadow-none focus:ring-0 focus:border-none" style={{ color: 'var(--text-primary)' }} />
             </div>
@@ -152,12 +166,19 @@ export default function BasicInfoForm({ user }) {
 
           <div className="grid md:grid-cols-2 gap-6" style={{ marginBottom: '24px' }}>
             <div className="form-group">
-              <label className="form-label" style={{ color: 'var(--text-secondary)' }}>Job Title</label>
-              <input type="text" name="jobTitle" defaultValue={user.jobTitle || ''} placeholder="Job Title" className="input bg-transparent border-none p-0 text-base font-medium shadow-none focus:ring-0 focus:border-none" style={{ color: 'var(--text-primary)' }} />
+              <label className="form-label" style={{ color: 'var(--text-secondary)' }}>Website</label>
+              <input type="url" name="website" defaultValue={user.website || ''} placeholder="https://yourwebsite.com" className="input bg-transparent border-none p-0 text-base font-medium shadow-none focus:ring-0 focus:border-none" style={{ color: 'var(--text-primary)' }} />
             </div>
             <div className="form-group">
               <label className="form-label" style={{ color: 'var(--text-secondary)' }}>Location</label>
               <input type="text" name="location" defaultValue={user.location || ''} placeholder="Location" className="input bg-transparent border-none p-0 text-base font-medium shadow-none focus:ring-0 focus:border-none" style={{ color: 'var(--text-primary)' }} />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6" style={{ marginBottom: '24px' }}>
+            <div className="form-group">
+              <label className="form-label" style={{ color: 'var(--text-secondary)' }}>Job Title</label>
+              <input type="text" name="jobTitle" defaultValue={user.jobTitle || ''} placeholder="Job Title" className="input bg-transparent border-none p-0 text-base font-medium shadow-none focus:ring-0 focus:border-none" style={{ color: 'var(--text-primary)' }} />
             </div>
           </div>
 

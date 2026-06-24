@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
-export async function POST(req: Request, { params }: { params: { threadId: string } }) {
+export async function PATCH(req: Request, props: { params: Promise<{ id: string }> }) {
   try {
+    const params = await props.params;
     const session = await auth();
     if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -19,19 +20,26 @@ export async function POST(req: Request, { params }: { params: { threadId: strin
     if (!hasAccess) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const body = await req.json();
-    const { agentId, historyGrantedFrom, historyGrantedTo } = body;
+    const { assigneeId } = body;
 
-    const membership = await prisma.threadMembership.create({
+    const ticket = await prisma.ticket.findUnique({ where: { id: params.id } });
+    if (!ticket) return NextResponse.json({ error: "Ticket not found" }, { status: 404 });
+
+    const updatedTicket = await prisma.ticket.update({
+      where: { id: params.id },
+      data: { assigneeId }
+    });
+
+    await prisma.logEvent.create({
       data: {
-        threadId: params.threadId,
-        userId: agentId,
-        role: "admin",
-        historyGrantedFrom: historyGrantedFrom ? new Date(historyGrantedFrom) : null,
-        historyGrantedTo: historyGrantedTo ? new Date(historyGrantedTo) : null
+        operation: "Ticket Assigned",
+        actorId: session.user.id,
+        entityName: "Ticket",
+        changes: { ticketId: ticket.id, assigneeId }
       }
     });
 
-    return NextResponse.json({ membership }, { status: 201 });
+    return NextResponse.json({ ticket: updatedTicket });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

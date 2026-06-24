@@ -17,7 +17,7 @@ export default async function AdminDashboardPage() {
   });
 
   if (!currentUser || (currentUser.role !== "ADMIN" && currentUser.role !== "MODERATOR")) {
-    redirect("/");
+    redirect("/admin/support/tickets");
   }
   
   // Fetch actual platform content metrics

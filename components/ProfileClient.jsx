@@ -28,7 +28,7 @@ export default function ProfileClient({ user, poems, likedPoems, collections, in
             <span className="stat" style={{ cursor: "pointer" }} onClick={() => setActiveTab("following")}><strong>{user.followingCount}</strong> following</span>
           </div>
           <div style={{ display: "flex", gap: "12px" }}>
-            <Link href="/settings/profile" className="btn btn-ghost btn-sm">
+            <Link href="/dash/account/basic-info" className="btn btn-ghost btn-sm">
               <i className="ti ti-edit" aria-hidden="true"></i> Edit Profile
             </Link>
             <Link href="/write" className="btn btn-primary btn-sm">

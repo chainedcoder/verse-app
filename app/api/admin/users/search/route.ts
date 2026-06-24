@@ -2,36 +2,45 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
-export async function POST(req: Request, { params }: { params: { threadId: string } }) {
+export async function GET(req: Request) {
   try {
     const session = await auth();
     if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    const dbUser = await prisma.user.findUnique({ 
+    const dbUser = await prisma.user.findUnique({
       where: { id: session.user.id },
       include: { permissionGroup: true }
     });
-    
+
     const isSuperAdmin = dbUser?.role === "ADMIN" || dbUser?.role === "Super Administrator";
     const userPerms = (dbUser?.permissions as any) || (dbUser?.permissionGroup?.permissions as any) || {};
     const hasAccess = isSuperAdmin || dbUser?.role === "MODERATOR" || userPerms?.manageSupport === true || userPerms?.system?.length > 0 || userPerms?.user?.length > 0;
 
     if (!hasAccess) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-    const body = await req.json();
-    const { agentId, historyGrantedFrom, historyGrantedTo } = body;
+    const { searchParams } = new URL(req.url);
+    const query = searchParams.get("q");
 
-    const membership = await prisma.threadMembership.create({
-      data: {
-        threadId: params.threadId,
-        userId: agentId,
-        role: "admin",
-        historyGrantedFrom: historyGrantedFrom ? new Date(historyGrantedFrom) : null,
-        historyGrantedTo: historyGrantedTo ? new Date(historyGrantedTo) : null
-      }
+    if (!query || query.trim() === "") {
+      return NextResponse.json({ users: [] });
+    }
+
+    const users = await prisma.user.findMany({
+      where: {
+        OR: [
+          { name: { contains: query, mode: "insensitive" } },
+          { email: { contains: query, mode: "insensitive" } }
+        ]
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true
+      },
+      take: 10
     });
 
-    return NextResponse.json({ membership }, { status: 201 });
+    return NextResponse.json({ users });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

@@ -49,7 +49,7 @@ function getUserAvatar(user) {
 
 // Helper to map roles to elegant system/access roles as expected in Verse
 function getUserJobTitle(user) {
-  if (user.role === "ADMIN") return "Admin"
+  if (["ADMIN", "Super Administrator"].includes(user.role)) return "Admin"
   if (user.role === "MODERATOR") return "Moderator"
   return "User"
 }
@@ -500,14 +500,14 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
     })
   }
 
-  const handleRoleChange = (userId, newRole) => {
-    if (currentUserRole !== "ADMIN") { 
+  const handleRoleChange = (userId, newRole, permissionGroupId) => {
+    if (!["ADMIN", "Super Administrator"].includes(currentUserRole)) { 
       showToast("Only Administrators can change roles.", "error")
       return 
     }
     const targetUser = users.find(u => u.id === userId)
     startTransition(async () => {
-      const res = await updateUserRole(userId, newRole)
+      const res = await updateUserRole(userId, newRole, permissionGroupId)
       if (res.success) {
         setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u))
         if (targetUser) {
@@ -552,7 +552,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
   }
 
   const handleSoftDelete = async (userId, userName) => {
-    if (currentUserRole !== "ADMIN") { 
+    if (!["ADMIN", "Super Administrator"].includes(currentUserRole)) { 
       showToast("Only Administrators can delete users.", "error")
       return 
     }
@@ -577,7 +577,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
   }
 
   const handleNuclearDelete = async (userId, userName) => {
-    if (currentUserRole !== "ADMIN") { 
+    if (!["ADMIN", "Super Administrator"].includes(currentUserRole)) { 
       showToast("Only Administrators can permanently delete users.", "error")
       return 
     }
@@ -711,7 +711,8 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
         email: addEmail,
         password: addPassword,
         role: finalRoleName,
-        permissions
+        permissions,
+        permissionGroupId: chosenGroup ? chosenGroup.id : null
       })
       if (res.success) {
         showToast(`User "${addName}" created successfully!`, "success")
@@ -738,13 +739,11 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
   const handleEditUserSubmit = (e) => {
     e.preventDefault()
     startTransition(async () => {
-      // 1. If role changed, call server action to persist
-      if (editingUser.role !== editRole) {
-        const res = await updateUserRole(editingUser.id, editRole)
-        if (!res.success) {
-          showToast(res.error || "Failed to update role", "error")
-          return
-        }
+      // 1. Always call server action to persist role/group
+      const res = await updateUserRole(editingUser.id, editRole, selectedGroupId)
+      if (!res.success) {
+        showToast(res.error || "Failed to update role", "error")
+        return
       }
       
       // 2. Update local state so Name, Surname, Email, and Role update in the datatable instantly!
@@ -783,10 +782,10 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
   // Role mapping for filter label
   const roleLabelText = useMemo(() => {
     if (roleFilter === "ALL") return "Role"
-    if (roleFilter === "USER") return "User"
-    if (roleFilter === "MODERATOR") return "Moderator"
-    return "Admin"
-  }, [roleFilter])
+    const group = localGroups.find(g => g.name === roleFilter)
+    if (group) return group.name
+    return roleFilter
+  }, [roleFilter, localGroups])
 
   return (
     <>
@@ -959,13 +958,13 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
               style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', overflow: 'hidden', pointerEvents: 'none' }}
             >
               <option value="ALL">All Roles</option>
-              <option value="USER">User</option>
-              <option value="MODERATOR">Moderator</option>
-              <option value="ADMIN">Admin</option>
+              {localGroups.map(g => (
+                <option key={g.id} value={g.name}>{g.name}</option>
+              ))}
             </select>
             {activeDropdown === 'role' && (
               <div className="custom-dropdown-popover" onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-secondary)', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '140px' }}>
-                {[['ALL', 'All Roles'], ['USER', 'User'], ['MODERATOR', 'Moderator'], ['ADMIN', 'Admin']].map(([val, label]) => (
+                {[['ALL', 'All Roles'], ...localGroups.map(g => [g.name, g.name])].map(([val, label]) => (
                   <button key={val} onClick={() => { handleLiveRoleFilter(val); setActiveDropdown(null); }} style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: 'var(--text-primary)', background: val === roleFilter ? 'var(--bg-secondary)' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === roleFilter ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }} onMouseEnter={(e) => e.target.style.backgroundColor = 'var(--bg-secondary)'} onMouseLeave={(e) => e.target.style.backgroundColor = val === roleFilter ? 'var(--bg-secondary)' : 'transparent'}>
                     <span>{label}</span>
                     {val === roleFilter && <Check size={14} color="var(--accent)" />}
@@ -1120,8 +1119,8 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
             border: 'none',
             boxShadow: 'inset 0 0 12px rgba(0,0,0,0.02)'
           }}>
-             {['ADMIN', 'MODERATOR', 'USER'].map(r => (
-               <div key={r} style={{
+             {localGroups.map(group => (
+               <div key={group.name} style={{
                  flex: '1 1 300px', 
                  minWidth: '280px',
                  maxWidth: '400px',
@@ -1143,16 +1142,16 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                    justifyContent: 'space-between', 
                    alignItems: 'center'
                  }}>
-                   {r === 'ADMIN' ? 'Admins' : r === 'MODERATOR' ? 'Moderators' : 'Users'}
+                   {group.name}s
                    <span style={{
-                     background: r === 'ADMIN' ? '#fee2e2' : r === 'MODERATOR' ? '#f5f3ff' : 'var(--bg-secondary)', 
-                     color: r === 'ADMIN' ? '#991b1b' : r === 'MODERATOR' ? '#5b21b6' : '#475569',
+                     background: group.color ? `${group.color}20` : 'var(--bg-secondary)', 
+                     color: group.color || '#475569',
                      padding: '4px 10px', 
                      borderRadius: '100px', 
                      fontSize: '11px',
                      fontWeight: '700'
                    }}>
-                     {paginatedUsers.filter(u => u.role === r).length}
+                     {paginatedUsers.filter(u => u.role === group.name).length}
                    </span>
                  </h3>
                  <div style={{
@@ -1164,7 +1163,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                    border: '1px solid var(--border-secondary)',
                    overflow: 'hidden'
                  }} className="custom-board-scrollbar">
-                   {paginatedUsers.filter(u => u.role === r).map(user => (
+                   {paginatedUsers.filter(u => u.role === group.name).map(user => (
                      <div key={user.id} style={{
                        border: '1px solid var(--border-secondary)', 
                        borderRadius: '16px', 
@@ -1183,9 +1182,9 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                        </div>
                      </div>
                    ))}
-                   {paginatedUsers.filter(u => u.role === r).length === 0 && (
+                   {paginatedUsers.filter(u => u.role === group.name).length === 0 && (
                      <div style={{textAlign: 'center', color: '#94a3b8', fontSize: '12px', padding: '32px 0', fontStyle: 'italic'}}>
-                       No {r.toLowerCase()}s found
+                       No {group.name.toLowerCase()}s found
                      </div>
                    )}
                  </div>
@@ -1227,8 +1226,8 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                       fontWeight: '700',
                       padding: '4px 10px',
                       borderRadius: '100px',
-                      background: user.role === 'ADMIN' ? '#fee2e2' : user.role === 'MODERATOR' ? '#f5f3ff' : 'var(--bg-secondary)',
-                      color: user.role === 'ADMIN' ? '#991b1b' : user.role === 'MODERATOR' ? '#5b21b6' : '#475569'
+                      background: ["ADMIN", "Super Administrator"].includes(user.role) ? '#fee2e2' : user.role === 'MODERATOR' ? '#f5f3ff' : 'var(--bg-secondary)',
+                      color: ["ADMIN", "Super Administrator"].includes(user.role) ? '#991b1b' : user.role === 'MODERATOR' ? '#5b21b6' : '#475569'
                     }}>{user.role}</span>
                     <span style={{
                       fontSize: '11px', 
@@ -1258,7 +1257,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                         ref={el => { if (el) el.indeterminate = somePageSelected && !allPageSelected }}
                         onChange={toggleSelectAll}
                         aria-label="Select all users on page"
-                        disabled={currentUserRole !== "ADMIN"}
+                        disabled={!["ADMIN", "Super Administrator"].includes(currentUserRole)}
                       />
                     </th>
                     {!hiddenColumns.has("name") && <th {...thProps("name", "Full name")} aria-label="User" />}
@@ -1303,7 +1302,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                             checked={selectedIds.has(user.id)}
                             onChange={() => toggleSelectUser(user.id)}
                             aria-label={`Select ${user.name}`}
-                            disabled={currentUserRole !== "ADMIN" || isDeleted}
+                            disabled={!["ADMIN", "Super Administrator"].includes(currentUserRole) || isDeleted}
                           />
                         </td>
 
@@ -1339,25 +1338,25 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                               <button
                                 type="button"
                                 onClick={() => {
-                                  if (currentUserRole === "ADMIN" && !isDeleted) {
+                                  if (["ADMIN", "Super Administrator"].includes(currentUserRole) && !isDeleted) {
                                     setActiveRowRoleDropdownId(activeRowRoleDropdownId === user.id ? null : user.id)
                                     setActiveRowStatusDropdownId(null)
                                   }
                                 }}
                                 className="role-badge-btn"
-                                style={{ background: 'none', border: 'none', padding: 0, cursor: currentUserRole === "ADMIN" && !isDeleted ? 'pointer' : 'default', outline: 'none' }}
+                                style={{ background: 'none', border: 'none', padding: 0, cursor: ["ADMIN", "Super Administrator"].includes(currentUserRole) && !isDeleted ? 'pointer' : 'default', outline: 'none' }}
                               >
                                 <span className="role-display-text">{displayRole}</span>
                               </button>
                               
                               {activeRowRoleDropdownId === user.id && (
                                 <div className="custom-row-dropdown" style={{ position: 'absolute', top: '110%', left: 0, backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-secondary)', borderRadius: '8px', padding: '6px', zIndex: 110, display: 'flex', flexDirection: 'column', gap: '4px', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', width: '130px' }}>
-                                  {[['USER', 'User'], ['MODERATOR', 'Mod'], ['ADMIN', 'Admin']].map(([val, label]) => (
+                                  {localGroups.map(g => [g.id, g.name, g.name]).map(([id, val, label]) => (
                                     <button
                                       key={val}
                                       type="button"
                                       onClick={() => {
-                                        handleRoleChange(user.id, val)
+                                        handleRoleChange(user.id, val, id)
                                         setActiveRowRoleDropdownId(null)
                                       }}
                                       style={{ textAlign: 'left', padding: '8px 10px', fontSize: '13px', color: 'var(--text-primary)', background: val === user.role ? 'var(--bg-secondary)' : 'none', border: 'none', borderRadius: '6px', cursor: 'pointer', fontWeight: val === user.role ? '600' : '500', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
@@ -1371,16 +1370,19 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
 
                               {/* Hidden native select for role modifications */}
                               <select
-                                aria-label={`Role for user: ${user.role === "USER" ? "User" : user.role === "MODERATOR" ? "Mod" : "Admin"}`}
-                                disabled={isPending || isDeleted || currentUserRole !== "ADMIN"}
+                                aria-label={`Role for user: ${user.role}`}
+                                disabled={isPending || isDeleted || !["ADMIN", "Super Administrator"].includes(currentUserRole)}
                                 value={user.role}
-                                onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                                onChange={(e) => {
+                                  const group = localGroups.find(g => g.name === e.target.value);
+                                  handleRoleChange(user.id, e.target.value, group?.id);
+                                }}
                                 className="role-cell-select-hidden-overlay"
                                 style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', overflow: 'hidden', pointerEvents: 'none' }}
                               >
-                                <option value="USER">User</option>
-                                <option value="MODERATOR">Mod</option>
-                                <option value="ADMIN">Admin</option>
+                                {localGroups.map(g => (
+                                  <option key={g.id} value={g.name}>{g.name}</option>
+                                ))}
                               </select>
                             </div>
                           </td>
@@ -1393,7 +1395,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                               <button
                                 type="button"
                                 onClick={() => {
-                                  if (!isDeleted && !(user.role === "ADMIN" && currentUserRole !== "ADMIN")) {
+                                  if (!isDeleted && !(["ADMIN", "Super Administrator"].includes(user.role) && !["ADMIN", "Super Administrator"].includes(currentUserRole))) {
                                     setActiveRowStatusDropdownId(activeRowStatusDropdownId === user.id ? null : user.id)
                                     setActiveRowRoleDropdownId(null)
                                   }
@@ -1433,7 +1435,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                                 className="status-cell-select-hidden-overlay"
                                 value={user.status}
                                 onChange={(e) => handleStatusChange(user.id, e.target.value)}
-                                disabled={isPending || isDeleted || (user.role === "ADMIN" && currentUserRole !== "ADMIN")}
+                                disabled={isPending || isDeleted || (["ADMIN", "Super Administrator"].includes(user.role) && !["ADMIN", "Super Administrator"].includes(currentUserRole))}
                                 style={{ position: 'absolute', opacity: 0, width: '1px', height: '1px', overflow: 'hidden', pointerEvents: 'none' }}
                               >
                                 <option value="ACTIVE">Active</option>
@@ -1498,7 +1500,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                               <span>Edit</span>
                             </button>
                             
-                            {currentUserRole === "ADMIN" && (
+                            {["ADMIN", "Super Administrator"].includes(currentUserRole) && (
                               <button
                                 className="adt-action-btn delete-btn"
                                 onClick={() => handleSoftDelete(user.id, user.name)}
@@ -1515,7 +1517,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                             <button
                               className="adt-hidden-action-btn"
                               onClick={() => handleStatusChange(user.id, user.status === "BANNED" ? "ACTIVE" : "BANNED")}
-                              disabled={isPending || isDeleted || (user.role === "ADMIN" && currentUserRole !== "ADMIN")}
+                              disabled={isPending || isDeleted || (["ADMIN", "Super Administrator"].includes(user.role) && !["ADMIN", "Super Administrator"].includes(currentUserRole))}
                               title={user.status === "BANNED" ? "Unban user" : "Ban user"}
                               aria-label={user.status === "BANNED" ? "Unban" : "Ban"}
                               type="button"
@@ -1523,7 +1525,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                               {user.status === "BANNED" ? "Unban" : "Ban"}
                             </button>
 
-                            {currentUserRole === "ADMIN" && (
+                            {["ADMIN", "Super Administrator"].includes(currentUserRole) && (
                               <button
                                 className="adt-hidden-action-btn"
                                 onClick={() => handleNuclearDelete(user.id, user.name)}
@@ -1654,7 +1656,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
         </div>
 
         {/* Bulk Actions Bar */}
-        {selectedIds.size > 0 && currentUserRole === "ADMIN" && (
+        {selectedIds.size > 0 && ["ADMIN", "Super Administrator"].includes(currentUserRole) && (
           <div className="adt-selection-bar admin-selection-bar" role="status" aria-live="polite">
             <span className="adt-bar-count admin-selection-bar__count">
               <strong>{selectedIds.size}</strong> user{selectedIds.size !== 1 ? "s" : ""} selected

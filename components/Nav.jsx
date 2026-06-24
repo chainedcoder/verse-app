@@ -293,8 +293,12 @@ export default function Nav() {
                         <i className="ti ti-user" style={{ fontSize: "16px" }}></i> Profile
                       </Link>
                       
-                      <Link href="/settings/profile" onClick={() => setShowDropdown(false)} style={{ padding: "12px 16px", textDecoration: "none", color: "var(--text-primary)", fontSize: "14px", display: "flex", alignItems: "center", gap: "8px" }}>
+                      <Link href="/dash/account/basic-info" onClick={() => setShowDropdown(false)} style={{ padding: "12px 16px", textDecoration: "none", color: "var(--text-primary)", fontSize: "14px", display: "flex", alignItems: "center", gap: "8px" }}>
                         <i className="ti ti-settings" style={{ fontSize: "16px" }}></i> Settings
+                      </Link>
+                      
+                      <Link href="/dash/support/tickets" onClick={() => setShowDropdown(false)} style={{ padding: "12px 16px", textDecoration: "none", color: "var(--text-primary)", fontSize: "14px", display: "flex", alignItems: "center", gap: "8px" }}>
+                        <i className="ti ti-help" style={{ fontSize: "16px" }}></i> Support
                       </Link>
                       
                       <button 
@@ -351,7 +355,8 @@ export default function Nav() {
           <>
             <Button href="/write" variant="primary" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Write</Button>
             <Button href="/profile" variant="ghost" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Profile</Button>
-            <Button href="/settings/profile" variant="ghost" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Settings</Button>
+            <Button href="/dash/account/basic-info" variant="ghost" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Settings</Button>
+            <Button href="/dash/support/tickets" variant="ghost" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Support</Button>
             <hr className={styles.mobileDrawerDivider} />
           </>
         )}

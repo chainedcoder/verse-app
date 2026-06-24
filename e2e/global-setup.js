@@ -15,8 +15,8 @@ export default async function globalSetup() {
   }
 
   // Push schema to test DB and force reset it
-  execSync('npx prisma db push --force-reset --accept-data-loss', { stdio: 'inherit' });
+  // execSync('npx prisma db push --force-reset --accept-data-loss', { stdio: 'inherit' });
   
   // Run seed script
-  execSync('node prisma/seed.mjs', { stdio: 'inherit' });
+  // execSync('node prisma/seed.mjs', { stdio: 'inherit' });
 }

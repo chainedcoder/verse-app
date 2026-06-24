@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { getTheme, getAccent, setTheme as setAppTheme, setAccent as setAppAccent } from '@/lib/theme';
+import { useSession } from 'next-auth/react';
 
 // --- SVGs & Icons ---
 const IconHome = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>;
@@ -24,6 +25,17 @@ const IconMonitor = () => <svg width="20" height="20" fill="none" stroke="curren
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  
+  const userName = session?.user?.name || session?.user?.email || "Admin User";
+  const userRole = session?.user?.role || "USER";
+  const userPerms = session?.user?.permissions || {};
+  
+  const isSuperAdmin = userRole === "ADMIN" || userRole === "Super Administrator";
+  const userRoleLabel = isSuperAdmin ? "Administrator" : (userRole === "MODERATOR" ? "Moderator" : userRole);
+  
+  const hasAnyPermission = Object.keys(userPerms).some(key => Array.isArray(userPerms[key]) && userPerms[key].length > 0) || userPerms.manageSupport;
+  const isAdminOrMod = isSuperAdmin || userRole === "MODERATOR" || hasAnyPermission;
   
   // Sidebar expand state (default to narrow/collapsed)
   const [isExpandedState, setIsExpandedState] = useState(false);
@@ -119,7 +131,7 @@ export default function Sidebar() {
     await signOut({ callbackUrl: '/login' });
   };
 
-  const navSchema = [
+  const navSchema = isAdminOrMod ? [
     {
       id: 'dashboard',
       label: 'Dashboard',
@@ -179,6 +191,33 @@ export default function Sidebar() {
         { label: 'Live Chat', href: '/admin/support/chat' },
         { label: 'History', href: '/admin/support/history' },
         { label: 'Settings', href: '/admin/support/settings' }
+      ]
+    }
+  ] : [
+    {
+      id: 'home',
+      label: 'Home',
+      icon: <IconHome />,
+      href: '/dash'
+    },
+    {
+      id: 'support',
+      label: 'Support & Chat',
+      icon: <IconSupport />,
+      subItems: [
+        { label: 'My Tickets', href: '/admin/support/tickets' },
+        { label: 'Live Chat', href: '/admin/support/chat' }
+      ]
+    },
+    {
+      id: 'account',
+      label: 'Account Settings',
+      icon: <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>,
+      subItems: [
+        { label: 'Basic Info', href: '/admin/account/basic-info' },
+        { label: 'Preferences', href: '/admin/account/preferences' },
+        { label: 'Device Management', href: '/admin/account/recent-devices' },
+        { label: 'Billing', href: '/admin/account/billing' }
       ]
     }
   ];
@@ -243,7 +282,7 @@ export default function Sidebar() {
           width: isExpanded ? '260px' : '80px',
           transition: 'width 0.2s cubic-bezier(0.16, 1, 0.3, 1), left 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
           alignItems: 'center',
-          padding: isExpanded ? '24px 16px' : '24px 0',
+          padding: isExpanded ? '24px 16px' : '16px 0',
           backgroundColor: theme === 'light' ? 'var(--accent, #7c3aed)' : '#111116',
           color: 'rgba(255, 255, 255, 0.65)',
           boxShadow: '4px 0 20px rgba(0,0,0,0.4)',
@@ -291,29 +330,31 @@ export default function Sidebar() {
         )}
 
       {/* Header Brand Logo Block */}
-      <div style={{ 
-        width: '100%', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        marginBottom: '32px',
-        padding: isExpanded ? '0 8px' : '0'
-      }}>
-        {isExpanded ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', paddingLeft: '8px' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', flexShrink: 0 }}>
-              <span style={{ fontSize: '18px', fontWeight: 700, fontFamily: "'Playfair Display', serif" }}>v</span>
+      <Link href="/" style={{ textDecoration: 'none', width: '100%' }}>
+        <div style={{ 
+          width: '100%', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          marginBottom: isExpanded ? '32px' : '12px',
+          padding: isExpanded ? '0 8px' : '0'
+        }}>
+          {isExpanded ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', paddingLeft: '8px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', flexShrink: 0 }}>
+                <span style={{ fontSize: '18px', fontWeight: 700, fontFamily: "'Playfair Display', serif" }}>v</span>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'flex-start' }}>
+                <span style={{ fontSize: '16px', fontWeight: 700, color: 'white', letterSpacing: '-0.01em', fontFamily: "'Playfair Display', serif" }}>verse</span>
+              </div>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'flex-start' }}>
-              <span style={{ fontSize: '16px', fontWeight: 700, color: 'white', letterSpacing: '-0.01em', fontFamily: "'Playfair Display', serif" }}>verse</span>
+          ) : (
+            <div style={{ width: '48px', height: '48px', borderRadius: '16px', backgroundColor: 'rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+              <span style={{ fontSize: '20px', fontWeight: 700, fontFamily: "'Playfair Display', serif" }}>v</span>
             </div>
-          </div>
-        ) : (
-          <div style={{ width: '48px', height: '48px', borderRadius: '16px', backgroundColor: 'rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-            <span style={{ fontSize: '20px', fontWeight: 700, fontFamily: "'Playfair Display', serif" }}>v</span>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      </Link>
 
       {/* Navigation List */}
       <nav style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, padding: isExpanded ? '0 4px' : '0 16px', overflowY: isExpanded ? 'auto' : 'visible', overflowX: isExpanded ? 'hidden' : 'visible' }}>
@@ -679,8 +720,8 @@ export default function Sidebar() {
             </div>
             {isExpanded && (
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', overflow: 'hidden' }}>
-                <span style={{ fontSize: '13px', fontWeight: 600, color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', textAlign: 'left' }}>Admin User</span>
-                <span style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.45)' }}>Administrator</span>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: 'white', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%', textAlign: 'left' }}>{userName}</span>
+                <span style={{ fontSize: '11px', color: 'rgba(255, 255, 255, 0.45)' }}>{userRoleLabel}</span>
               </div>
             )}
           </button>
@@ -709,8 +750,8 @@ export default function Sidebar() {
                   <img src="https://i.pravatar.cc/150?img=11" alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'white' }}>Admin User</span>
-                  <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)' }}>Administrator</span>
+                  <span style={{ fontSize: '13px', fontWeight: 600, color: 'white' }}>{userName}</span>
+                  <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)' }}>{userRoleLabel}</span>
                 </div>
               </div>
 

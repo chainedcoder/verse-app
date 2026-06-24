@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
 import styles from "./Tickets.module.css";
 import { TICKETS_DATA } from "./mockData";
+import { useSession } from "next-auth/react";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
 
@@ -86,6 +87,10 @@ const getTagClass = (status) => {
 };
 
 export default function TicketsPage() {
+  const { data: session } = useSession();
+  const currentUserRole = session?.user?.role || "USER";
+  const isUser = currentUserRole === "USER";
+
   const [activeTickets, setActiveTickets] = useState(TICKETS_DATA);
   const [activeTabs, setActiveTabs] = useState([TICKETS_DATA[0], TICKETS_DATA[2], TICKETS_DATA[1], TICKETS_DATA[15], TICKETS_DATA[14]]);
   const [activeTabId, setActiveTabId] = useState(TICKETS_DATA[0].id);
@@ -248,6 +253,16 @@ export default function TicketsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  useEffect(() => {
+    if (isUser && session?.user && !selectedUser) {
+      setSelectedUser({
+        id: session.user.id,
+        name: session.user.name || session.user.email || "You",
+        email: session.user.email || ""
+      });
+    }
+  }, [isUser, session, selectedUser]);
   const [newTicketForm, setNewTicketForm] = useState({ title: "", snippet: "", category: "General", priority: "Medium", entityType: "Post", entityId: "", entityName: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -1249,9 +1264,11 @@ export default function TicketsPage() {
                     <span className={styles.replyBadge}>{activeTicket.reporter?.initials || "JD"}</span>
                     <span>{activeTicket.reporter?.email || "janedoe@mail.com"}</span>
                   </div>
-                  <div className={styles.replyCcContainer} onClick={() => setShowCcModal(true)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span className={styles.replyCc} style={{ color: 'var(--accent)', fontWeight: 500 }}>+ Add CC</span>
-                  </div>
+                  {!isUser && (
+                    <div className={styles.replyCcContainer} onClick={() => setShowCcModal(true)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span className={styles.replyCc} style={{ color: 'var(--accent)', fontWeight: 500 }}>+ Add CC</span>
+                    </div>
+                  )}
                 </div>
                 <div className={styles.quillContainer}>
                   {typeof process !== "undefined" && process.env.NODE_ENV === "test" ? (
@@ -1332,14 +1349,19 @@ export default function TicketsPage() {
                   <div className={styles.customDropdownContainer}>
                     <span 
                       className={`${styles.tag} ${getTagClass(activeTicket.status)}`}
-                      onClick={(e) => { e.stopPropagation(); setShowStatusMenu(!showStatusMenu); }}
-                      style={{ cursor: 'pointer' }}
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        if (!isUser || activeTicket.status !== "Closed") {
+                          setShowStatusMenu(!showStatusMenu); 
+                        }
+                      }}
+                      style={{ cursor: (isUser && activeTicket.status === "Closed") ? 'default' : 'pointer' }}
                     >
-                      {activeTicket.status} ▼
+                      {activeTicket.status} {(isUser && activeTicket.status === "Closed") ? "" : "▼"}
                     </span>
                     {showStatusMenu && (
                       <div className={styles.customDropdownMenu} style={{ top: '100%', left: 0, right: 0, marginTop: '4px' }}>
-                        {['Open', 'In Progress', 'Resolved', 'Closed'].map(status => (
+                        {(isUser ? ['Resolved', 'Closed'] : ['Open', 'In Progress', 'Resolved', 'Closed']).map(status => (
                           <div 
                             key={status}
                             className={`${styles.customDropdownItem} custom-select-option`}
@@ -1366,14 +1388,17 @@ export default function TicketsPage() {
                   <div className={styles.customDropdownContainer} style={{ width: '100%' }}>
                     <div 
                       className={styles.metaBox} 
-                      onClick={(e) => { e.stopPropagation(); setShowAssignMenu(!showAssignMenu); }} 
-                      style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        if (!isUser) setShowAssignMenu(!showAssignMenu); 
+                      }} 
+                      style={{ cursor: isUser ? 'default' : 'pointer', display: 'flex', alignItems: 'center' }}
                     >
                       <div className={styles.metaAvatar} style={{ background: '#f0f0f0' }}>{activeTicket.assignee?.initials || "?"}</div>
                       <span>{activeTicket.assignee?.name || "Unassigned"}</span>
-                      <span style={{ marginLeft: 'auto', color: 'var(--text-tertiary)', fontSize: '10px' }}>▼</span>
+                      {!isUser && <span style={{ marginLeft: 'auto', color: 'var(--text-tertiary)', fontSize: '10px' }}>▼</span>}
                     </div>
-                    {showAssignMenu && (
+                    {showAssignMenu && !isUser && (
                       <div className={styles.customDropdownMenu} style={{ top: '100%', left: 0, right: 0, marginTop: '4px' }}>
                         {agents.map(agent => (
                           <div 
@@ -1591,43 +1616,45 @@ export default function TicketsPage() {
               <button className={styles.closeBtn} onClick={() => setShowCreateModal(false)}>×</button>
             </div>
             <div className={styles.modalBody}>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Select User</label>
-                {!selectedUser ? (
-                  <>
-                    <input 
-                      type="text" 
-                      className={styles.input} 
-                      placeholder="Search by name or email..." 
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                    {isSearching && <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>Searching...</div>}
-                    {searchResults.length > 0 && (
-                      <div className={styles.searchResultContainer}>
-                        {searchResults.map(user => (
-                          <div 
-                            key={user.id} 
-                            className={styles.searchResultItem}
-                            onClick={() => { setSelectedUser(user); setSearchQuery(""); }}
-                          >
-                            <div className={styles.searchResultName}>{user.name || "Unknown"}</div>
-                            <div className={styles.searchResultEmail}>{user.email}</div>
-                          </div>
-                        ))}
+              {!isUser && (
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Select User</label>
+                  {!selectedUser ? (
+                    <>
+                      <input 
+                        type="text" 
+                        className={styles.input} 
+                        placeholder="Search by name or email..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                      {isSearching && <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>Searching...</div>}
+                      {searchResults.length > 0 && (
+                        <div className={styles.searchResultContainer}>
+                          {searchResults.map(user => (
+                            <div 
+                              key={user.id} 
+                              className={styles.searchResultItem}
+                              onClick={() => { setSelectedUser(user); setSearchQuery(""); }}
+                            >
+                              <div className={styles.searchResultName}>{user.name || "Unknown"}</div>
+                              <div className={styles.searchResultEmail}>{user.email}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px', background: 'var(--bg-secondary)', borderRadius: '8px', border: '1px solid var(--border-primary)' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: '600', fontSize: '14px' }}>{selectedUser.name}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{selectedUser.email}</div>
                       </div>
-                    )}
-                  </>
-                ) : (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px', background: 'var(--bg-secondary)', borderRadius: '8px', border: '1px solid var(--border-primary)' }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: '600', fontSize: '14px' }}>{selectedUser.name}</div>
-                      <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{selectedUser.email}</div>
+                      <button onClick={() => setSelectedUser(null)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>✕</button>
                     </div>
-                    <button onClick={() => setSelectedUser(null)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>✕</button>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
               <div className={styles.formGroup}>
                 <label className={styles.label}>Ticket Title</label>
                 <input 

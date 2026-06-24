@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
-export async function POST(req: Request, { params }: { params: { threadId: string } }) {
+export async function GET(req: Request) {
   try {
     const session = await auth();
     if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -18,20 +18,12 @@ export async function POST(req: Request, { params }: { params: { threadId: strin
 
     if (!hasAccess) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-    const body = await req.json();
-    const { agentId, historyGrantedFrom, historyGrantedTo } = body;
-
-    const membership = await prisma.threadMembership.create({
-      data: {
-        threadId: params.threadId,
-        userId: agentId,
-        role: "admin",
-        historyGrantedFrom: historyGrantedFrom ? new Date(historyGrantedFrom) : null,
-        historyGrantedTo: historyGrantedTo ? new Date(historyGrantedTo) : null
-      }
+    const agents = await prisma.user.findMany({
+      where: { role: "ADMIN" },
+      select: { id: true, name: true, email: true }
     });
 
-    return NextResponse.json({ membership }, { status: 201 });
+    return NextResponse.json({ agents });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

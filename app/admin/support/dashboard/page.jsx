@@ -1,11 +1,32 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 export default function SupportDashboard() {
+  const [ticketData, setTicketData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/admin/tickets")
+      .then(res => res.json())
+      .then(data => {
+        if (data.tickets) {
+          setTicketData(data.tickets);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to load tickets", err);
+        setLoading(false);
+      });
+  }, []);
+
+  const activeTicketsCount = ticketData.filter(t => t.status !== "Closed" && t.status !== "Resolved").length;
+  const resolvedTicketsCount = ticketData.filter(t => t.status === "Closed" || t.status === "Resolved").length;
+
   const stats = [
-    { label: "Active Tickets", value: "12", change: "+2 from yesterday" },
-    { label: "Resolved Today", value: "36", change: "94% target met" },
+    { label: "Active Tickets", value: loading ? "..." : activeTicketsCount, change: "+2 from yesterday" },
+    { label: "Resolved Total", value: loading ? "..." : resolvedTicketsCount, change: "94% target met" },
     { label: "Avg. First Response", value: "14m", change: "-3m from last week" },
     { label: "Customer Sat.", value: "98.4%", change: "+0.2% vs avg" }
   ];

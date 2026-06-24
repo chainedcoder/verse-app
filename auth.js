@@ -219,6 +219,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         })
       }
       
+      // Dynamically load user role from the database to support elevation
+      if (token?.sub) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.sub },
+            select: { role: true, permissions: true, permissionGroup: { select: { permissions: true } } }
+          })
+          if (dbUser) {
+            token.role = dbUser.role
+            token.permissions = dbUser.permissions || dbUser.permissionGroup?.permissions || {}
+          }
+        } catch (error) {
+          console.error("Error loading user role in jwt callback:", error)
+        }
+      }
+      
       // Verify the session hasn't been revoked
       if (token.sessionId) {
         try {
@@ -237,6 +253,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (!token) return null
       if (token?.sub) {
         session.user.id = token.sub
+      }
+      if (token?.role) {
+        session.user.role = token.role
+      }
+      if (token?.permissions) {
+        session.user.permissions = token.permissions
       }
       // Pass the session token to the client so it knows its current session
       if (token?.sessionId) {

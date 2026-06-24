@@ -12,8 +12,9 @@ export async function PATCH(req: Request, { params }: { params: { threadId: stri
       include: { permissionGroup: true }
     });
     
-    const hasAccess = dbUser?.role === "ADMIN" || 
-      (dbUser?.permissionGroup?.permissions as any)?.manageSupport === true;
+    const isSuperAdmin = dbUser?.role === "ADMIN" || dbUser?.role === "Super Administrator";
+    const userPerms = (dbUser?.permissions as any) || (dbUser?.permissionGroup?.permissions as any) || {};
+    const hasAccess = isSuperAdmin || dbUser?.role === "MODERATOR" || userPerms?.manageSupport === true || userPerms?.system?.length > 0 || userPerms?.user?.length > 0;
 
     if (!hasAccess) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 

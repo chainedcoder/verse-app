@@ -2,251 +2,109 @@
 
 import React, { useState, useEffect } from "react";
 import styles from "./Chat.module.css";
+import { useSession } from "next-auth/react";
 
-const INITIAL_CHATS = {
-  pinned: [
-    {
-      id: "ariana",
-      name: "Ariana Grande",
-      time: "02:23",
-      snippet: "Hey, I just signed up for your...",
-      unread: 2,
-      pinned: true,
-      initials: "AG",
-      flag: "🇺🇸",
-      messages: [
-        {
-          id: "m1",
-          sender: "user",
-          senderName: "Ariana Grande",
-          avatar: "AG",
-          time: "02:23",
-          bubbles: [
-            "Hey, I just signed up for your platform.",
-            "I love the poetry themes so far!"
-          ]
-        }
-      ]
-    },
-    {
-      id: "david",
-      name: "David Miller",
-      time: "02:40",
-      snippet: "Hey Ariana Grande 👋...",
-      unread: 0,
-      pinned: true,
-      initials: "DM",
-      flag: "🇿🇦",
-      messages: [
-        {
-          id: "dm1",
-          sender: "user",
-          senderName: "David Miller",
-          avatar: "DM",
-          time: "02:40",
-          bubbles: [
-            "Hey,",
-            "I just signed up for your platform.",
-            "I'm trying to understand how the AI actually handles customer queries. Does it reply automatically or just suggest replies?"
-          ]
-        },
-        {
-          id: "dm2",
-          sender: "agent",
-          senderName: "You",
-          avatar: "YO",
-          time: "02:42",
-          bubbles: [
-            "Hello David! 👋",
-            "Great question — the AI can do both."
-          ]
-        },
-        {
-          id: "dm3",
-          sender: "special",
-          senderName: "David Miller",
-          avatar: "DM",
-          time: "02:45",
-          bubbles: [
-            "It can automatically respond to common queries, or assist your team by suggesting replies you can review before sending.",
-            "Would you like help setting up automation?"
-          ]
-        },
-        {
-          id: "dm4",
-          sender: "user",
-          senderName: "Harry Brooks",
-          avatar: "HB",
-          time: "03:45",
-          bubbles: [
-            "Adding to that — most teams start with AI suggestions first, then enable full automation once they're confident.",
-            "What kind of support requests do you usually get?"
-          ]
-        },
-        {
-          id: "dm5",
-          sender: "agent",
-          senderName: "You",
-          avatar: "YO",
-          time: "03:52",
-          bubbles: [
-            "Mostly onboarding questions and billing issues. Around 200 tickets a week."
-          ]
-        },
-        {
-          id: "dm6",
-          sender: "user",
-          senderName: "David Miller",
-          avatar: "DM",
-          time: "03:59",
-          bubbles: [
-            "Usually under 15 minutes for basic setup.",
-            "If you want, I can help you set up your first AI workflow right now."
-          ]
-        }
-      ]
-    },
-    {
-      id: "emma",
-      name: "Emma Watson",
-      time: "02:51",
-      snippet: "Adding to that — most team...",
-      unread: 3,
-      pinned: true,
-      initials: "EW",
-      flag: "🇬🇧",
-      messages: [
-        {
-          id: "ew1",
-          sender: "user",
-          senderName: "Emma Watson",
-          avatar: "EW",
-          time: "02:51",
-          bubbles: [
-            "Adding to that — most teams start with..."
-          ]
-        }
-      ]
+const transformChatData = (threads, currentUserId) => {
+  const result = { pinned: [], recent: [] };
+  
+  threads.forEach(t => {
+    // Find the user (not agent) in memberships
+    const userMember = t.memberships.find(m => m.user && m.role === "participant");
+    const name = userMember?.user?.name || "Unknown User";
+    const initials = name.substring(0, 2).toUpperCase();
+    
+    // Group messages
+    const groupedMessages = [];
+    let currentGroup = null;
+
+    t.messages.forEach(msg => {
+      const isMe = msg.senderId === currentUserId;
+      const isAgent = msg.senderType === "agent" || msg.senderType === "system";
+      const senderKey = isMe ? "agent" : "user";
+      
+      let parsedContent = [];
+      try {
+        parsedContent = JSON.parse(msg.content);
+        if (!Array.isArray(parsedContent)) parsedContent = [msg.content];
+      } catch (e) {
+        parsedContent = [msg.content];
+      }
+
+      const displayName = isMe ? "You" : (isAgent ? "Agent" : name);
+      const displayAvatar = isMe ? "YO" : (isAgent ? "AG" : initials);
+
+      if (!currentGroup || currentGroup.sender !== senderKey) {
+        currentGroup = {
+          id: msg.id,
+          sender: senderKey,
+          senderName: displayName,
+          avatar: displayAvatar,
+          time: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          bubbles: [...parsedContent]
+        };
+        groupedMessages.push(currentGroup);
+      } else {
+        currentGroup.bubbles.push(...parsedContent);
+      }
+    });
+
+    const lastMsg = t.messages.length > 0 ? t.messages[t.messages.length - 1] : null;
+    let snippetText = "No messages";
+    if (lastMsg) {
+      try {
+        const parsed = JSON.parse(lastMsg.content);
+        snippetText = Array.isArray(parsed) ? parsed[0] : parsed;
+      } catch (e) {
+        snippetText = lastMsg.content;
+      }
     }
-  ],
-  recent: [
-    {
-      id: "natalie",
-      name: "Natalie Portman",
-      time: "03:15",
-      snippet: "In our experience, the user feedb...",
-      unread: 2,
-      pinned: false,
-      initials: "NP",
-      flag: "🇫🇷",
-      messages: [
-        {
-          id: "np1",
-          sender: "user",
-          senderName: "Natalie Portman",
-          avatar: "NP",
-          time: "03:15",
-          bubbles: [
-            "In our experience, the user feedback has been great."
-          ]
-        }
-      ]
-    },
-    {
-      id: "harry",
-      name: "Harry Brooks",
-      time: "03:45",
-      snippet: "Adding to that — most teams start with...",
+
+    const chatObj = {
+      id: t.id,
+      name,
+      time: t.updatedAt ? new Date(t.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "",
+      snippet: snippetText.substring(0, 30) + (snippetText.length > 30 ? "..." : ""),
       unread: 0,
-      pinned: false,
-      initials: "HB",
-      flag: "🇸🇰",
-      messages: [
-        {
-          id: "hb1",
-          sender: "user",
-          senderName: "Harry Brooks",
-          avatar: "HB",
-          time: "03:45",
-          bubbles: [
-            "Adding to that — most teams start with..."
-          ]
-        }
-      ]
-    },
-    {
-      id: "scarlett",
-      name: "Scarlett Johansson",
-      time: "04:02",
-      snippet: "It's crucial to balance automation and h...",
-      unread: 0,
-      pinned: false,
-      initials: "SJ",
-      flag: "🇩🇪",
-      messages: [
-        {
-          id: "sj1",
-          sender: "user",
-          senderName: "Scarlett Johansson",
-          avatar: "SJ",
-          time: "04:02",
-          bubbles: [
-            "It's crucial to balance automation and human support."
-          ]
-        }
-      ]
-    },
-    {
-      id: "tom",
-      name: "Tom Holland",
-      time: "03:30",
-      snippet: "We receive numerous inquiries a...",
-      unread: 3,
-      pinned: false,
-      initials: "TH",
-      flag: "🇮🇹",
-      messages: [
-        {
-          id: "th1",
-          sender: "user",
-          senderName: "Tom Holland",
-          avatar: "TH",
-          time: "03:30",
-          bubbles: [
-            "We receive numerous inquiries every day about formatting."
-          ]
-        }
-      ]
-    },
-    {
-      id: "gal",
-      name: "Gal Gadot",
-      time: "02:20",
-      snippet: "Users often ask about customiza...",
-      unread: 2,
-      pinned: false,
-      initials: "GG",
-      flag: "🇮🇱",
-      messages: [
-        {
-          id: "gg1",
-          sender: "user",
-          senderName: "Gal Gadot",
-          avatar: "GG",
-          time: "02:20",
-          bubbles: [
-            "Users often ask about customization."
-          ]
-        }
-      ]
+      pinned: t.pinned,
+      initials,
+      flag: "🌍", // Mock flag
+      messages: groupedMessages
+    };
+
+    if (t.pinned) {
+      result.pinned.push(chatObj);
+    } else {
+      result.recent.push(chatObj);
     }
-  ]
+  });
+
+  return result;
 };
 
 export default function SupportChat() {
-  const [chats, setChats] = useState(INITIAL_CHATS);
-  const [activeId, setActiveId] = useState("david");
+  const { data: session } = useSession();
+  const currentUserId = session?.user?.id;
+  const [chats, setChats] = useState({ pinned: [], recent: [] });
+  const [activeId, setActiveId] = useState(null);
   const [inputText, setInputText] = useState("");
+
+  useEffect(() => {
+    if (!currentUserId) return;
+    fetch("/api/admin/threads?type=LiveChat")
+      .then(res => res.json())
+      .then(data => {
+        if (data.threads) {
+          const transformed = transformChatData(data.threads, currentUserId);
+          setChats(transformed);
+          if (transformed.pinned.length > 0) {
+            setActiveId(transformed.pinned[0].id);
+          } else if (transformed.recent.length > 0) {
+            setActiveId(transformed.recent[0].id);
+          }
+        }
+      })
+      .catch(console.error);
+  }, [currentUserId]);
 
   // CC settings state variables
   const [showCcPopover, setShowCcPopover] = useState(false);
@@ -264,56 +122,71 @@ export default function SupportChat() {
     chats.pinned.find(c => c.id === activeId) || 
     chats.recent.find(c => c.id === activeId);
 
-  const handleSend = (e) => {
+  const handleSend = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     if (!inputText.trim() || !activeChat) return;
 
-    const newBubbleText = inputText;
-    const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    try {
+      const payload = {
+        content: JSON.stringify([inputText]),
+        senderType: "agent"
+      };
 
-    // Update active chat messages
-    const updatedMessages = [...activeChat.messages];
-    const lastMsg = updatedMessages[updatedMessages.length - 1];
-
-    if (lastMsg && lastMsg.sender === "agent") {
-      // Append to consecutive agent bubble stack
-      lastMsg.bubbles = [...lastMsg.bubbles, newBubbleText];
-      lastMsg.time = timeNow;
-    } else {
-      // Start a new group
-      updatedMessages.push({
-        id: "msg-" + updatedMessages.length,
-        sender: "agent",
-        senderName: "You",
-        avatar: "YO",
-        time: timeNow,
-        bubbles: [newBubbleText]
+      const res = await fetch(`/api/user/chat/${activeId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       });
-    }
+      
+      if (!res.ok) throw new Error("Failed to send chat message");
 
-    const updatedChat = {
-      ...activeChat,
-      messages: updatedMessages,
-      snippet: newBubbleText,
-      time: timeNow
-    };
+      const newBubbleText = inputText;
+      const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    setChats(prev => {
-      const isPinned = prev.pinned.some(c => c.id === activeId);
-      if (isPinned) {
-        return {
-          ...prev,
-          pinned: prev.pinned.map(c => c.id === activeId ? updatedChat : c)
-        };
+      // Update active chat messages optimistically
+      const updatedMessages = [...activeChat.messages];
+      const lastMsg = updatedMessages[updatedMessages.length - 1];
+
+      if (lastMsg && lastMsg.sender === "agent") {
+        lastMsg.bubbles = [...lastMsg.bubbles, newBubbleText];
+        lastMsg.time = timeNow;
       } else {
-        return {
-          ...prev,
-          recent: prev.recent.map(c => c.id === activeId ? updatedChat : c)
-        };
+        updatedMessages.push({
+          id: "msg-" + updatedMessages.length,
+          sender: "agent",
+          senderName: "You",
+          avatar: "YO",
+          time: timeNow,
+          bubbles: [newBubbleText]
+        });
       }
-    });
 
-    setInputText("");
+      const updatedChat = {
+        ...activeChat,
+        messages: updatedMessages,
+        snippet: newBubbleText.substring(0, 30),
+        time: timeNow
+      };
+
+      setChats(prev => {
+        const isPinned = prev.pinned.some(c => c.id === activeId);
+        if (isPinned) {
+          return {
+            ...prev,
+            pinned: prev.pinned.map(c => c.id === activeId ? updatedChat : c)
+          };
+        } else {
+          return {
+            ...prev,
+            recent: prev.recent.map(c => c.id === activeId ? updatedChat : c)
+          };
+        }
+      });
+
+      setInputText("");
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -328,7 +201,7 @@ export default function SupportChat() {
           <span className={styles.chevron}>▲</span>
         </div>
         <div>
-          {chats.pinned.map(chat => (
+          {chats.pinned.length > 0 ? chats.pinned.map(chat => (
             <div 
               key={chat.id} 
               className={`${styles.chatItem} ${activeId === chat.id ? styles.chatItemActive : ''}`}
@@ -350,7 +223,11 @@ export default function SupportChat() {
                 <span className={styles.pinIcon}>📌</span>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className={styles.emptyListContainer} style={{ padding: "20px" }}>
+              <p className={styles.emptyListText}>No pinned conversations</p>
+            </div>
+          )}
         </div>
 
         {/* Recent Conversations Section */}
@@ -361,7 +238,7 @@ export default function SupportChat() {
           <span className={styles.chevron}>▲</span>
         </div>
         <div>
-          {chats.recent.map(chat => (
+          {chats.recent.length > 0 ? chats.recent.map(chat => (
             <div 
               key={chat.id} 
               className={`${styles.chatItem} ${activeId === chat.id ? styles.chatItemActive : ''}`}
@@ -382,7 +259,17 @@ export default function SupportChat() {
                 {chat.unread > 0 && <span className={styles.badge}>{chat.unread}</span>}
               </div>
             </div>
-          ))}
+          )) : (
+            <div className={styles.emptyListContainer}>
+              <div className={styles.emptyListIconBox}>
+                <svg className={styles.emptyListIcon} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <h3 className={styles.emptyListTitle}>No active chats</h3>
+              <p className={styles.emptyListText}>When users start a live chat, they will appear here.</p>
+            </div>
+          )}
         </div>
       </div>
 
@@ -495,8 +382,16 @@ export default function SupportChat() {
           </div>
         </div>
       ) : (
-        <div className={styles.chatContent} style={{ alignItems: "center", justifyContent: "center", color: "#888" }}>
-          Select a chat thread to view details
+        <div className={styles.emptyStateContainer}>
+          <div className={styles.emptyStateGraphic}>
+            <svg className={styles.emptyStateIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+            </svg>
+          </div>
+          <h2 className={styles.emptyStateTitle}>No Chat Selected</h2>
+          <p className={styles.emptyStateText}>
+            Select a conversation from the left panel to start chatting and assist users in real-time.
+          </p>
         </div>
       )}
     </div>

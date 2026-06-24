@@ -43,10 +43,10 @@ export async function POST(req: Request) {
     await prisma.logEvent.create({
       data: {
         entityName: "Ticket",
-        operation: "CREATE",
+        operation: "Ticket Created",
         actorId: session.user.id,
         severity: "LOW",
-        changes: { after: { id: ticket.id, title, status: ticket.status } }
+        changes: { ticketId: ticket.id, after: { id: ticket.id, title, status: ticket.status } }
       }
     });
 
@@ -68,7 +68,18 @@ export async function GET(req: Request) {
 
     const tickets = await prisma.ticket.findMany({
       where: {
-        reporterId: session.user.id,
+        OR: [
+          { reporterId: session.user.id },
+          {
+            thread: {
+              memberships: {
+                some: {
+                  userId: session.user.id
+                }
+              }
+            }
+          }
+        ],
         ...(status ? { status } : {})
       },
       orderBy: { createdAt: 'desc' },

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
-export async function PATCH(req: Request, props: { params: Promise<{ id: string }> }) {
+export async function POST(req: Request, props: { params: Promise<{ id: string }> }) {
   try {
     const params = await props.params;
     const session = await auth();
@@ -20,33 +20,41 @@ export async function PATCH(req: Request, props: { params: Promise<{ id: string 
     if (!hasAccess) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const body = await req.json();
-    const { status, assigneeId, priority, category } = body;
+    const { userId } = body;
 
-    const ticket = await prisma.ticket.findUnique({ where: { id: params.id } });
-    if (!ticket) return NextResponse.json({ error: "Not Found" }, { status: 404 });
+    if (!userId) return NextResponse.json({ error: "userId is required" }, { status: 400 });
 
-    const updatedTicket = await prisma.ticket.update({
+    const ticket = await prisma.ticket.findUnique({
       where: { id: params.id },
-      data: { 
-        ...(status && { status }),
-        ...(assigneeId !== undefined && { assigneeId }),
-        ...(priority && { priority }),
-        ...(category && { category })
+      include: { thread: true }
+    });
+
+    if (!ticket || !ticket.threadId) {
+      return NextResponse.json({ error: "Ticket or thread not found" }, { status: 404 });
+    }
+
+    const threadMembership = await prisma.threadMembership.create({
+      data: {
+        threadId: ticket.threadId,
+        userId: userId,
+        role: "viewer"
       }
     });
 
     await prisma.logEvent.create({
       data: {
-        entityName: "Ticket",
-        operation: "UPDATE",
+        operation: "User CC'd",
         actorId: session.user.id,
-        severity: "MEDIUM",
-        changes: { before: ticket, after: updatedTicket }
+        entityName: "Ticket",
+        changes: { ticketId: ticket.id, ccUserId: userId }
       }
     });
 
-    return NextResponse.json({ ticket: updatedTicket });
+    return NextResponse.json({ success: true, threadMembership }, { status: 201 });
   } catch (error: any) {
+    if (error.code === 'P2002') {
+      return NextResponse.json({ error: "User is already CC'd to this ticket" }, { status: 400 });
+    }
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

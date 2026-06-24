@@ -477,21 +477,6 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
           >
             All Roles
           </option>
-          <option
-            value="USER"
-          >
-            User
-          </option>
-          <option
-            value="MODERATOR"
-          >
-            Moderator
-          </option>
-          <option
-            value="ADMIN"
-          >
-            Admin
-          </option>
         </select>
       </div>
       <div
@@ -915,26 +900,10 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                     </span>
                   </button>
                   <select
-                    aria-label="Role for user: User"
+                    aria-label="Role for user: USER"
                     class="role-cell-select-hidden-overlay"
                     style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
-                  >
-                    <option
-                      value="USER"
-                    >
-                      User
-                    </option>
-                    <option
-                      value="MODERATOR"
-                    >
-                      Mod
-                    </option>
-                    <option
-                      value="ADMIN"
-                    >
-                      Admin
-                    </option>
-                  </select>
+                  />
                 </div>
               </td>
               <td
@@ -1171,26 +1140,10 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                     </span>
                   </button>
                   <select
-                    aria-label="Role for user: Mod"
+                    aria-label="Role for user: MODERATOR"
                     class="role-cell-select-hidden-overlay"
                     style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
-                  >
-                    <option
-                      value="USER"
-                    >
-                      User
-                    </option>
-                    <option
-                      value="MODERATOR"
-                    >
-                      Mod
-                    </option>
-                    <option
-                      value="ADMIN"
-                    >
-                      Admin
-                    </option>
-                  </select>
+                  />
                 </div>
               </td>
               <td
@@ -1427,26 +1380,10 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                     </span>
                   </button>
                   <select
-                    aria-label="Role for user: User"
+                    aria-label="Role for user: USER"
                     class="role-cell-select-hidden-overlay"
                     style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
-                  >
-                    <option
-                      value="USER"
-                    >
-                      User
-                    </option>
-                    <option
-                      value="MODERATOR"
-                    >
-                      Mod
-                    </option>
-                    <option
-                      value="ADMIN"
-                    >
-                      Admin
-                    </option>
-                  </select>
+                  />
                 </div>
               </td>
               <td
@@ -1683,26 +1620,10 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                     </span>
                   </button>
                   <select
-                    aria-label="Role for user: User"
+                    aria-label="Role for user: USER"
                     class="role-cell-select-hidden-overlay"
                     style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
-                  >
-                    <option
-                      value="USER"
-                    >
-                      User
-                    </option>
-                    <option
-                      value="MODERATOR"
-                    >
-                      Mod
-                    </option>
-                    <option
-                      value="ADMIN"
-                    >
-                      Admin
-                    </option>
-                  </select>
+                  />
                 </div>
               </td>
               <td

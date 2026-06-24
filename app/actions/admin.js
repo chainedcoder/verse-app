@@ -12,12 +12,20 @@ async function verifyAdminOrMod() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { role: true, status: true }
+    select: { role: true, status: true, permissions: true, permissionGroup: { select: { permissions: true } } }
   })
 
   if (!user || user.status === "BANNED") return false
   
-  return user.role === "ADMIN" || user.role === "MODERATOR"
+  const hasLegacyRole = user.role === "ADMIN" || user.role === "MODERATOR" || user.role === "Super Administrator"
+  const userPerms = user.permissions || user.permissionGroup?.permissions || {}
+  
+  const hasAccess = hasLegacyRole || 
+    (userPerms.system && userPerms.system.length > 0) ||
+    (userPerms.report && userPerms.report.length > 0) ||
+    (userPerms.user && userPerms.user.length > 0)
+
+  return hasAccess
 }
 
 // Helper to verify if current user is ADMIN only
@@ -27,12 +35,17 @@ async function verifyAdmin() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { role: true, status: true }
+    select: { role: true, status: true, permissions: true, permissionGroup: { select: { permissions: true } } }
   })
 
   if (!user || user.status === "BANNED") return false
   
-  return user.role === "ADMIN"
+  const hasLegacyRole = user.role === "ADMIN" || user.role === "Super Administrator"
+  const userPerms = user.permissions || user.permissionGroup?.permissions || {}
+  
+  const hasAccess = hasLegacyRole || (userPerms.system && userPerms.system.includes("System Settings"))
+
+  return hasAccess
 }
 
 export async function fetchPendingReports() {
@@ -109,12 +122,8 @@ export async function updateUserStatus(userId, status) {
   }
 }
 
-export async function updateUserRole(userId, role) {
+export async function updateUserRole(userId, role, permissionGroupId) {
   if (!(await verifyAdmin())) return { error: "Only administrators can change roles" }
-
-  if (!["USER", "MODERATOR", "ADMIN"].includes(role)) {
-    return { error: "Invalid role" }
-  }
 
   try {
     // API Safeguard: Block operations on deleted users
@@ -124,9 +133,14 @@ export async function updateUserRole(userId, role) {
       return { error: "Cannot modify a deleted user" }
     }
 
+    const dataToUpdate = { role }
+    if (permissionGroupId) {
+      dataToUpdate.permissionGroupId = permissionGroupId
+    }
+
     await prisma.user.update({
       where: { id: userId },
-      data: { role }
+      data: dataToUpdate
     })
     revalidatePath("/admin/users")
     return { success: true }
@@ -136,7 +150,7 @@ export async function updateUserRole(userId, role) {
   }
 }
 
-export async function createUserAdmin({ name, surname, email, password, role, permissions }) {
+export async function createUserAdmin({ name, surname, email, password, role, permissions, permissionGroupId }) {
   if (!(await verifyAdmin())) return { error: "Only administrators can create users" }
   
   if (!name || !email || !password || !role) {
@@ -159,7 +173,8 @@ export async function createUserAdmin({ name, surname, email, password, role, pe
         password: hashedPassword,
         role,
         status: "ACTIVE",
-        permissions
+        permissions,
+        ...(permissionGroupId ? { permissionGroupId } : {})
       }
     })
     revalidatePath("/admin/users")

@@ -24,7 +24,7 @@ test.describe('Collections Flow', () => {
     await page.fill('input[type="password"]', testPassword);
 
     await Promise.all([
-      page.waitForURL('http://localhost:3000/'),
+      page.waitForURL('**/'),
       page.click('button[type="submit"]')
     ]);
 
