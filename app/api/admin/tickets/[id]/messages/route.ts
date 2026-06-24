@@ -32,7 +32,7 @@ export async function POST(req: Request, props: { params: Promise<{ id: string }
 
     const isSuperAdmin = dbUser?.role === "ADMIN" || dbUser?.role === "Super Administrator";
     const userPerms = (dbUser?.permissions as any) || (dbUser?.permissionGroup?.permissions as any) || {};
-    const hasAccess = isSuperAdmin || dbUser?.role === "MODERATOR" || userPerms?.manageSupport === true || userPerms?.system?.length > 0 || userPerms?.user?.length > 0;
+    const hasAccess = isSuperAdmin || dbUser?.role === "MODERATOR" || userPerms?.manageSupport === true || userPerms?.system?.length > 0 || userPerms?.user?.length > 0 || isReporter || !!isMember;
 
     if (!hasAccess) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 

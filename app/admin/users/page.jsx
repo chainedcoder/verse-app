@@ -39,7 +39,7 @@ export default async function AdminUsersPage(props) {
         { email: { contains: search, mode: "insensitive" } }
       ]
     } : {}),
-    ...(role !== "ALL" ? { role } : {}),
+    ...(role !== "ALL" ? { role: role.toUpperCase() } : {}),
     ...(status !== "ALL" ? { status } : { status: { not: "DELETED" } }),
     ...(mfa !== "ALL" ? { mfaEnabled: mfa === "ENABLED" } : {})
   }

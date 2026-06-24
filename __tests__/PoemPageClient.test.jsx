@@ -30,6 +30,7 @@ jest.mock('@/app/actions/comments', () => ({
 
 jest.mock('@/app/actions/poems', () => ({
   toggleFeatured: jest.fn(),
+  claimAnonShare: jest.fn().mockResolvedValue({ success: true }),
 }))
 
 jest.mock('@/components/ReportButton', () => {
@@ -137,5 +138,27 @@ describe('PoemPageClient', () => {
     await act(async () => { fireEvent.click(screen.getByLabelText('Close export modal')) })
 
     expect(screen.queryByTestId('export-modal')).not.toBeInTheDocument()
+  })
+
+  it('renders "Publish to Feed" when user is author and status is ANON_SHARE', async () => {
+    const anonPoem = { ...mockPoem, status: 'ANON_SHARE' }
+    const props = { ...defaultProps, poem: anonPoem, userId: 'a1' } // userId matches author.id
+
+    const { act } = require('react')
+    await act(async () => {
+      render(<PoemPageClient {...props} />)
+    })
+
+    const publishButton = screen.getByRole('button', { name: /Publish to Feed/i })
+    expect(publishButton).toBeInTheDocument()
+
+    // Test clicking the button
+    await act(async () => {
+      fireEvent.click(publishButton)
+    })
+    
+    // claimAnonShare is imported from module, we can require it to check if it was called
+    const { claimAnonShare } = require('@/app/actions/poems')
+    expect(claimAnonShare).toHaveBeenCalledWith(anonPoem.id)
   })
 })

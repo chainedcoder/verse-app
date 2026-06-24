@@ -31,8 +31,8 @@ test.describe('Profile Settings Flow', () => {
     await page.locator('.avatar-warm').first().click();
     await page.click('text=Settings');
     
-    await expect(page).toHaveURL(/.*\/settings\/profile/);
-    await expect(page.locator('h1')).toContainText('Settings');
+    await expect(page).toHaveURL(/.*\/dash\/account\/basic-info/);
+    await expect(page.locator('h2').first()).toContainText('My Profile');
 
     // 3. Update profile details
     const newLocation = 'San Francisco, CA';
@@ -40,12 +40,8 @@ test.describe('Profile Settings Flow', () => {
 
     await page.fill('input[name="location"]', newLocation);
     await page.fill('textarea[name="bio"]', newBio);
-
-    // 4. Save profile
-    await page.click('button[type="submit"]');
-
-    // Wait for success message
-    await expect(page.locator('text=Profile updated successfully')).toBeVisible();
+    await page.click('button:has-text("Edit & Save")');
+    await expect(page.locator('text=Profile information updated successfully')).toBeVisible();
 
     // 5. Verify the updates on the user's author page
     await page.goto('/authors');

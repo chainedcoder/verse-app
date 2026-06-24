@@ -203,7 +203,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     })
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.sub = user.id
         // Create a DB session manually for tracking and revoking
@@ -220,15 +220,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       
       // Dynamically load user role from the database to support elevation
-      if (token?.sub) {
+      const needsRoleRefresh = user || trigger === 'update' || (token?.sub && !token.permissions);
+      if (token?.sub && needsRoleRefresh) {
         try {
           const dbUser = await prisma.user.findUnique({
             where: { id: token.sub },
-            select: { role: true, permissions: true, permissionGroup: { select: { permissions: true } } }
+            include: { permissionGroup: true }
           })
           if (dbUser) {
             token.role = dbUser.role
             token.permissions = dbUser.permissions || dbUser.permissionGroup?.permissions || {}
+            token.permissionGroupId = dbUser.permissionGroupId
           }
         } catch (error) {
           console.error("Error loading user role in jwt callback:", error)

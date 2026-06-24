@@ -51,7 +51,7 @@ test.describe('Settings and Profile Features', () => {
     await registerUser(page, 'Delete Me', deleteEmail, 'password123');
 
     // Go to settings
-    await page.goto('/settings/account');
+    await page.goto('/dash/account/delete');
     
     // Click Delete Account
     await page.click('button:has-text("Delete Account")');

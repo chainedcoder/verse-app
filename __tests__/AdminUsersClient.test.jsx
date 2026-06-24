@@ -86,7 +86,7 @@ beforeEach(() => {
 
 describe("AdminUsersClient — rendering", () => {
   it("renders all users in the table", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     // Avatar shows name and link shows name — use getAllByText
     expect(screen.getAllByText("Alice").length).toBeGreaterThan(0)
     expect(screen.getAllByText("Bob").length).toBeGreaterThan(0)
@@ -95,7 +95,7 @@ describe("AdminUsersClient — rendering", () => {
   })
 
   it("renders 'Archived' status with tooltip for ARCHIVED users", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     const archivedPill = screen.getByText("Archived")
     expect(archivedPill).toBeInTheDocument()
     
@@ -105,37 +105,37 @@ describe("AdminUsersClient — rendering", () => {
   })
 
   it("renders report count highlighted for users with reports", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     expect(screen.getByText("3")).toBeInTheDocument()
     expect(screen.getByText("1")).toBeInTheDocument()
   })
 
   it("renders poem counts", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     expect(screen.getByText("5")).toBeInTheDocument()
     expect(screen.getByText("2")).toBeInTheDocument()
   })
 
   it("shows user row count in toolbar", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     expect(screen.getByText(/4 users/i)).toBeInTheDocument()
   })
 
   it("renders Delete button only for ADMIN role", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     const deleteBtns = screen.getAllByRole("button", { name: /delete/i })
     expect(deleteBtns.length).toBeGreaterThan(0)
   })
 
   it("does not render Delete button for MODERATOR role", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="MODERATOR" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="MODERATOR"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     expect(screen.queryByRole("button", { name: /^delete$/i })).not.toBeInTheDocument()
   })
 })
 
 describe("AdminUsersClient — filtering", () => {
   it("filters users by name search", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     fireEvent.change(screen.getByPlaceholderText(/search by name or email/i), {
       target: { value: "alice" }
     })
@@ -145,7 +145,7 @@ describe("AdminUsersClient — filtering", () => {
   })
 
   it("filters users by email search", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     fireEvent.change(screen.getByPlaceholderText(/search by name or email/i), {
       target: { value: "carol@test.com" }
     })
@@ -154,7 +154,7 @@ describe("AdminUsersClient — filtering", () => {
   })
 
   it("filters by status dropdown", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     fireEvent.change(screen.getByLabelText(/filter by status/i), {
       target: { value: "ACTIVE" }
     })
@@ -163,7 +163,7 @@ describe("AdminUsersClient — filtering", () => {
   })
 
   it("filters by role dropdown", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     fireEvent.change(screen.getByLabelText(/filter by role/i), {
       target: { value: "MODERATOR" }
     })
@@ -172,7 +172,7 @@ describe("AdminUsersClient — filtering", () => {
   })
 
   it("shows empty state when no users match filters", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     fireEvent.change(screen.getByPlaceholderText(/search by name or email/i), {
       target: { value: "zzz_no_match" }
     })
@@ -182,7 +182,7 @@ describe("AdminUsersClient — filtering", () => {
 
 describe("AdminUsersClient — sorting", () => {
   it("sorts by name column asc/desc on click", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     const nameHeader = screen.getAllByRole("button", { name: /user/i }).find(el => el.classList.contains('adt-th'))
 
     // First click = asc
@@ -197,7 +197,7 @@ describe("AdminUsersClient — sorting", () => {
   })
 
   it("sorts by joined date by default (desc)", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     const rows = screen.getAllByTestId("avatar").map(el => el.textContent)
     // Dave joined latest (2024-04-10)
     expect(rows[0]).toBe("Dave")
@@ -207,7 +207,7 @@ describe("AdminUsersClient — sorting", () => {
 describe("AdminUsersClient — single row actions", () => {
   it("calls updateUserStatus with BANNED when Ban button clicked", async () => {
     updateUserStatus.mockResolvedValue({ success: true })
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
 
     // Sort by name asc so Alice is first
     const userHeader = screen.getAllByRole("button", { name: /user/i }).find(el => el.classList.contains('adt-th'))
@@ -220,7 +220,7 @@ describe("AdminUsersClient — single row actions", () => {
 
   it("calls deleteUser when single Delete confirmed", async () => {
     deleteUser.mockResolvedValue({ success: true })
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
 
     const deleteBtns = screen.getAllByRole("button", { name: /^delete$/i })
     await act(async () => fireEvent.click(deleteBtns[0]))
@@ -231,7 +231,7 @@ describe("AdminUsersClient — single row actions", () => {
 
   it("calls deleteUserNuclear when Nuclear confirmed", async () => {
     deleteUserNuclear.mockResolvedValue({ success: true })
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
 
     const nuclearBtns = screen.getAllByRole("button", { name: /^nuclear$/i })
     await act(async () => fireEvent.click(nuclearBtns[0]))
@@ -241,7 +241,7 @@ describe("AdminUsersClient — single row actions", () => {
   })
 
   it("prevents role changes for MODERATOR role", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="MODERATOR" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="MODERATOR"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     const roleSelects = screen.getAllByLabelText(/role for/i)
     roleSelects.forEach(sel => expect(sel).toBeDisabled())
   })
@@ -249,12 +249,12 @@ describe("AdminUsersClient — single row actions", () => {
 
 describe("AdminUsersClient — checkbox selection", () => {
   it("selection bar is hidden initially", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     expect(screen.queryByText(/selected/i)).not.toBeInTheDocument()
   })
 
   it("shows selection bar when a row is checked", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     const checkboxes = screen.getAllByLabelText(/select alice/i)
     fireEvent.click(checkboxes[0])
     expect(screen.getByRole("status")).toBeInTheDocument()
@@ -263,14 +263,14 @@ describe("AdminUsersClient — checkbox selection", () => {
   })
 
   it("shows correct count when multiple rows selected", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     fireEvent.click(screen.getAllByLabelText(/select alice/i)[0])
     fireEvent.click(screen.getAllByLabelText(/select bob/i)[0])
     expect(screen.getByRole("status").textContent).toMatch(/2/)
   })
 
   it("select-all checkbox selects all visible rows", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     const selectAll = screen.getByLabelText(/select all users on page/i)
     fireEvent.click(selectAll)
     expect(screen.getByRole("status")).toBeInTheDocument()
@@ -278,7 +278,7 @@ describe("AdminUsersClient — checkbox selection", () => {
   })
 
   it("clicking select-all again deselects all", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     const selectAll = screen.getByLabelText(/select all users on page/i)
     fireEvent.click(selectAll)
     fireEvent.click(selectAll)
@@ -286,7 +286,7 @@ describe("AdminUsersClient — checkbox selection", () => {
   })
 
   it("Clear selection button deselects all", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     const selectAll = screen.getByLabelText(/select all users on page/i)
     fireEvent.click(selectAll)
     fireEvent.click(screen.getByRole("button", { name: /^clear$/i }))
@@ -294,7 +294,7 @@ describe("AdminUsersClient — checkbox selection", () => {
   })
 
   it("checkboxes disabled for MODERATOR (cannot bulk delete)", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="MODERATOR" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="MODERATOR"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     const checkboxes = screen.getAllByLabelText(/select all users on page|select alice/i)
     checkboxes.forEach(cb => expect(cb).toBeDisabled())
   })
@@ -302,7 +302,7 @@ describe("AdminUsersClient — checkbox selection", () => {
 
 describe("AdminUsersClient — bulk delete modal", () => {
   it("opens modal when Delete Selected is clicked", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     fireEvent.click(screen.getByLabelText(/select alice/i))
     fireEvent.click(screen.getByRole("button", { name: /delete selected|delete \d+ user/i }))
     expect(screen.getByRole("dialog")).toBeInTheDocument()
@@ -311,7 +311,7 @@ describe("AdminUsersClient — bulk delete modal", () => {
   })
 
   it("modal pre-fills textarea with username and email", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     fireEvent.click(screen.getByLabelText(/select alice/i))
     fireEvent.click(screen.getByRole("button", { name: /delete selected|delete \d+ user/i }))
 
@@ -321,7 +321,7 @@ describe("AdminUsersClient — bulk delete modal", () => {
   })
 
   it("confirm button is disabled until DELETE is typed", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     fireEvent.click(screen.getByLabelText(/select alice/i))
     fireEvent.click(screen.getByRole("button", { name: /delete selected|delete \d+ user/i }))
 
@@ -335,7 +335,7 @@ describe("AdminUsersClient — bulk delete modal", () => {
   })
 
   it("confirm button case-insensitive: 'delete' also works", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     fireEvent.click(screen.getByLabelText(/select alice/i))
     fireEvent.click(screen.getByRole("button", { name: /delete selected|delete \d+ user/i }))
 
@@ -347,7 +347,7 @@ describe("AdminUsersClient — bulk delete modal", () => {
   })
 
   it("cancel button closes modal", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     fireEvent.click(screen.getByLabelText(/select alice/i))
     fireEvent.click(screen.getByRole("button", { name: /delete selected|delete \d+ user/i }))
 
@@ -357,7 +357,7 @@ describe("AdminUsersClient — bulk delete modal", () => {
 
   it("calls deleteUsersBulk with correct IDs on confirm", async () => {
     deleteUsersBulk.mockResolvedValue({ success: true, deletedCount: 1 })
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
 
     fireEvent.click(screen.getByLabelText(/select alice/i))
     fireEvent.click(screen.getByRole("button", { name: /delete selected|delete \d+ user/i }))
@@ -374,7 +374,7 @@ describe("AdminUsersClient — bulk delete modal", () => {
 
   it("updates deleted users in table on success", async () => {
     deleteUsersBulk.mockResolvedValue({ success: true, deletedCount: 1 })
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
 
     fireEvent.click(screen.getByLabelText(/select alice/i))
     fireEvent.click(screen.getByRole("button", { name: /delete selected|delete \d+ user/i }))
@@ -395,7 +395,7 @@ describe("AdminUsersClient — bulk delete modal", () => {
 
   it("shows error message when bulk delete fails", async () => {
     deleteUsersBulk.mockResolvedValue({ error: "Failed to delete users" })
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
 
     fireEvent.click(screen.getByLabelText(/select alice/i))
     fireEvent.click(screen.getByRole("button", { name: /delete selected|delete \d+ user/i }))
@@ -415,14 +415,14 @@ describe("AdminUsersClient — bulk delete modal", () => {
 
 describe("AdminUsersClient — Add User Modal", () => {
   it("opens the Add User modal", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     fireEvent.click(screen.getByRole("button", { name: /create new member/i }))
     expect(screen.getByRole("dialog")).toBeInTheDocument()
     expect(screen.getByText("User Permissions")).toBeInTheDocument()
   })
 
   it("closes the Add User modal on Discard", () => {
-    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     fireEvent.click(screen.getByRole("button", { name: /create new member/i }))
     fireEvent.click(screen.getByRole("button", { name: /discard/i }))
     expect(screen.queryByText("User Permissions")).not.toBeInTheDocument()
@@ -431,7 +431,7 @@ describe("AdminUsersClient — Add User Modal", () => {
 
 describe("AdminUsersClient — Row Dropdowns Click-Away", () => {
   it("dismisses role dropdown on click-away", () => {
-    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     expect(container.querySelector('.custom-row-dropdown')).not.toBeInTheDocument()
 
     const roleButtons = container.querySelectorAll('.role-badge-btn')
@@ -449,7 +449,7 @@ describe("AdminUsersClient — Row Dropdowns Click-Away", () => {
   })
 
   it("dismisses status dropdown on click-away", () => {
-    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     expect(container.querySelector('.custom-row-dropdown')).not.toBeInTheDocument()
 
     const statusButtons = container.querySelectorAll('.status-pill-btn')
@@ -469,7 +469,7 @@ describe("AdminUsersClient — Row Dropdowns Click-Away", () => {
 
 describe("AdminUsersClient — Style Modularity & Design System Consistency", () => {
   it("enforces strict styling layout classes on the main containers", () => {
-    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     
     // Check main layout container
     const main = screen.getByRole("main")
@@ -502,7 +502,7 @@ describe("AdminUsersClient — Style Modularity & Design System Consistency", ()
   })
 
   it("enforces strict table layout styling and custom rows", () => {
-    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
 
     expect(container.querySelector(".adt-container")).toBeInTheDocument()
     expect(container.querySelector(".adt-scroll")).toBeInTheDocument()
@@ -519,7 +519,7 @@ describe("AdminUsersClient — Style Modularity & Design System Consistency", ()
   })
 
   it("enforces badge and status pill styling in the table", () => {
-    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
 
     // Check role badge buttons
     const roleBadges = container.querySelectorAll(".role-badge-btn")
@@ -537,7 +537,7 @@ describe("AdminUsersClient — Style Modularity & Design System Consistency", ()
   })
 
   it("enforces modal overlay and design layout structure when bulk delete modal is opened", () => {
-    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    const { container } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     
     // Select Alice and open modal
     fireEvent.click(screen.getByLabelText(/select alice/i))
@@ -562,7 +562,7 @@ describe("AdminUsersClient — Style Modularity & Design System Consistency", ()
   })
 
   it("matches full component rendering snapshot to lock the complete styling contract", () => {
-    const { asFragment } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" />)
+    const { asFragment } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN"  permissionGroups={[{id: 1, name: "USER"}, {id: 2, name: "MODERATOR"}, {id: 3, name: "ADMIN"}]} />)
     expect(asFragment()).toMatchSnapshot()
   })
 })

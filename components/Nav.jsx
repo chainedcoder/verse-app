@@ -146,6 +146,7 @@ export default function Nav() {
           <Link className={`${styles.navbarLink} ${pathname === "/" ? styles.active : ""}`} href="/">Discover</Link>
           <Link className={`${styles.navbarLink} ${pathname === "/collections" ? styles.active : ""}`} href="/collections">Collections</Link>
           <Link className={`${styles.navbarLink} ${pathname === "/authors" ? styles.active : ""}`} href="/authors">Authors</Link>
+          <Link className={`${styles.navbarLink} ${pathname === "/quick-share" ? styles.active : ""}`} href="/quick-share">Quick Share</Link>
         </div>
 
         <div className={`${styles.navbarActions} navbar-actions`}>
@@ -293,11 +294,11 @@ export default function Nav() {
                         <i className="ti ti-user" style={{ fontSize: "16px" }}></i> Profile
                       </Link>
                       
-                      <Link href="/dash/account/basic-info" onClick={() => setShowDropdown(false)} style={{ padding: "12px 16px", textDecoration: "none", color: "var(--text-primary)", fontSize: "14px", display: "flex", alignItems: "center", gap: "8px" }}>
+                      <Link href="/settings/profile" onClick={() => setShowDropdown(false)} style={{ padding: "12px 16px", textDecoration: "none", color: "var(--text-primary)", fontSize: "14px", display: "flex", alignItems: "center", gap: "8px" }}>
                         <i className="ti ti-settings" style={{ fontSize: "16px" }}></i> Settings
                       </Link>
                       
-                      <Link href="/dash/support/tickets" onClick={() => setShowDropdown(false)} style={{ padding: "12px 16px", textDecoration: "none", color: "var(--text-primary)", fontSize: "14px", display: "flex", alignItems: "center", gap: "8px" }}>
+                      <Link href="/settings/support" onClick={() => setShowDropdown(false)} style={{ padding: "12px 16px", textDecoration: "none", color: "var(--text-primary)", fontSize: "14px", display: "flex", alignItems: "center", gap: "8px" }}>
                         <i className="ti ti-help" style={{ fontSize: "16px" }}></i> Support
                       </Link>
                       
@@ -349,14 +350,17 @@ export default function Nav() {
         <Link className={`${styles.mobileDrawerLink} ${pathname === "/authors" ? styles.active : ""}`} href="/authors" onClick={closeDrawer}>
           <i className="ti ti-users" aria-hidden="true"></i> Authors
         </Link>
+        <Link className={`${styles.mobileDrawerLink} ${pathname === "/quick-share" ? styles.active : ""}`} href="/quick-share" onClick={closeDrawer}>
+          <i className="ti ti-bolt" aria-hidden="true"></i> Quick Share
+        </Link>
         <hr className={styles.mobileDrawerDivider} />
 
         {session && (
           <>
             <Button href="/write" variant="primary" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Write</Button>
             <Button href="/profile" variant="ghost" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Profile</Button>
-            <Button href="/dash/account/basic-info" variant="ghost" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Settings</Button>
-            <Button href="/dash/support/tickets" variant="ghost" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Support</Button>
+            <Button href="/settings/profile" variant="ghost" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Settings</Button>
+            <Button href="/settings/support" variant="ghost" full style={{ marginBottom: "8px" }} onClick={closeDrawer}>Support</Button>
             <hr className={styles.mobileDrawerDivider} />
           </>
         )}

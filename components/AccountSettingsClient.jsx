@@ -16,6 +16,7 @@ export default function AccountSettingsClient({ user }) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const { showToast } = useToast()
   const { confirm } = useConfirm()
 
@@ -321,23 +322,52 @@ export default function AccountSettingsClient({ user }) {
             type="button" 
             className="btn btn-outline" 
             style={{ borderColor: "var(--danger)", color: "var(--danger)" }}
-            onClick={async () => {
-              const isConfirmed = await confirm("Are you sure you want to delete your account? You will lose access to all your data. This cannot be undone.")
-              if (isConfirmed) {
-                const res = await deleteAccount()
-                if (res.success) {
-                  await signOut({ callbackUrl: "/" })
-                } else {
-                  setError(res.error || "Failed to delete account")
-                }
-              }
-            }}
+            onClick={() => setShowDeleteModal(true)}
             disabled={isPending}
           >
             Delete Account
           </button>
         </div>
       </div>
+      
+      {showDeleteModal && (
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(0,0,0,0.5)", zIndex: 9999, display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <div style={{ backgroundColor: "var(--bg-card)", padding: "24px", borderRadius: "12px", maxWidth: "400px", width: "100%", border: "1px solid var(--border-secondary)", boxShadow: "0 10px 25px rgba(0,0,0,0.2)" }}>
+            <h3 style={{ fontSize: "18px", marginBottom: "16px", color: "var(--text-primary)" }}>Confirm Deletion</h3>
+            <p style={{ fontSize: "14px", color: "var(--text-secondary)", marginBottom: "24px", lineHeight: 1.5 }}>
+              Are you sure you want to delete your account? You will lose access to all your data. This cannot be undone.
+            </p>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+              <button 
+                type="button" 
+                className="btn btn-secondary" 
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isPending}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                className="btn btn-danger" 
+                onClick={async () => {
+                  startTransition(async () => {
+                    const res = await deleteAccount()
+                    if (res.success) {
+                      await signOut({ callbackUrl: "/" })
+                    } else {
+                      setError(res.error || "Failed to delete account")
+                      setShowDeleteModal(false)
+                    }
+                  })
+                }}
+                disabled={isPending}
+              >
+                {isPending ? "Deleting..." : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   )
 }

@@ -36,6 +36,9 @@ export default function ExportPageClient({ poem, author }) {
   const [isExporting, setIsExporting] = useState(false)
   const [previewImage, setPreviewImage] = useState(null)
   
+  const [customAuthor, setCustomAuthor] = useState(poem?.customAuthorName || author?.name || "Anonymous")
+  const [showAuthor, setShowAuthor] = useState(true)
+  
   const exportContainerRef = useRef(null)
   const [tick, setTick] = useState(0)
   
@@ -218,7 +221,7 @@ export default function ExportPageClient({ poem, author }) {
               <div className="siteview-border-line" style={{ fontFamily: "'Playfair Display',serif", fontSize: "12px", lineHeight: 1.6, fontStyle: "italic", paddingLeft: "8px", borderLeft: `3px solid ${c.accent}` }}>
                 {previewLines.map((l, i) => <div key={i}>{l || <br/>}</div>)}
               </div>
-              <div style={{ marginTop: "12px", fontSize: "9px", opacity: 0.6 }}>— {author.name}</div>
+              <div style={{ marginTop: "12px", fontSize: "9px", opacity: showAuthor ? 0.6 : 0, transition: "opacity 0.2s" }}>— {customAuthor}</div>
             </div>
           )},
           { id: "minimal", title: "Minimal", desc: "Clean borders", content: (c) => (
@@ -227,7 +230,7 @@ export default function ExportPageClient({ poem, author }) {
               <div className="minimal-border-line" style={{ fontFamily: "'Playfair Display',serif", fontSize: "12px", lineHeight: 1.6, fontStyle: "italic", paddingLeft: "8px", borderLeft: `2px solid ${c.accent}` }}>
                 {previewLines.map((l, i) => <div key={i}>{l || <br/>}</div>)}
               </div>
-              <div style={{ marginTop: "12px", fontSize: "9px", opacity: 0.6 }}>— {author.name}</div>
+              <div style={{ marginTop: "12px", fontSize: "9px", opacity: showAuthor ? 0.6 : 0, transition: "opacity 0.2s" }}>— {customAuthor}</div>
             </div>
           )},
           { id: "dark", title: "Dark cinematic", desc: "Deep and moody", content: (c) => (
@@ -236,7 +239,7 @@ export default function ExportPageClient({ poem, author }) {
               <div className="dark-border-line" style={{ fontFamily: "'Playfair Display',serif", fontSize: "12px", lineHeight: 1.6, fontStyle: "italic", paddingLeft: "8px", borderLeft: `2px solid ${c.accent}` }}>
                 {previewLines.map((l, i) => <div key={i}>{l || <br/>}</div>)}
               </div>
-              <div style={{ marginTop: "12px", fontSize: "9px", opacity: 0.6 }}>— {author.name}</div>
+              <div style={{ marginTop: "12px", fontSize: "9px", opacity: showAuthor ? 0.6 : 0, transition: "opacity 0.2s" }}>— {customAuthor}</div>
             </div>
           )},
           { id: "love", title: "Love letter", desc: "Elegant romance", content: (c) => (
@@ -254,7 +257,7 @@ export default function ExportPageClient({ poem, author }) {
               <div style={{ fontFamily: "'Playfair Display',serif", fontSize: "12px", lineHeight: 1.8, fontStyle: "italic", textAlign: "center" }}>
                 {storyLines.map((l, i) => <div key={i}>{l || <br/>}</div>)}
               </div>
-              <div style={{ fontSize: "9px", opacity: 0.6, textAlign: "center", marginTop: "12px" }}>— {author.name}</div>
+              <div style={{ fontSize: "9px", opacity: showAuthor ? 0.6 : 0, transition: "opacity 0.2s", textAlign: "center", marginTop: "12px" }}>— {customAuthor}</div>
             </div>
           )}
         ].map(tmpl => {
@@ -290,8 +293,39 @@ export default function ExportPageClient({ poem, author }) {
 
       </div>
 
-      <div style={{ marginTop: "24px", padding: "16px", background: "var(--bg-card)", borderRadius: "12px", border: "1px solid var(--border-color)" }}>
-        <h3 style={{ fontSize: "14px", marginBottom: "12px", fontFamily: "'Inter', sans-serif" }}>Dimensions / Viewport (px)</h3>
+      <div style={{ marginTop: "24px", padding: "16px", background: "var(--bg-card)", borderRadius: "12px", border: "1px solid var(--border-color)", display: "flex", flexDirection: "column", gap: "16px" }}>
+        
+        <div>
+          <h3 style={{ fontSize: "14px", marginBottom: "12px", fontFamily: "'Inter', sans-serif" }}>Attribution</h3>
+          <div style={{ display: "flex", gap: "16px", alignItems: "center", flexWrap: "wrap" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontSize: "13px" }}>
+              <input 
+                type="checkbox" 
+                checked={showAuthor} 
+                onChange={(e) => setShowAuthor(e.target.checked)} 
+              />
+              Show Author
+            </label>
+            
+            {showAuthor && (
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <input 
+                  type="text" 
+                  value={customAuthor} 
+                  onChange={(e) => setCustomAuthor(e.target.value)}
+                  className="input-field"
+                  style={{ width: "200px", padding: "6px 8px", fontSize: "13px", minHeight: "32px" }}
+                  placeholder="Author name"
+                />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <hr style={{ border: "none", borderTop: "1px solid var(--border-secondary)", margin: "0" }} />
+
+        <div>
+          <h3 style={{ fontSize: "14px", marginBottom: "12px", fontFamily: "'Inter', sans-serif" }}>Dimensions / Viewport (px)</h3>
         <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "12px" }}>
           {SIZE_PRESETS.map(preset => (
             <button 
@@ -317,6 +351,7 @@ export default function ExportPageClient({ poem, author }) {
             style={{ width: "100px", padding: "6px 8px", fontSize: "13px", minHeight: "32px" }}
           />
           <span style={{ fontSize: "13px", color: "var(--text-tertiary)" }}>px</span>
+        </div>
         </div>
       </div>
 
@@ -345,6 +380,8 @@ export default function ExportPageClient({ poem, author }) {
             colors={currentColors} 
             width={numericWidth}
             height={numericHeight}
+            showAuthor={showAuthor}
+            displayAuthor={customAuthor}
           />
         </div>
       </div>

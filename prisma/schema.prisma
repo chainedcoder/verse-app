@@ -8,24 +8,24 @@ datasource db {
 }
 
 model User {
-  id                     String           @id @default(cuid())
+  id                     String              @id @default(cuid())
   name                   String?
-  email                  String?          @unique
+  email                  String?             @unique
   emailVerified          DateTime?
   password               String?
   image                  String?
   bio                    String?
   location               String?
-  isPrivateAccount       Boolean          @default(false)
-  mfaEnabled             Boolean          @default(false)
-  emailNotifications     Boolean          @default(true)
-  role                   String           @default("USER")
-  status                 String           @default("ACTIVE")
-  createdAt              DateTime         @default(now())
-  updatedAt              DateTime         @updatedAt
-  immersiveMode          Boolean          @default(false)
-  theme                  String           @default("system")
-  username               String?          @unique
+  isPrivateAccount       Boolean             @default(false)
+  mfaEnabled             Boolean             @default(false)
+  emailNotifications     Boolean             @default(true)
+  role                   String              @default("USER")
+  status                 String              @default("ACTIVE")
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+  immersiveMode          Boolean             @default(false)
+  theme                  String              @default("system")
+  username               String?             @unique
   website                String?
   twoFactorMethod        String?
   twoFactorSecret        String?
@@ -38,7 +38,7 @@ model User {
   jobTitle               String?
   lastName               String?
   notificationMatrix     Json?
-  plan                   String           @default("FREE")
+  plan                   String              @default("FREE")
   preferences            Json?
   professionalInfo       Json?
   socialLinks            Json?
@@ -47,26 +47,26 @@ model User {
   stripePriceId          String?
   stripeSubscriptionId   String?
   deletedAt              DateTime?
+  aiGenerationQueues     AIGenerationQueue[]
   accounts               Account[]
   apiKeys                ApiKey[]
   authenticators         Authenticator[]
   collections            Collection[]
   comments               Comment[]
-  following              Follow[]         @relation("follower")
-  followers              Follow[]         @relation("following")
+  following              Follow[]            @relation("follower")
+  followers              Follow[]            @relation("following")
   likes                  Like[]
-  actorNotifications     Notification[]   @relation("actorNotifications")
-  notifications          Notification[]   @relation("userNotifications")
-  poems                  Poem[]
-  reportsReceived        Report[]         @relation("reportedUser")
-  reportsSubmitted       Report[]         @relation("reporter")
-  sessions               Session[]
-  permissionGroup        PermissionGroup? @relation(fields: [permissionGroupId], references: [id])
-  ticketsReported        Ticket[]         @relation("ticketReporter")
-  ticketsAssigned        Ticket[]         @relation("ticketAssignee")
-  threadMemberships      ThreadMembership[]
   logEvents              LogEvent[]
-  aiGenerationQueues     AIGenerationQueue[]
+  actorNotifications     Notification[]      @relation("actorNotifications")
+  notifications          Notification[]      @relation("userNotifications")
+  poems                  Poem[]
+  reportsReceived        Report[]            @relation("reportedUser")
+  reportsSubmitted       Report[]            @relation("reporter")
+  sessions               Session[]
+  threadMemberships      ThreadMembership[]
+  ticketsAssigned        Ticket[]            @relation("ticketAssignee")
+  ticketsReported        Ticket[]            @relation("ticketReporter")
+  permissionGroup        PermissionGroup?    @relation(fields: [permissionGroupId], references: [id])
 }
 
 model Account {
@@ -263,92 +263,75 @@ model ApiKey {
 }
 
 model Ticket {
-  id           String   @id @default(cuid())
-  status       String   // Open, In Progress, Pending, Resolved, Closed
-  priority     String   // Low, Medium, High, Urgent
-  category     String
-  requestType  String
-  title        String
-  snippet      String
-  
-  reporterId   String
-  assigneeId   String?
-  
-  entityType   String?
-  entityId     String?
-  entityName   String?
-  
-  thread       Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  threadId     String   @unique
-  reporter     User     @relation("ticketReporter", fields: [reporterId], references: [id], onDelete: Cascade)
-  assignee     User?    @relation("ticketAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
-  
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(cuid())
+  status      String
+  priority    String
+  category    String
+  requestType String
+  title       String
+  snippet     String
+  reporterId  String
+  assigneeId  String?
+  entityType  String?
+  entityId    String?
+  entityName  String?
+  threadId    String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  assignee    User?    @relation("ticketAssignee", fields: [assigneeId], references: [id])
+  reporter    User     @relation("ticketReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  thread      Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
 }
 
 model Thread {
-  id           String   @id @default(cuid())
-  type         String   // Ticket, LiveChat
-  pinned       Boolean  @default(false)
-  
-  ticket       Ticket?
-  messages     Message[]
-  memberships  ThreadMembership[]
-  aiQueues     AIGenerationQueue[]
-  
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String              @id @default(cuid())
+  type        String
+  pinned      Boolean             @default(false)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  aiQueues    AIGenerationQueue[]
+  messages    Message[]
+  memberships ThreadMembership[]
+  ticket      Ticket?
 }
 
 model Message {
-  id           String   @id @default(cuid())
-  threadId     String
-  senderId     String   // 'system', or User/Agent ID
-  senderType   String   // user, agent, system
-  content      String   // Can store JSON array of bubbles
-  parentId     String?  // For threaded target replies
-  
-  createdAt    DateTime @default(now())
-  
-  thread       Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  threadId   String
+  senderId   String
+  senderType String
+  content    String
+  parentId   String?
+  createdAt  DateTime @default(now())
+  thread     Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
 }
 
 model ThreadMembership {
-  id                 String   @id @default(cuid())
+  id                 String    @id @default(cuid())
   threadId           String
   userId             String
-  role               String   // viewer, participant, admin
-  
-  joinedAt           DateTime @default(now())
-  leftAt             DateTime? 
-  
-  historyGrantedFrom DateTime? 
+  role               String
+  joinedAt           DateTime  @default(now())
+  leftAt             DateTime?
+  historyGrantedFrom DateTime?
   historyGrantedTo   DateTime?
-  
-  thread             Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  thread             Thread    @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model LogEvent {
-  id           String   @id @default(cuid())
-  timestamp    DateTime @default(now())
-  
-  entityName   String
-  operation    String
-  
-  changes      Json?
-  
-  severity     String   @default("MEDIUM")
-  accessLevel  String   @default("USER")
-  
-  tags         String[]
-  
-  actorId      String?
-  actor        User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
-  
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(cuid())
+  timestamp   DateTime @default(now())
+  entityName  String
+  operation   String
+  changes     Json?
+  severity    String   @default("MEDIUM")
+  accessLevel String   @default("USER")
+  tags        String[]
+  actorId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  actor       User?    @relation(fields: [actorId], references: [id])
 }
 
 model AIGenerationQueue {
@@ -357,9 +340,7 @@ model AIGenerationQueue {
   agentId      String
   draftContent String
   status       String
-  
+  createdAt    DateTime @default(now())
   agent        User     @relation(fields: [agentId], references: [id], onDelete: Cascade)
   thread       Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  
-  createdAt    DateTime @default(now())
 }

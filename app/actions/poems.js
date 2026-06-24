@@ -216,6 +216,66 @@ export async function restorePoem(poemId) {
   return { success: true }
 }
 
+export async function createAnonShare({ title, fullText, customAuthorName }) {
+  const session = await auth()
+  let authorId = session?.user?.id
+
+  if (!authorId) {
+    let guestUser = await prisma.user.findFirst({ where: { username: "guest" } })
+    if (!guestUser) {
+      guestUser = await prisma.user.create({
+        data: {
+          username: "guest",
+          name: "Guest",
+          email: "guest@verse.app",
+        }
+      })
+    }
+    authorId = guestUser.id
+  }
+
+  const excerpt = fullText.split("\n").slice(0, 2).join("\n")
+
+  const poem = await prisma.poem.create({
+    data: {
+      title: title || "Untitled",
+      excerpt,
+      fullText,
+      status: "ANON_SHARE",
+      isPrivate: false,
+      customAuthorName: customAuthorName || "Anonymous",
+      authorId
+    }
+  })
+
+  return { poemId: poem.id }
+}
+
+export async function claimAnonShare(poemId) {
+  const session = await auth()
+  if (!session?.user) {
+    return { error: "Unauthorized" }
+  }
+
+  const poem = await prisma.poem.findUnique({ where: { id: poemId } })
+  if (!poem || poem.authorId !== session.user.id) {
+    return { error: "Unauthorized" }
+  }
+
+  if (poem.status !== "ANON_SHARE") {
+    return { error: "Poem is not an anonymous share." }
+  }
+
+  await prisma.poem.update({
+    where: { id: poemId },
+    data: { status: "PUBLISHED" }
+  })
+
+  revalidatePath(`/poem/${poemId}`)
+  revalidatePath('/')
+  return { success: true }
+}
+
 export async function searchPoems(query) {
 
   const q = query.trim()
@@ -242,7 +302,7 @@ export async function getPaginatedPoems({ cursor, limit = 6, activeTag = "all" }
   const userId = session?.user?.id
 
   const where = {
-    status: { not: "DELETED" },
+    status: "PUBLISHED",
     featured: false,
     ...(userId
       ? {

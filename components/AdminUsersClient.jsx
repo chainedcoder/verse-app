@@ -334,7 +334,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
         u.name?.toLowerCase().includes(q) ||
         u.email?.toLowerCase().includes(q)
       const matchStatus = statusFilter === "ALL" || u.status === statusFilter
-      const matchRole = roleFilter === "ALL" || u.role === roleFilter
+      const matchRole = roleFilter === "ALL" || (u.role && u.role.toUpperCase() === roleFilter.toUpperCase())
       const matchMfa = mfaFilter === "ALL" || 
         (mfaFilter === "ENABLED" && u.mfaEnabled) || 
         (mfaFilter === "DISABLED" && !u.mfaEnabled)
@@ -344,7 +344,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
     if (activeTags.length > 0) {
       activeTags.forEach(tag => {
         if (tag.field === 'role') {
-          result = result.filter(u => u.role === tag.value)
+          result = result.filter(u => u.role && u.role.toUpperCase() === tag.value.toUpperCase())
         } else if (tag.field === 'status') {
           result = result.filter(u => u.status === tag.value)
         } else if (tag.field === 'mfaEnabled') {
@@ -411,7 +411,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
         result = result.filter(u => u.status === statusFilter)
       }
       if (roleFilter !== "ALL") {
-        result = result.filter(u => u.role === roleFilter)
+        result = result.filter(u => u.role && u.role.toUpperCase() === roleFilter.toUpperCase())
       }
       if (mfaFilter !== "ALL") {
         result = result.filter(u => {
@@ -424,7 +424,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
       if (activeTags.length > 0) {
         activeTags.forEach(tag => {
           if (tag.field === 'role') {
-            result = result.filter(u => u.role === tag.value)
+            result = result.filter(u => u.role && u.role.toUpperCase() === tag.value.toUpperCase())
           } else if (tag.field === 'status') {
             result = result.filter(u => u.status === tag.value)
           } else if (tag.field === 'mfaEnabled') {

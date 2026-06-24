@@ -1,0 +1,517 @@
+Running database migrations and seed for tests...
+◇ injected env (0) from .env.test // tip: ⌘ override existing { override: true }
+PASS __tests__/PoemCard.test.jsx
+PASS __tests__/WorkflowDashboard.test.jsx
+  ● Console
+
+    console.error
+      An update to TimerProvider inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      89 |     // Defer the state update to microtask queue to avoid synchronous render warnings
+      90 |     Promise.resolve().then(() => {
+    > 91 |       setTimers([
+         |       ^
+      92 |         {
+      93 |           id: '1',
+      94 |           name: unsecuredModsCount > 0 ? `Enforce Admin MFA (${unsecuredModsCount} unsecured)` : 'All Admins Secured (MFA)',
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setTimers (components/admin/context/TimerContext.tsx:91:7)
+
+PASS __tests__/FeedClient.test.jsx
+PASS __tests__/ExportModal.test.jsx
+PASS __tests__/AdminSupportTickets.test.jsx
+PASS __tests__/AccountSettingsClient.test.jsx
+PASS __tests__/FeaturedPoemCard.test.jsx
+PASS __tests__/PoemPageClient.test.jsx
+PASS __tests__/AdminReportsClient.test.jsx
+PASS __tests__/PoemEditor.test.jsx
+PASS __tests__/ProfileClient.test.jsx
+PASS __tests__/WebVitals.test.jsx
+PASS __tests__/ErrorBoundary.test.jsx
+PASS __tests__/ConfirmProvider.test.jsx
+PASS __tests__/ToastProvider.test.jsx
+PASS __tests__/ProfileEditor.test.jsx
+PASS __tests__/PoemImageCarousel.test.jsx
+PASS __tests__/ReportButton.test.jsx
+PASS __tests__/PreferencesClient.test.jsx
+PASS __tests__/AdminTagsClient.test.jsx
+PASS __tests__/Nav.test.jsx
+  ● Console
+
+    console.error
+      An update to Nav inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      67 |     } else {
+      68 |       Promise.resolve().then(() => {
+    > 69 |         setSearchResults([])
+         |         ^
+      70 |         setShowSearchDropdown(false)
+      71 |       })
+      72 |     }
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setSearchResults (components/Nav.jsx:69:9)
+
+    console.error
+      An update to Nav inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      68 |       Promise.resolve().then(() => {
+      69 |         setSearchResults([])
+    > 70 |         setShowSearchDropdown(false)
+         |         ^
+      71 |       })
+      72 |     }
+      73 |   }, [searchQuery])
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setShowSearchDropdown (components/Nav.jsx:70:9)
+
+    console.error
+      An update to Nav inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      80 |     observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-immersive"] })
+      81 |     Promise.resolve().then(() => {
+    > 82 |       setTheme(document.documentElement.getAttribute("data-theme") || "light")
+         |       ^
+      83 |       setAccent(getAccent())
+      84 |       setIsImmersive(document.documentElement.getAttribute("data-immersive") === "true")
+      85 |     })
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setTheme (components/Nav.jsx:82:7)
+
+    console.error
+      An update to Nav inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      81 |     Promise.resolve().then(() => {
+      82 |       setTheme(document.documentElement.getAttribute("data-theme") || "light")
+    > 83 |       setAccent(getAccent())
+         |       ^
+      84 |       setIsImmersive(document.documentElement.getAttribute("data-immersive") === "true")
+      85 |     })
+      86 |     
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setAccent (components/Nav.jsx:83:7)
+
+    console.error
+      An update to Nav inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      82 |       setTheme(document.documentElement.getAttribute("data-theme") || "light")
+      83 |       setAccent(getAccent())
+    > 84 |       setIsImmersive(document.documentElement.getAttribute("data-immersive") === "true")
+         |       ^
+      85 |     })
+      86 |     
+      87 |     const handleAccentChange = (e) => setAccent(e.detail.accent)
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setIsImmersive (components/Nav.jsx:84:7)
+
+    console.error
+      An update to Nav inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      67 |     } else {
+      68 |       Promise.resolve().then(() => {
+    > 69 |         setSearchResults([])
+         |         ^
+      70 |         setShowSearchDropdown(false)
+      71 |       })
+      72 |     }
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setSearchResults (components/Nav.jsx:69:9)
+
+    console.error
+      An update to Nav inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      68 |       Promise.resolve().then(() => {
+      69 |         setSearchResults([])
+    > 70 |         setShowSearchDropdown(false)
+         |         ^
+      71 |       })
+      72 |     }
+      73 |   }, [searchQuery])
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setShowSearchDropdown (components/Nav.jsx:70:9)
+
+    console.error
+      An update to Nav inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      80 |     observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-immersive"] })
+      81 |     Promise.resolve().then(() => {
+    > 82 |       setTheme(document.documentElement.getAttribute("data-theme") || "light")
+         |       ^
+      83 |       setAccent(getAccent())
+      84 |       setIsImmersive(document.documentElement.getAttribute("data-immersive") === "true")
+      85 |     })
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setTheme (components/Nav.jsx:82:7)
+
+    console.error
+      An update to Nav inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      81 |     Promise.resolve().then(() => {
+      82 |       setTheme(document.documentElement.getAttribute("data-theme") || "light")
+    > 83 |       setAccent(getAccent())
+         |       ^
+      84 |       setIsImmersive(document.documentElement.getAttribute("data-immersive") === "true")
+      85 |     })
+      86 |     
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setAccent (components/Nav.jsx:83:7)
+
+    console.error
+      An update to Nav inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      82 |       setTheme(document.documentElement.getAttribute("data-theme") || "light")
+      83 |       setAccent(getAccent())
+    > 84 |       setIsImmersive(document.documentElement.getAttribute("data-immersive") === "true")
+         |       ^
+      85 |     })
+      86 |     
+      87 |     const handleAccentChange = (e) => setAccent(e.detail.accent)
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setIsImmersive (components/Nav.jsx:84:7)
+
+    console.error
+      An update to Nav inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      67 |     } else {
+      68 |       Promise.resolve().then(() => {
+    > 69 |         setSearchResults([])
+         |         ^
+      70 |         setShowSearchDropdown(false)
+      71 |       })
+      72 |     }
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setSearchResults (components/Nav.jsx:69:9)
+
+    console.error
+      An update to Nav inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      68 |       Promise.resolve().then(() => {
+      69 |         setSearchResults([])
+    > 70 |         setShowSearchDropdown(false)
+         |         ^
+      71 |       })
+      72 |     }
+      73 |   }, [searchQuery])
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setShowSearchDropdown (components/Nav.jsx:70:9)
+
+    console.error
+      An update to Nav inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      80 |     observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-immersive"] })
+      81 |     Promise.resolve().then(() => {
+    > 82 |       setTheme(document.documentElement.getAttribute("data-theme") || "light")
+         |       ^
+      83 |       setAccent(getAccent())
+      84 |       setIsImmersive(document.documentElement.getAttribute("data-immersive") === "true")
+      85 |     })
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setTheme (components/Nav.jsx:82:7)
+
+    console.error
+      An update to Nav inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      81 |     Promise.resolve().then(() => {
+      82 |       setTheme(document.documentElement.getAttribute("data-theme") || "light")
+    > 83 |       setAccent(getAccent())
+         |       ^
+      84 |       setIsImmersive(document.documentElement.getAttribute("data-immersive") === "true")
+      85 |     })
+      86 |     
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setAccent (components/Nav.jsx:83:7)
+
+    console.error
+      An update to Nav inside a test was not wrapped in act(...).
+      
+      When testing, code that causes React state updates should be wrapped into act(...):
+      
+      act(() => {
+        /* fire events that update state */
+      });
+      /* assert on the output */
+      
+      This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+      82 |       setTheme(document.documentElement.getAttribute("data-theme") || "light")
+      83 |       setAccent(getAccent())
+    > 84 |       setIsImmersive(document.documentElement.getAttribute("data-immersive") === "true")
+         |       ^
+      85 |     })
+      86 |     
+      87 |     const handleAccentChange = (e) => setAccent(e.detail.accent)
+
+      at node_modules/react-dom/cjs/react-dom-client.development.js:18758:19
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:874:13)
+      at warnIfUpdatesNotWrappedWithActDEV (node_modules/react-dom/cjs/react-dom-client.development.js:18757:9)
+      at scheduleUpdateOnFiber (node_modules/react-dom/cjs/react-dom-client.development.js:16409:11)
+      at dispatchSetStateInternal (node_modules/react-dom/cjs/react-dom-client.development.js:9170:13)
+      at dispatchSetState (node_modules/react-dom/cjs/react-dom-client.development.js:9127:7)
+      at setIsImmersive (components/Nav.jsx:84:7)
+
+PASS __tests__/AuthorCard.test.jsx
+PASS __tests__/OfflinePage.test.jsx
+PASS __tests__/AdminContentClient.test.jsx
+PASS __tests__/Card.test.jsx
+PASS __tests__/Pagination.test.jsx
+PASS __tests__/SessionsClient.test.jsx
+PASS __tests__/AdminLogsBackend.test.js
+PASS __tests__/s3.test.js
+PASS __tests__/Avatar.test.jsx
+PASS __tests__/SupportOrchestrator.test.js
+  ● Console
+
+    console.log
+      [AI Routing] Sending ai_draft_ready via WebSocket to Agent agent1 for Thread thread1
+
+      at log (lib/ai/orchestrator.ts:21:13)
+
+    console.log
+      [AI Routing] Sending ai_toast_ready via WebSocket to Agent agent2 for Thread thread1
+
+      at log (lib/ai/orchestrator.ts:25:13)
+
+    console.log
+      [AI Routing] Sending ai_toast_ready via WebSocket to Agent agent3 for Thread thread1
+
+      at log (lib/ai/orchestrator.ts:25:13)
+
+    console.log
+      [AI Routing] Saving to AIGenerationQueue for Agent agent4 for Thread thread1
+
+      at log (lib/ai/orchestrator.ts:29:13)
+
+PASS __tests__/jwt.test.js
+PASS __tests__/admin-actions.test.js
+PASS __tests__/AdminSupportTicketsBackend.test.js
+PASS __tests__/AdminUsersClient.test.jsx (6.75 s)
+
+Test Suites: 35 passed, 35 total
+Tests:       256 passed, 256 total
+Snapshots:   1 passed, 1 total
+Time:        7.91 s
+Ran all test suites.

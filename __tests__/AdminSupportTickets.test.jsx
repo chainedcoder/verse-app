@@ -17,6 +17,10 @@ jest.mock('next/navigation', () => ({
   usePathname: () => '/admin/support/tickets'
 }));
 
+jest.mock('next-auth/react', () => ({
+  useSession: jest.fn(() => ({ data: { user: { id: 'admin1', role: 'ADMIN' } }, status: 'authenticated' }))
+}));
+
 describe('Admin Support Tickets Feature', () => {
   describe('Support Layout', () => {
     it('renders the layout children cleanly', () => {

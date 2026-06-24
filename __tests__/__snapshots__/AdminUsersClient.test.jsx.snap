@@ -477,6 +477,21 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
           >
             All Roles
           </option>
+          <option
+            value="USER"
+          >
+            USER
+          </option>
+          <option
+            value="MODERATOR"
+          >
+            MODERATOR
+          </option>
+          <option
+            value="ADMIN"
+          >
+            ADMIN
+          </option>
         </select>
       </div>
       <div
@@ -903,7 +918,23 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                     aria-label="Role for user: USER"
                     class="role-cell-select-hidden-overlay"
                     style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
-                  />
+                  >
+                    <option
+                      value="USER"
+                    >
+                      USER
+                    </option>
+                    <option
+                      value="MODERATOR"
+                    >
+                      MODERATOR
+                    </option>
+                    <option
+                      value="ADMIN"
+                    >
+                      ADMIN
+                    </option>
+                  </select>
                 </div>
               </td>
               <td
@@ -1143,7 +1174,23 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                     aria-label="Role for user: MODERATOR"
                     class="role-cell-select-hidden-overlay"
                     style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
-                  />
+                  >
+                    <option
+                      value="USER"
+                    >
+                      USER
+                    </option>
+                    <option
+                      value="MODERATOR"
+                    >
+                      MODERATOR
+                    </option>
+                    <option
+                      value="ADMIN"
+                    >
+                      ADMIN
+                    </option>
+                  </select>
                 </div>
               </td>
               <td
@@ -1383,7 +1430,23 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                     aria-label="Role for user: USER"
                     class="role-cell-select-hidden-overlay"
                     style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
-                  />
+                  >
+                    <option
+                      value="USER"
+                    >
+                      USER
+                    </option>
+                    <option
+                      value="MODERATOR"
+                    >
+                      MODERATOR
+                    </option>
+                    <option
+                      value="ADMIN"
+                    >
+                      ADMIN
+                    </option>
+                  </select>
                 </div>
               </td>
               <td
@@ -1623,7 +1686,23 @@ exports[`AdminUsersClient — Style Modularity & Design System Consistency match
                     aria-label="Role for user: USER"
                     class="role-cell-select-hidden-overlay"
                     style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none;"
-                  />
+                  >
+                    <option
+                      value="USER"
+                    >
+                      USER
+                    </option>
+                    <option
+                      value="MODERATOR"
+                    >
+                      MODERATOR
+                    </option>
+                    <option
+                      value="ADMIN"
+                    >
+                      ADMIN
+                    </option>
+                  </select>
                 </div>
               </td>
               <td

@@ -9,11 +9,11 @@ export const SIZE_PRESETS = [
   { id: "tablet", w: 1536, h: 2048, name: "Tablet (3:4)" }
 ]
 
-export function ExportNode({ poem, author, template, colors, width, height }) {
+export function ExportNode({ poem, author, template, colors, width, height, showAuthor = true, displayAuthor }) {
   const c = colors
   const padding = width * 0.08
 
-  const displayAuthorName = poem.customAuthorName || author.name
+  const displayAuthorName = displayAuthor ?? (poem.customAuthorName || author?.name || "Anonymous")
 
   const exportPrefs = typeof author?.exportPreferences === 'string'
     ? JSON.parse(author.exportPreferences)
@@ -115,9 +115,11 @@ export function ExportNode({ poem, author, template, colors, width, height }) {
               {poem.fullText}
             </div>
           </div>
-          <div style={{ marginTop: `${padding}px`, fontSize: `${Math.max(20, width * 0.028)}px`, fontFamily: "'Inter', sans-serif", opacity: 0.6 }}>
-            — {displayAuthorName}
-          </div>
+          {showAuthor && (
+            <div style={{ marginTop: `${padding}px`, fontSize: `${Math.max(20, width * 0.028)}px`, fontFamily: "'Inter', sans-serif", opacity: 0.6 }}>
+              — {displayAuthorName}
+            </div>
+          )}
         </div>
         {renderWatermark()}
       </div>
@@ -137,9 +139,11 @@ export function ExportNode({ poem, author, template, colors, width, height }) {
               {poem.fullText}
             </div>
           </div>
-          <div style={{ marginTop: `${padding}px`, fontSize: `${Math.max(20, width * 0.028)}px`, fontFamily: "'Inter', sans-serif", opacity: 0.6 }}>
-            — {displayAuthorName}
-          </div>
+          {showAuthor && (
+            <div style={{ marginTop: `${padding}px`, fontSize: `${Math.max(20, width * 0.028)}px`, fontFamily: "'Inter', sans-serif", opacity: 0.6 }}>
+              — {displayAuthorName}
+            </div>
+          )}
         </div>
         {renderWatermark()}
       </div>
@@ -157,9 +161,11 @@ export function ExportNode({ poem, author, template, colors, width, height }) {
           <div style={{ fontSize: `${Math.max(28, width * 0.038)}px`, fontStyle: "italic", lineHeight: 1.8, whiteSpace: "pre-wrap" }}>
             {poem.fullText}
           </div>
-          <div style={{ marginTop: `${padding}px`, fontSize: `${Math.max(20, width * 0.028)}px`, fontFamily: "'Inter', sans-serif", opacity: 0.6 }}>
-            — {displayAuthorName}
-          </div>
+          {showAuthor && (
+            <div style={{ marginTop: `${padding}px`, fontSize: `${Math.max(20, width * 0.028)}px`, fontFamily: "'Inter', sans-serif", opacity: 0.6 }}>
+              — {displayAuthorName}
+            </div>
+          )}
         </div>
         {renderWatermark()}
       </div>
@@ -176,9 +182,11 @@ export function ExportNode({ poem, author, template, colors, width, height }) {
         <div style={{ fontSize: `${Math.max(28, width * 0.04)}px`, fontStyle: "italic", lineHeight: 1.6, whiteSpace: "pre-wrap", width: "100%" }}>
           {poem.fullText}
         </div>
-        <div style={{ marginTop: `${padding}px`, fontSize: `${Math.max(20, width * 0.028)}px`, fontFamily: "'Inter', sans-serif", opacity: 0.6 }}>
-          — {displayAuthorName}
-        </div>
+        {showAuthor && (
+          <div style={{ marginTop: `${padding}px`, fontSize: `${Math.max(20, width * 0.028)}px`, fontFamily: "'Inter', sans-serif", opacity: 0.6 }}>
+            — {displayAuthorName}
+          </div>
+        )}
         <div style={{ position: "absolute", bottom: `${padding}px`, fontSize: `${Math.max(16, width * 0.02)}px`, opacity: 0.4, fontFamily: "'Inter', sans-serif" }}>
           verse.app
         </div>

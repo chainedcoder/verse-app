@@ -6,7 +6,7 @@ import Link from "next/link"
 import { toggleLike, getLikers } from "@/app/actions/interactions"
 import { togglePoemInCollection } from "@/app/actions/collections"
 import { createComment, getCommentsForPoem, deleteComment } from "@/app/actions/comments"
-import { toggleFeatured } from "@/app/actions/poems"
+import { toggleFeatured, claimAnonShare } from "@/app/actions/poems"
 import AuthorCard from "@/components/AuthorCard"
 import ReportButton from "@/components/ReportButton"
 import Avatar from "@/components/Avatar"
@@ -259,6 +259,17 @@ export default function PoemPageClient({ poem, initialLiked = false, initialFoll
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", position: "relative" }} ref={collectionsDropdownRef}>
             {userId === author.id && (
               <>
+                {poem.status === "ANON_SHARE" && (
+                  <button className="btn btn-primary btn-sm poem-action-btn" onClick={() => {
+                    startTransition(async () => {
+                      const res = await claimAnonShare(poem.id)
+                      if (res.error) showToast(res.error)
+                      else showToast("Poem published to feed!")
+                    })
+                  }}>
+                    <i className="ti ti-upload" style={{ fontSize: "14px" }} aria-hidden="true"></i> <span>Publish to Feed</span>
+                  </button>
+                )}
                 <Link href={`/edit/${poem.id}`} className="btn btn-ghost btn-sm poem-action-btn">
                   <i className="ti ti-edit" style={{ fontSize: "14px" }} aria-hidden="true"></i> <span>Edit</span>
                 </Link>
