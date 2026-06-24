@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
-export async function DELETE(req: Request, { params }: { params: { threadId: string, agentId: string } }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ threadId: string, agentId: string }> }) {
+  const resolvedParams = await params;
   try {
     const session = await auth();
     if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -19,7 +20,7 @@ export async function DELETE(req: Request, { params }: { params: { threadId: str
     if (!hasAccess) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const membership = await prisma.threadMembership.findFirst({
-      where: { threadId: params.threadId, userId: params.agentId, leftAt: null }
+      where: { threadId: resolvedParams.threadId, userId: resolvedParams.agentId, leftAt: null }
     });
 
     if (!membership) return NextResponse.json({ error: "Not Found" }, { status: 404 });

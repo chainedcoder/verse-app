@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -10,7 +11,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     }
 
     const ticket = await prisma.ticket.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       include: { 
         thread: {
           include: { messages: { orderBy: { createdAt: 'asc' } } }

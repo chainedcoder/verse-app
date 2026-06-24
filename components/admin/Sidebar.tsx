@@ -28,8 +28,8 @@ export default function Sidebar() {
   const { data: session } = useSession();
   
   const userName = session?.user?.name || session?.user?.email || "Admin User";
-  const userRole = session?.user?.role || "USER";
-  const userPerms = session?.user?.permissions || {};
+  const userRole = (session?.user as any)?.role || "USER";
+  const userPerms = (session?.user as any)?.permissions || {};
   
   const isSuperAdmin = userRole === "ADMIN" || userRole === "Super Administrator";
   const userRoleLabel = isSuperAdmin ? "Administrator" : (userRole === "MODERATOR" ? "Moderator" : userRole);

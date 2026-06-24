@@ -309,7 +309,7 @@ export const CollectionComposer: React.FC<CollectionComposerProps> = ({ initialF
                             type="datetime-local" 
                             value={pubDate}
                             onChange={(e) => setPublishDates(prev => ({ ...prev, [post.id]: e.target.value }))}
-                            style={{ width: '100%', padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.1)', outline: 'none', background: 'rgba(255,255,255,0.5)', color: theme.text, boxSizing: 'border-box' }}
+                            style={{ width: '100%', padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.1)', outline: 'none', background: 'rgba(255,255,255,0.5)', color: 'inherit', boxSizing: 'border-box' }}
                           />
                         )}
                       </div>
@@ -332,7 +332,7 @@ export const CollectionComposer: React.FC<CollectionComposerProps> = ({ initialF
                             type="datetime-local" 
                             value={expDate}
                             onChange={(e) => setExpireDates(prev => ({ ...prev, [post.id]: e.target.value }))}
-                            style={{ width: '100%', padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.1)', outline: 'none', background: 'rgba(255,255,255,0.5)', color: theme.text, boxSizing: 'border-box' }}
+                            style={{ width: '100%', padding: '4px 8px', borderRadius: '6px', border: '1px solid rgba(0,0,0,0.1)', outline: 'none', background: 'rgba(255,255,255,0.5)', color: 'inherit', boxSizing: 'border-box' }}
                           />
                         )}
                       </div>

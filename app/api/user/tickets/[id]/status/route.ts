@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -16,14 +17,14 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
       return NextResponse.json({ error: "Users can only resolve or close tickets." }, { status: 400 });
     }
 
-    const ticket = await prisma.ticket.findUnique({ where: { id: params.id } });
+    const ticket = await prisma.ticket.findUnique({ where: { id: resolvedParams.id } });
     
     if (!ticket || ticket.reporterId !== session.user.id) {
       return NextResponse.json({ error: "Not Found" }, { status: 404 });
     }
 
     const updatedTicket = await prisma.ticket.update({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       data: { status }
     });
 

@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 
-export async function POST(req: Request, { params }: { params: { threadId: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ threadId: string }> }) {
+  const resolvedParams = await params;
   try {
     const session = await auth();
     if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -23,7 +24,7 @@ export async function POST(req: Request, { params }: { params: { threadId: strin
 
     const membership = await prisma.threadMembership.create({
       data: {
-        threadId: params.threadId,
+        threadId: resolvedParams.threadId,
         userId: agentId,
         role: "admin",
         historyGrantedFrom: historyGrantedFrom ? new Date(historyGrantedFrom) : null,
