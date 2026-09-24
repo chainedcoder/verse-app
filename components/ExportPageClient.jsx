@@ -3,23 +3,13 @@
 import { useState, useEffect, useRef } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { getTheme, getAccent } from "@/lib/theme"
+import { getAccent } from "@/lib/theme"
 import { toJpeg, toSvg } from "html-to-image"
 import { jsPDF } from "jspdf"
 import { ExportNode, SIZE_PRESETS } from "./ExportEngine"
-
-const accentDefs = {
-  indigo: { h: 235, s: 45 },
-  rose: { h: 348, s: 60 },
-  emerald: { h: 160, s: 50 },
-  amber: { h: 32, s: 65 },
-  violet: { h: 270, s: 50 },
-  ocean: { h: 200, s: 60 },
-}
-
-function hsl(h, s, l) {
-  return `hsl(${h}, ${s}%, ${l}%)`
-}
+import { CREATIVE_LAYOUTS, getExportPalettes } from "@/lib/exportLayouts"
+import { CreativeLayoutPreview } from "./CreativeLayout"
+import styles from "./ExportPalette.module.css"
 
 export default function ExportPageClient({ poem, author }) {
   const router = useRouter()
@@ -40,7 +30,7 @@ export default function ExportPageClient({ poem, author }) {
   const [showAuthor, setShowAuthor] = useState(true)
   
   const exportContainerRef = useRef(null)
-  const [tick, setTick] = useState(0)
+  const [, setTick] = useState(0)
   
   useEffect(() => {
     const handleThemeChange = () => setTick(t => t + 1)
@@ -56,38 +46,7 @@ export default function ExportPageClient({ poem, author }) {
   const storyLines = poem.fullText.split("\n").slice(0, 2)
   const loveLines = poem.fullText.split("\n").slice(1, 3)
 
-  const getSiteViewColors = () => {
-    const accent = getAccent() || "indigo"
-    const def = accentDefs[accent] || accentDefs.indigo
-    return [
-      { bg: "#faf8f4", text: "#1a1a2e", accent: hsl(def.h, def.s, 22), label: "Light" },
-      { bg: "#0e0e1a", text: "#e8e4dc", accent: hsl(def.h, def.s, 72), label: "Dark" },
-    ]
-  }
-
-  const templateColors = {
-    siteview: getSiteViewColors(),
-    minimal: [
-      { bg: "#ffffff", text: "#1a1a1a", accent: "#1a1a2e" },
-      { bg: "#f9f6f0", text: "#2c2820", accent: "#4a3f35" },
-      { bg: "#e8e6e1", text: "#1a1a1a", accent: "#222222" }
-    ],
-    dark: [
-      { bg: "#12112a", text: "#e8e0d4", accent: "#3a3660" },
-      { bg: "#1a1a1a", text: "#e8e8e8", accent: "#444444" },
-      { bg: "#11221c", text: "#d4e8dd", accent: "#2a4a38" }
-    ],
-    love: [
-      { bg: "#f5f0e4", text: "#1a1a1a", accent: "#c0392b" },
-      { bg: "#fff0f3", text: "#2a1a1c", accent: "#d65a73" },
-      { bg: "#fcedea", text: "#2c1e1c", accent: "#b05050" }
-    ],
-    story: [
-      { bg: "#2d1f3d", text: "#f0e8ff", accent: "#9b7eb8" },
-      { bg: "#0d1117", text: "#c9d1d9", accent: "#58a6ff" },
-      { bg: "#3d261f", text: "#ffece8", accent: "#d97c66" }
-    ]
-  }
+  const templateColors = getExportPalettes(getAccent())
 
   const currentColors = templateColors[selectedTemplate][colorIndex] || templateColors[selectedTemplate][0]
   
@@ -259,7 +218,19 @@ export default function ExportPageClient({ poem, author }) {
               </div>
               <div style={{ fontSize: "9px", opacity: showAuthor ? 0.6 : 0, transition: "opacity 0.2s", textAlign: "center", marginTop: "12px" }}>— {customAuthor}</div>
             </div>
-          )}
+          )},
+          ...CREATIVE_LAYOUTS.map(layout => ({
+            ...layout,
+            content: colors => (
+              <CreativeLayoutPreview
+                template={layout.id}
+                colors={colors}
+                poem={poem}
+                showAuthor={showAuthor}
+                displayAuthor={customAuthor}
+              />
+            ),
+          })),
         ].map(tmpl => {
           const isSelected = selectedTemplate === tmpl.id
           const previewColors = isSelected ? currentColors : templateColors[tmpl.id][0]
@@ -273,14 +244,17 @@ export default function ExportPageClient({ poem, author }) {
                   <div className="template-info-desc">{tmpl.desc}</div>
                 </div>
                 {isSelected ? (
-                  <div className="card-palette" style={{ display: "flex", gap: "6px" }}>
+                  <div className="card-palette" style={{ display: "flex", gap: "6px", flexWrap: "wrap", maxWidth: "72px" }}>
                     {templateColors[tmpl.id].map((c, idx) => (
-                      <div 
+                      <button type="button"
                         key={idx}
-                        className={`theme-accent-color ${idx === colorIndex ? "active" : ""}`} 
+                        className={styles.swatch}
+                            aria-label={`${tmpl.title}: ${c.label || `Palette ${idx + 1}`}`}
+                            aria-pressed={idx === colorIndex}
+                            onKeyDown={e => e.stopPropagation()}
                         onClick={(e) => { e.stopPropagation(); setColorIndex(idx) }}
                         style={{ background: c.bg, border: `1px solid ${idx === colorIndex ? "var(--accent)" : c.text}`, opacity: idx === colorIndex ? "1" : "0.6", width: "18px", height: "18px", borderRadius: "50%", cursor: "pointer", boxShadow: idx === colorIndex ? "0 0 0 2px var(--bg-card)" : "none" }}
-                      ></div>
+                      />
                     ))}
                   </div>
                 ) : (

@@ -2,6 +2,8 @@
 
 import React, { useRef, useState, useLayoutEffect } from "react"
 
+import CreativeLayout from "./CreativeLayout"
+
 export const SIZE_PRESETS = [
   { id: "square", w: 1080, h: 1080, name: "Square (1:1)" },
   { id: "portrait", w: 1080, h: 1350, name: "Portrait (4:5)" },
@@ -100,6 +102,17 @@ export function ExportNode({ poem, author, template, colors, width, height, show
     transform: `scale(${scale})`,
     transformOrigin: "center center",
     position: "relative",
+  }
+
+  if (template === "botanical" || template === "celestial") {
+    return (
+      <div style={outerStyle}>
+        <div ref={innerRef} style={innerStyle}>
+          <CreativeLayout template={template} colors={c} poem={poem} width={width} showAuthor={showAuthor} displayAuthor={displayAuthorName} />
+        </div>
+        {renderWatermark()}
+      </div>
+    )
   }
 
   if (template === "siteview") {

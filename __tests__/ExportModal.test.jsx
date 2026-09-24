@@ -56,13 +56,15 @@ describe('ExportModal', () => {
     expect(screen.getByText('Choose a style and size to export')).toBeInTheDocument()
   })
 
-  it('renders all 5 template cards', () => {
+  it('renders all 7 template cards', () => {
     render(<ExportModal {...defaultProps} />)
     expect(screen.getByText('Site view')).toBeInTheDocument()
     expect(screen.getByText('Minimal')).toBeInTheDocument()
     expect(screen.getByText('Dark cinematic')).toBeInTheDocument()
     expect(screen.getByText('Love letter')).toBeInTheDocument()
     expect(screen.getByText('Story format')).toBeInTheDocument()
+    expect(screen.getByText('Botanical press')).toBeInTheDocument()
+    expect(screen.getByText('Celestial')).toBeInTheDocument()
   })
 
   it('renders Preview and format buttons', () => {
