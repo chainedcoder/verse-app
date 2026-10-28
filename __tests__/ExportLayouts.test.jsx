@@ -15,6 +15,7 @@ for (const Component of [ExportModal, ExportPageClient]) {
       ['Story format', 'White', '#ffffff'], ['Story format', 'Ivory', '#faf6ed'], ['Story format', 'Mist', '#edf2f5'],
       ['Love letter', 'Midnight', '#171923'], ['Love letter', 'Burgundy', '#301b26'], ['Love letter', 'Charcoal', '#202020'],
       ['Botanical press', 'Forest', '#142e26'], ['Celestial', 'Daybreak', '#f8f5ee'],
+      ['Solstice', 'Ember', '#2b2327'], ['Tidal', 'Deep sea', '#142c3c'], ['Editorial', 'Ink', '#202124'],
     ])('selects %s / %s in the card and export', (title, palette, background) => {
       const { container } = render(<Component poem={poem} author={author} onClose={() => {}} />)
       const card = screen.getByText(title).closest('[role="button"]')
@@ -25,7 +26,7 @@ for (const Component of [ExportModal, ExportPageClient]) {
       expect(card.firstElementChild).toHaveStyle({ background })
       const exportTitle = [...container.querySelectorAll('h1')].filter(el => el.textContent === poem.title).at(-1)
       expect(exportTitle).toBeTruthy()
-      const exportRoot = title === 'Botanical press' || title === 'Celestial'
+      const exportRoot = CREATIVE_LAYOUTS.some(layout => layout.title === title)
         ? exportTitle.closest('[data-layout]').parentElement.parentElement
         : exportTitle.parentElement.parentElement
       expect(exportRoot).toHaveStyle({ backgroundColor: background })

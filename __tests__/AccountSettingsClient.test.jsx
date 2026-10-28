@@ -113,11 +113,13 @@ describe("AccountSettingsClient", () => {
     mockDeleteAccount.mockResolvedValue({ success: true })
     render(<AccountSettingsClient user={mockUser} />)
     
-    // Click Delete Account button
+    // Click Delete Account button to open modal
     fireEvent.click(screen.getByRole("button", { name: /^Delete Account$/i }))
 
+    // Click Confirm button in the modal
+    fireEvent.click(screen.getByRole("button", { name: /^Confirm$/i }))
+
     await waitFor(() => {
-      expect(window.confirm).toHaveBeenCalled()
       expect(mockDeleteAccount).toHaveBeenCalled()
     })
   })
@@ -126,7 +128,11 @@ describe("AccountSettingsClient", () => {
     mockDeleteAccount.mockResolvedValue({ success: false, error: "Failed to delete account" })
     render(<AccountSettingsClient user={mockUser} />)
     
+    // Click Delete Account button to open modal
     fireEvent.click(screen.getByRole("button", { name: /^Delete Account$/i }))
+
+    // Click Confirm button in the modal
+    fireEvent.click(screen.getByRole("button", { name: /^Confirm$/i }))
 
     await waitFor(() => {
       expect(screen.getByText("Failed to delete account")).toBeInTheDocument()

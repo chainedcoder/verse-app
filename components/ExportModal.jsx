@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { getAccent } from "@/lib/theme"
 import { toJpeg, toSvg } from "html-to-image"
 import { jsPDF } from "jspdf"
+import { downloadDataUrl } from "@/lib/downloadFile"
 import { ExportNode, SIZE_PRESETS } from "./ExportEngine"
 import { CREATIVE_LAYOUTS, getExportPalettes } from "@/lib/exportLayouts"
 import { CreativeLayoutPreview } from "./CreativeLayout"
@@ -112,18 +113,12 @@ export default function ExportModal({ poem, author, onClose }) {
         const dataUrl = await toJpeg(node, { quality: 1, backgroundColor: currentColors.bg, fontEmbedCSS: `
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap');
 ` })
-        const a = document.createElement("a")
-        a.href = dataUrl
-        a.download = `${fileName}.jpg`
-        a.click()
+        downloadDataUrl(dataUrl, `${fileName}.jpg`)
       } else if (format === "svg") {
         const dataUrl = await toSvg(node, { backgroundColor: currentColors.bg, fontEmbedCSS: `
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap');
 ` })
-        const a = document.createElement("a")
-        a.href = dataUrl
-        a.download = `${fileName}.svg`
-        a.click()
+        downloadDataUrl(dataUrl, `${fileName}.svg`)
       } else if (format === "pdf") {
         const dataUrl = await toJpeg(node, { quality: 1, backgroundColor: currentColors.bg, fontEmbedCSS: `
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600&display=swap');

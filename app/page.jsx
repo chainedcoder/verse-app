@@ -51,6 +51,7 @@ export default async function Home() {
     }),
     prisma.poem.findMany({
       where: featuredWhere,
+      take: 2,
       orderBy: { createdAt: 'desc' },
       include: {
         author: true,

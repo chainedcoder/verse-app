@@ -3,6 +3,7 @@
 import React, { useRef, useState, useLayoutEffect } from "react"
 
 import CreativeLayout from "./CreativeLayout"
+import { CREATIVE_LAYOUTS } from "@/lib/exportLayouts"
 
 export const SIZE_PRESETS = [
   { id: "square", w: 1080, h: 1080, name: "Square (1:1)" },
@@ -104,7 +105,7 @@ export function ExportNode({ poem, author, template, colors, width, height, show
     position: "relative",
   }
 
-  if (template === "botanical" || template === "celestial") {
+  if (CREATIVE_LAYOUTS.some(layout => layout.id === template)) {
     return (
       <div style={outerStyle}>
         <div ref={innerRef} style={innerStyle}>

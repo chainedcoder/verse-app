@@ -122,7 +122,7 @@ test.describe('Export / Download Flow', () => {
     await expect(exportModal).not.toBeVisible();
   });
 
-  test('export modal has all 7 template styles', async ({ page }) => {
+  test('export modal has all 10 template styles', async ({ page }) => {
     await page.goto('/');
 
     const regularCards = page.locator('[data-testid="poem-card"]');
@@ -134,7 +134,7 @@ test.describe('Export / Download Flow', () => {
     const exportModal = page.locator('[data-testid="export-modal"]');
     await expect(exportModal).toBeVisible({ timeout: 5000 });
 
-    // All 7 templates should be present
+    // All 10 templates should be present
     await expect(exportModal.locator('text=Site view')).toBeVisible();
     await expect(exportModal.locator('text=Minimal')).toBeVisible();
     await expect(exportModal.locator('text=Dark cinematic')).toBeVisible();
@@ -142,5 +142,6 @@ test.describe('Export / Download Flow', () => {
     await expect(exportModal.locator('text=Story format')).toBeVisible();
     await expect(exportModal.getByText('Botanical press', { exact: true })).toBeVisible();
     await expect(exportModal.getByText('Celestial', { exact: true })).toBeVisible();
+    for (const title of ['Solstice', 'Tidal', 'Editorial']) await expect(exportModal.getByText(title, { exact: true })).toBeVisible();
   });
 });

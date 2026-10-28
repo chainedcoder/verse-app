@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, act } from '@testing-library/react'
 import ExportPageClient from '../components/ExportPageClient'
 import '@testing-library/jest-dom'
 
@@ -18,6 +18,11 @@ jest.mock('next/navigation', () => ({
 jest.mock('next/image', () => ({
   __esModule: true,
   default: (props) => <img {...props} />
+}))
+
+jest.mock('html-to-image', () => ({
+  toJpeg: jest.fn(() => Promise.resolve('data:image/jpeg;base64,mock')),
+  toSvg: jest.fn(() => Promise.resolve('data:image/svg+xml;charset=utf-8,%3Csvg%3E%3C%2Fsvg%3E')),
 }))
 
 describe('ExportPageClient', () => {
@@ -65,5 +70,31 @@ describe('ExportPageClient', () => {
       fireEvent.change(newInput, { target: { value: 'New Custom Author' } })
     })
     expect(newInput).toHaveValue('New Custom Author')
+  })
+
+  it.each([
+    ['JPEG', 'image/jpeg', '.jpg'],
+    ['SVG', 'image/svg+xml', '.svg'],
+  ])('downloads %s through a blob URL so iOS Safari saves it', async (label, mimeType, ext) => {
+    global.URL.createObjectURL = jest.fn(() => 'blob:mock')
+    global.URL.revokeObjectURL = jest.fn()
+    await act(async () => {
+      render(<ExportPageClient poem={mockPoem} author={mockPoem.author} />)
+    })
+
+    let clicked
+    const clickSpy = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function () {
+      clicked = { href: this.href, download: this.download }
+    })
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${label}$`, 'i') }))
+    })
+
+    const blob = URL.createObjectURL.mock.calls[0][0]
+    expect(blob.type).toBe(mimeType)
+    expect(clicked.href).toBe('blob:mock')
+    expect(clicked.download).toMatch(new RegExp(`^verse-p1-.+\\${ext}$`))
+    clickSpy.mockRestore()
   })
 })

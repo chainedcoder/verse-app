@@ -56,7 +56,7 @@ describe('ExportModal', () => {
     expect(screen.getByText('Choose a style and size to export')).toBeInTheDocument()
   })
 
-  it('renders all 7 template cards', () => {
+  it('renders all 10 template cards', () => {
     render(<ExportModal {...defaultProps} />)
     expect(screen.getByText('Site view')).toBeInTheDocument()
     expect(screen.getByText('Minimal')).toBeInTheDocument()
@@ -65,6 +65,7 @@ describe('ExportModal', () => {
     expect(screen.getByText('Story format')).toBeInTheDocument()
     expect(screen.getByText('Botanical press')).toBeInTheDocument()
     expect(screen.getByText('Celestial')).toBeInTheDocument()
+    for (const title of ['Solstice', 'Tidal', 'Editorial']) expect(screen.getByText(title)).toBeInTheDocument()
   })
 
   it('renders Preview and format buttons', () => {
@@ -142,27 +143,26 @@ describe('ExportModal', () => {
     expect(img.src).toContain('data:image/jpeg')
   })
 
-  it('triggers download when format buttons are clicked', async () => {
+  it.each([
+    ['JPEG', 'image/jpeg', 'verse-p1-siteview.jpg'],
+    ['SVG', 'image/svg+xml', 'verse-p1-siteview.svg'],
+  ])('downloads %s through a blob URL so iOS Safari saves it', async (label, mimeType, fileName) => {
     render(<ExportModal {...defaultProps} />)
-    const jpegBtn = screen.getByRole('button', { name: /JPEG/i })
+    URL.createObjectURL.mockClear()
 
-    // Spy on document.createElement so that the <a> click does not cause errors
-    const origCreateElement = document.createElement.bind(document)
-    const createElSpy = jest.spyOn(document, 'createElement').mockImplementation((tag) => {
-      const el = origCreateElement(tag)
-      if (tag === 'a') {
-        jest.spyOn(el, 'click').mockImplementation(() => {})
-      }
-      return el
+    let clicked
+    const clickSpy = jest.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function () {
+      clicked = { href: this.href, download: this.download }
     })
 
     await act(async () => {
-      fireEvent.click(jpegBtn)
+      fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${label}$`, 'i') }))
     })
 
-    const { toJpeg } = require('html-to-image')
-    expect(toJpeg).toHaveBeenCalled()
-
-    createElSpy.mockRestore()
+    const blob = URL.createObjectURL.mock.calls[0][0]
+    expect(blob).toBeInstanceOf(Blob)
+    expect(blob.type).toBe(mimeType)
+    expect(clicked).toEqual({ href: 'blob:mock', download: fileName })
+    clickSpy.mockRestore()
   })
 })

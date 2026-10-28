@@ -1,6 +1,13 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Feed and Navigation', () => {
+  test('home page shows at most two featured poems', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('.feed-sidebar')).toBeVisible();
+    const featuredCards = page.getByTestId('featured-poem-card');
+    expect(await featuredCards.count()).toBeLessThanOrEqual(2);
+  });
+
   test('home page loads poems and sidebar', async ({ page }) => {
     await page.goto('/');
 
