@@ -10,19 +10,18 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     services:
-      postgres:
-        image: postgres:15
+      mysql:
+        image: mysql:8.4
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_db
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -proot"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
         ports:
-          - 5432:5432
+          - 3306:3306
     
     steps:
     - uses: actions/checkout@v4
@@ -38,7 +37,7 @@ jobs:
       
     - name: Set up Database
       env:
-        DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/test_db"
+        DATABASE_URL: "mysql://root:root@127.0.0.1:3306/test_db?allowPublicKeyRetrieval=true"
       run: |
         npx prisma db push
         npx prisma generate
@@ -48,7 +47,7 @@ jobs:
       
     - name: Run Unit Tests
       env:
-        DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/test_db"
+        DATABASE_URL: "mysql://root:root@127.0.0.1:3306/test_db?allowPublicKeyRetrieval=true"
       run: npx jest
       
     - name: Install Playwright Browsers
@@ -56,5 +55,5 @@ jobs:
       
     - name: Run E2E Tests
       env:
-        DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/test_db"
+        DATABASE_URL: "mysql://root:root@127.0.0.1:3306/test_db?allowPublicKeyRetrieval=true"
       run: npx playwright test
