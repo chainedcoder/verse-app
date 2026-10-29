@@ -1,10 +1,11 @@
 import "dotenv/config"
 import { PrismaClient } from "@prisma/client"
 import { PrismaMariaDb } from "@prisma/adapter-mariadb"
+import { toMariaDbConfig } from "../lib/databaseUrl.js"
 import { authors, poems } from "../legacy/js/data.js"
 
 async function main() {
-  const adapter = new PrismaMariaDb(process.env.DATABASE_URL)
+  const adapter = new PrismaMariaDb(toMariaDbConfig(process.env.DATABASE_URL))
   const prisma = new PrismaClient({ adapter })
 
   console.log('Seeding data...')

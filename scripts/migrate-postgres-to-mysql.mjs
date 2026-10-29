@@ -1,14 +1,18 @@
 // One-off copy of all app data from the old Postgres database into MySQL.
 //
 // Usage:
-//   SOURCE_DATABASE_URL="postgresql://..." node --env-file=.env scripts/migrate-postgres-to-mysql.mjs
+//   SOURCE_DATABASE_URL="postgresql://..." SOURCE_SSL_CA=path/to/ca.crt node --env-file=.env scripts/migrate-postgres-to-mysql.mjs
+//
+// SOURCE_SSL_CA is the CA certificate a remote source is verified against
+// (for Supabase: Project Settings > Database > SSL Configuration > Download certificate).
 //
 // DATABASE_URL (the MySQL target) must already have the schema applied
 // (`npx prisma migrate deploy`) and contain no rows. The source is only read.
 
 import pg from "pg"
 import mariadb from "mariadb"
-import { buildInsert } from "../lib/dbMigration.js"
+import { buildInsert, sourceSslConfig } from "../lib/dbMigration.js"
+import { toMariaDbConfig } from "../lib/databaseUrl.js"
 
 const BATCH_SIZE = 500
 
@@ -28,16 +32,15 @@ if (!targetUrl?.startsWith("mysql")) {
 // pg would parse them as local time, so keep the raw text and insert it as-is.
 const TIMESTAMP_WITHOUT_TZ = 1114
 
-const sourceHost = new URL(sourceUrl).hostname
 const source = new pg.Client({
   connectionString: sourceUrl,
-  ssl: ["localhost", "127.0.0.1"].includes(sourceHost) ? false : { rejectUnauthorized: false },
+  ssl: sourceSslConfig(sourceUrl, process.env.SOURCE_SSL_CA),
   types: {
     getTypeParser: (oid, format) =>
       oid === TIMESTAMP_WITHOUT_TZ ? (value) => value : pg.types.getTypeParser(oid, format),
   },
 })
-const target = await mariadb.createConnection(targetUrl.replace(/^mysql:/, "mariadb:"))
+const target = await mariadb.createConnection(toMariaDbConfig(targetUrl))
 
 try {
   await source.connect()

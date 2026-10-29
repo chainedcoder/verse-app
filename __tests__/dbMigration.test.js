@@ -1,4 +1,4 @@
-import { toMysqlDateTime, toMysqlValue, buildInsert } from '../lib/dbMigration'
+import { toMysqlDateTime, toMysqlValue, buildInsert, sourceSslConfig } from '../lib/dbMigration'
 
 describe('toMysqlDateTime', () => {
   it('formats dates as UTC DATETIME(3) text', () => {
@@ -49,5 +49,23 @@ describe('buildInsert', () => {
 
     expect(sql).toBe('INSERT INTO `LogEvent` (`id`, `tags`, `createdAt`) VALUES (?, ?, ?), (?, ?, ?)')
     expect(params).toEqual(['a', '["x"]', '2026-05-26 18:43:17.423', 'b', null, '2026-05-27 00:00:00'])
+  })
+})
+
+describe('sourceSslConfig', () => {
+  it('connects to a local Postgres without TLS', () => {
+    expect(sourceSslConfig('postgresql://u:p@localhost:5432/posts')).toBe(false)
+    expect(sourceSslConfig('postgresql://u:p@127.0.0.1:5432/posts')).toBe(false)
+  })
+
+  it('verifies a remote source against the given CA file', () => {
+    const readFile = jest.fn().mockReturnValue('-----BEGIN CERTIFICATE-----')
+    const ssl = sourceSslConfig('postgresql://u:p@aws-1-eu-north-1.pooler.supabase.com:5432/postgres', 'supabase.crt', readFile)
+    expect(readFile).toHaveBeenCalledWith('supabase.crt')
+    expect(ssl).toEqual({ ca: '-----BEGIN CERTIFICATE-----', rejectUnauthorized: true })
+  })
+
+  it('still verifies a remote source when no CA file is given', () => {
+    expect(sourceSslConfig('postgresql://u:p@db.example.com:5432/postgres')).toEqual({ rejectUnauthorized: true })
   })
 })
