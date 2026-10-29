@@ -33,8 +33,8 @@ export async function GET(req: Request) {
         const users = await prisma.user.findMany({
           where: {
             OR: [
-              { name: { contains: q, mode: "insensitive" } },
-              { email: { contains: q, mode: "insensitive" } }
+              { name: { contains: q } },
+              { email: { contains: q } }
             ]
           },
           take: 10,
@@ -46,7 +46,7 @@ export async function GET(req: Request) {
       case "Poem":
         const poems = await prisma.poem.findMany({
           where: {
-            title: { contains: q, mode: "insensitive" }
+            title: { contains: q }
           },
           take: 10,
           select: { id: true, title: true, author: { select: { name: true } } }
@@ -57,7 +57,7 @@ export async function GET(req: Request) {
       case "Comment":
         const comments = await prisma.comment.findMany({
           where: {
-            content: { contains: q, mode: "insensitive" }
+            content: { contains: q }
           },
           take: 10,
           select: { id: true, content: true, author: { select: { name: true } } }
@@ -68,12 +68,12 @@ export async function GET(req: Request) {
       case "Collection":
         const collections = await prisma.collection.findMany({
           where: {
-            name: { contains: q, mode: "insensitive" }
+            name: { contains: q }
           },
           take: 10,
-          select: { id: true, name: true, user: { select: { name: true } } }
+          select: { id: true, name: true, author: { select: { name: true } } }
         });
-        entities = collections.map(c => ({ id: c.id, name: c.name, detail: `By ${c.user?.name || 'Unknown'}` }));
+        entities = collections.map(c => ({ id: c.id, name: c.name, detail: `By ${c.author?.name || 'Unknown'}` }));
         break;
 
       default:

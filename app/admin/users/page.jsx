@@ -35,8 +35,8 @@ export default async function AdminUsersPage(props) {
     id: { not: session.user.id },
     ...(search ? {
       OR: [
-        { name: { contains: search, mode: "insensitive" } },
-        { email: { contains: search, mode: "insensitive" } }
+        { name: { contains: search } },
+        { email: { contains: search } }
       ]
     } : {}),
     ...(role !== "ALL" ? { role: role.toUpperCase() } : {}),

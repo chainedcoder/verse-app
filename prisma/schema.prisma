@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
 }
 
 model User {
@@ -13,8 +13,8 @@ model User {
   email                  String?             @unique
   emailVerified          DateTime?
   password               String?
-  image                  String?
-  bio                    String?
+  image                  String?             @db.Text
+  bio                    String?             @db.Text
   location               String?
   isPrivateAccount       Boolean             @default(false)
   mfaEnabled             Boolean             @default(false)
@@ -26,14 +26,14 @@ model User {
   immersiveMode          Boolean             @default(false)
   theme                  String              @default("system")
   username               String?             @unique
-  website                String?
+  website                String?             @db.Text
   twoFactorMethod        String?
   twoFactorSecret        String?
   currentChallenge       String?
   exportPreferences      Json?
   permissions            Json?
   permissionGroupId      String?
-  coverImage             String?
+  coverImage             String?             @db.Text
   firstName              String?
   jobTitle               String?
   lastName               String?
@@ -75,13 +75,13 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?
-  access_token      String?
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
+  scope             String? @db.Text
+  id_token          String? @db.Text
+  session_state     String? @db.Text
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
@@ -92,11 +92,11 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
-  browser      String?
-  device       String?
+  browser      String?  @db.Text
+  device       String?  @db.Text
   ipAddress    String?
   lastActive   DateTime @default(now())
-  location     String?
+  location     String?  @db.Text
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -111,8 +111,8 @@ model VerificationToken {
 model Poem {
   id               String         @id @default(cuid())
   title            String
-  excerpt          String
-  fullText         String
+  excerpt          String         @db.Text
+  fullText         String         @db.MediumText
   featured         Boolean        @default(false)
   status           String         @default("PUBLISHED")
   isPrivate        Boolean        @default(false)
@@ -132,8 +132,8 @@ model Poem {
 
 model PoemImage {
   id        String   @id @default(cuid())
-  url       String
-  alt       String?
+  url       String   @db.Text
+  alt       String?  @db.Text
   poemId    String
   createdAt DateTime @default(now())
   poem      Poem     @relation(fields: [poemId], references: [id], onDelete: Cascade)
@@ -159,7 +159,7 @@ model Like {
 
 model Comment {
   id        String   @id @default(cuid())
-  content   String
+  content   String   @db.Text
   poemId    String
   authorId  String
   createdAt DateTime @default(now())
@@ -185,7 +185,7 @@ model Follow {
 model Collection {
   id          String   @id @default(cuid())
   name        String
-  description String?
+  description String?  @db.Text
   isPublic    Boolean  @default(true)
   authorId    String
   status      String   @default("ACTIVE")
@@ -216,7 +216,7 @@ model Report {
   reportedUserId    String?
   reportedPoemId    String?
   reportedCommentId String?
-  reason            String
+  reason            String   @db.Text
   status            String   @default("PENDING")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -227,10 +227,10 @@ model Report {
 }
 
 model Authenticator {
-  credentialID         String  @id
+  credentialID         String  @id @db.VarChar(512)
   userId               String
   providerAccountId    String
-  credentialPublicKey  String
+  credentialPublicKey  String  @db.Text
   counter              Int
   credentialDeviceType String
   credentialBackedUp   Boolean
@@ -269,7 +269,7 @@ model Ticket {
   category    String
   requestType String
   title       String
-  snippet     String
+  snippet     String   @db.Text
   reporterId  String
   assigneeId  String?
   entityType  String?
@@ -300,7 +300,7 @@ model Message {
   threadId   String
   senderId   String
   senderType String
-  content    String
+  content    String   @db.Text
   parentId   String?
   createdAt  DateTime @default(now())
   thread     Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
@@ -327,7 +327,7 @@ model LogEvent {
   changes     Json?
   severity    String   @default("MEDIUM")
   accessLevel String   @default("USER")
-  tags        String[]
+  tags        Json?
   actorId     String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -338,7 +338,7 @@ model AIGenerationQueue {
   id           String   @id @default(cuid())
   threadId     String
   agentId      String
-  draftContent String
+  draftContent String   @db.Text
   status       String
   createdAt    DateTime @default(now())
   agent        User     @relation(fields: [agentId], references: [id], onDelete: Cascade)

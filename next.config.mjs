@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // The DB driver reads the CA bundle named by DATABASE_URL's `sslcert` at runtime,
+  // which file tracing can't see, so ship it with every server route.
+  outputFileTracingIncludes: {
+    '/*': ['./prisma/certs/**'],
+  },
   async rewrites() {
     return [
       {
