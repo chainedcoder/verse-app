@@ -1,9 +1,19 @@
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 
+// Mock trend data until a real velocity metric exists; widths vary on each request
+async function getTrendingTags() {
+  return ["#poetry", "#love", "#nature", "#haiku"].map(tag => ({
+    tag,
+    velocityWidth: Math.random() * 60 + 20,
+  }))
+}
+
 export default async function AdminDiscoveryPage() {
   const session = await auth()
   if (!session?.user) redirect("/login")
+
+  const trendingTags = await getTrendingTags()
 
   return (
     <div className="card" style={{ padding: "32px", animation: "fade-in 0.3s ease-out" }}>
@@ -56,11 +66,11 @@ export default async function AdminDiscoveryPage() {
             </div>
             
             <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-              {["#poetry", "#love", "#nature", "#haiku"].map((tag, i) => (
+              {trendingTags.map(({ tag, velocityWidth }, i) => (
                 <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <span style={{ fontSize: "14px", fontWeight: 500 }}>{tag}</span>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <div style={{ width: `${Math.random() * 60 + 20}px`, height: "6px", backgroundColor: "var(--primary)", borderRadius: "4px", opacity: 0.8 - i * 0.15 }}></div>
+                    <div style={{ width: `${velocityWidth}px`, height: "6px", backgroundColor: "var(--primary)", borderRadius: "4px", opacity: 0.8 - i * 0.15 }}></div>
                     <i className="ti ti-trending-up" style={{ color: "var(--primary)", fontSize: "12px" }}></i>
                   </div>
                 </div>

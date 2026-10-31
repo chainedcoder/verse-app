@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { reinstatePoemAdmin } from '@/app/actions/admin';
 
 interface ReportItem {
@@ -31,19 +31,27 @@ interface LiveModerationFeedProps {
   onReportSelect?: (report: ReportItem) => void;
 }
 
+const NO_REPORTS: ReportItem[] = [];
+const NO_BANNED_POEMS: BannedPoem[] = [];
+
 export const LiveModerationFeed: React.FC<LiveModerationFeedProps> = ({ 
-  initialReports = [],
-  bannedPoems = [],
+  initialReports = NO_REPORTS,
+  bannedPoems = NO_BANNED_POEMS,
   onReportSelect
 }) => {
   const [activeTab, setActiveTab] = useState<'reports' | 'banned'>('reports');
-  const [banned, setBanned] = useState<BannedPoem[]>(bannedPoems);
+  const [reinstatedIds, setReinstatedIds] = useState<Set<string>>(() => new Set());
   const [bannedSearchQuery, setBannedSearchQuery] = useState('');
 
-  // Sync state with props
-  useEffect(() => {
-    setBanned(bannedPoems);
-  }, [bannedPoems]);
+  // Fresh props from the server replace any optimistic removals
+  const [prevBannedPoems, setPrevBannedPoems] = useState(bannedPoems);
+  if (bannedPoems !== prevBannedPoems) {
+    setPrevBannedPoems(bannedPoems);
+    setReinstatedIds(new Set());
+  }
+
+  // Derive the banned list from props, minus poems optimistically reinstated
+  const banned = bannedPoems.filter(p => !reinstatedIds.has(p.id));
 
   const pendingReports = initialReports.filter(r => r.status === 'PENDING');
 
@@ -61,7 +69,7 @@ export const LiveModerationFeed: React.FC<LiveModerationFeedProps> = ({
   const handleReinstateClick = async (poemId: string) => {
     try {
       // Optimistically remove from banned list immediately
-      setBanned(prev => prev.filter(p => p.id !== poemId));
+      setReinstatedIds(prev => new Set(prev).add(poemId));
       // Call Backend Server Action
       await reinstatePoemAdmin(poemId);
     } catch (e) {

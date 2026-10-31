@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
 import styles from "./Tickets.module.css";
@@ -112,11 +112,13 @@ export default function TicketsPage() {
   }, []);
 
   // When activeTabId changes on mobile, we automatically switch to the 'chat' view
-  useEffect(() => {
+  const [prevChatTrigger, setPrevChatTrigger] = useState({ activeTabId, isMobile });
+  if (prevChatTrigger.activeTabId !== activeTabId || prevChatTrigger.isMobile !== isMobile) {
+    setPrevChatTrigger({ activeTabId, isMobile });
     if (activeTabId && isMobile) {
       setMobileView("chat");
     }
-  }, [activeTabId, isMobile]);
+  }
 
   // Hide the global admin sidebar hamburger button when deep in chat/info view on mobile
   useEffect(() => {
@@ -252,17 +254,21 @@ export default function TicketsPage() {
   const [showPriorityMenu, setShowPriorityMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [pickedUser, setSelectedUser] = useState(null);
 
-  useEffect(() => {
-    if (isUser && session?.user && !selectedUser) {
-      setSelectedUser({
-        id: session.user.id,
-        name: session.user.name || session.user.email || "You",
-        email: session.user.email || ""
-      });
+  // Regular users always file tickets for themselves, so default the target to the session user
+  const sessionUser = session?.user;
+  const selectedUser = useMemo(() => {
+    if (pickedUser) return pickedUser;
+    if (isUser && sessionUser) {
+      return {
+        id: sessionUser.id,
+        name: sessionUser.name || sessionUser.email || "You",
+        email: sessionUser.email || ""
+      };
     }
-  }, [isUser, session, selectedUser]);
+    return null;
+  }, [pickedUser, isUser, sessionUser]);
   const [newTicketForm, setNewTicketForm] = useState({ title: "", snippet: "", category: "General", priority: "Medium", entityType: "Post", entityId: "", entityName: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -274,10 +280,20 @@ export default function TicketsPage() {
   const [isSearchingEntity, setIsSearchingEntity] = useState(false);
   const [selectedEntity, setSelectedEntity] = useState(null);
 
+  // Clear stale results as soon as a query is emptied, so they never flash back while typing again
+  const updateSearchQuery = (query) => {
+    setSearchQuery(query);
+    if (query.trim() === "") setSearchResults([]);
+  };
+
+  const updateEntityQuery = (query) => {
+    setEntityQuery(query);
+    if (query.trim() === "") setEntityResults([]);
+  };
+
   // Search users effect
   useEffect(() => {
     if (!searchQuery || searchQuery.trim() === "" || selectedUser) {
-      setSearchResults([]);
       return;
     }
     const timer = setTimeout(() => {
@@ -295,7 +311,6 @@ export default function TicketsPage() {
   // Search entities effect
   useEffect(() => {
     if (!entityQuery || entityQuery.trim() === "" || selectedEntity) {
-      setEntityResults([]);
       return;
     }
     const timer = setTimeout(() => {
@@ -330,8 +345,8 @@ export default function TicketsPage() {
          setNewTicketForm({ title: "", snippet: "", category: "General", priority: "Medium", entityType: "Post", entityId: "", entityName: "" });
          setSelectedUser(null);
          setSelectedEntity(null);
-         setEntityQuery("");
-         setSearchQuery("");
+         updateEntityQuery("");
+         updateSearchQuery("");
          setShowToast("Ticket created successfully!");
          setTimeout(() => setShowToast(""), 3000);
          
@@ -371,6 +386,11 @@ export default function TicketsPage() {
   const [ccSearchResults, setCcSearchResults] = useState([]);
   const [isSearchingCc, setIsSearchingCc] = useState(false);
 
+  const updateCcSearchQuery = (query) => {
+    setCcSearchQuery(query);
+    if (query.length < 2) setCcSearchResults([]);
+  };
+
   // Pagination / Limit State
   const [recentLimit, setRecentLimit] = useState(3);
   const [unresolvedLimit, setUnresolvedLimit] = useState(5);
@@ -380,20 +400,22 @@ export default function TicketsPage() {
   const [rightPaneWidth, setRightPaneWidth] = useState(320);
   const [isRightPaneCollapsed, setIsRightPaneCollapsed] = useState(false);
 
-  useEffect(() => {
+  // Collapse the details pane on tablet and re-expand it on desktop whenever the layout breakpoint changes
+  const [prevLayout, setPrevLayout] = useState({ isTablet, isMobile });
+  if (prevLayout.isTablet !== isTablet || prevLayout.isMobile !== isMobile) {
+    setPrevLayout({ isTablet, isMobile });
     if (isTablet) {
       setIsRightPaneCollapsed(true);
     } else if (!isMobile) {
       setIsRightPaneCollapsed(false);
     }
-  }, [isTablet, isMobile]);
+  }
   const [preCollapseWidth, setPreCollapseWidth] = useState(320);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef(null);
 
   useEffect(() => {
     if (ccSearchQuery.length < 2) {
-      setCcSearchResults([]);
       return;
     }
     const delayDebounce = setTimeout(async () => {
@@ -425,7 +447,7 @@ export default function TicketsPage() {
       }
       setShowToast(`Successfully CC'd ${user.name || user.email}`);
       setShowCcModal(false);
-      setCcSearchQuery("");
+      updateCcSearchQuery("");
       // Refresh logs
       fetch(`/api/admin/tickets/${activeTicket.id}/logs`)
         .then(r => r.json())
@@ -484,13 +506,20 @@ export default function TicketsPage() {
       }).catch(console.error);
   }, []);
 
+  // Clear the previous ticket's timeline as soon as a different ticket becomes active
+  const activeTicketId = activeTicket?.id;
+  const [prevLogsTicketId, setPrevLogsTicketId] = useState(activeTicketId);
+  if (activeTicketId !== prevLogsTicketId) {
+    setPrevLogsTicketId(activeTicketId);
+    if (activeTicketId) setTicketLogs([]);
+  }
+
   useEffect(() => {
     const isTestEnv = typeof process !== "undefined" && process.env.NODE_ENV === "test";
     if (isTestEnv) return;
 
-    if (!activeTicket) return;
-    setTicketLogs([]);
-    fetch(`/api/admin/tickets/${activeTicket.id}/logs`)
+    if (!activeTicketId) return;
+    fetch(`/api/admin/tickets/${activeTicketId}/logs`)
       .then(r => r.json())
       .then(data => {
         if (data.logs) {
@@ -502,7 +531,7 @@ export default function TicketsPage() {
         console.error(err);
         setTicketLogs([]);
       });
-  }, [activeTicket?.id]);
+  }, [activeTicketId]);
 
   const handleAssign = async (e, agentId) => {
     e.stopPropagation();
@@ -1525,7 +1554,7 @@ export default function TicketsPage() {
                   className={styles.input} 
                   placeholder="Type to search..." 
                   value={ccSearchQuery}
-                  onChange={(e) => setCcSearchQuery(e.target.value)}
+                  onChange={(e) => updateCcSearchQuery(e.target.value)}
                 />
                 {isSearchingCc && <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>Searching...</div>}
                 {ccSearchResults.length > 0 && (
@@ -1626,7 +1655,7 @@ export default function TicketsPage() {
                         className={styles.input} 
                         placeholder="Search by name or email..." 
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={(e) => updateSearchQuery(e.target.value)}
                       />
                       {isSearching && <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>Searching...</div>}
                       {searchResults.length > 0 && (
@@ -1635,7 +1664,7 @@ export default function TicketsPage() {
                             <div 
                               key={user.id} 
                               className={styles.searchResultItem}
-                              onClick={() => { setSelectedUser(user); setSearchQuery(""); }}
+                              onClick={() => { setSelectedUser(user); updateSearchQuery(""); }}
                             >
                               <div className={styles.searchResultName}>{user.name || "Unknown"}</div>
                               <div className={styles.searchResultEmail}>{user.email}</div>
@@ -1692,7 +1721,7 @@ export default function TicketsPage() {
                           <div 
                             key={type}
                             className={styles.customDropdownItem} 
-                            onClick={(e) => { e.stopPropagation(); setNewTicketForm({...newTicketForm, entityType: type}); setSelectedEntity(null); setEntityQuery(""); setShowEntityMenu(false); }}
+                            onClick={(e) => { e.stopPropagation(); setNewTicketForm({...newTicketForm, entityType: type}); setSelectedEntity(null); updateEntityQuery(""); setShowEntityMenu(false); }}
                           >
                             {type}
                           </div>
@@ -1710,7 +1739,7 @@ export default function TicketsPage() {
                         className={styles.input} 
                         placeholder={`Search ${newTicketForm.entityType}...`} 
                         value={entityQuery}
-                        onChange={(e) => setEntityQuery(e.target.value)}
+                        onChange={(e) => updateEntityQuery(e.target.value)}
                       />
                       {isSearchingEntity && <div style={{ fontSize: '12px', color: '#888', marginTop: '4px' }}>Searching...</div>}
                       {entityResults.length > 0 && (
@@ -1719,7 +1748,7 @@ export default function TicketsPage() {
                             <div 
                               key={entity.id} 
                               className={styles.searchResultItem}
-                              onClick={() => { setSelectedEntity(entity); setEntityQuery(""); }}
+                              onClick={() => { setSelectedEntity(entity); updateEntityQuery(""); }}
                             >
                               <div className={styles.searchResultName}>{entity.name}</div>
                               <div className={styles.searchResultEmail}>{entity.detail}</div>

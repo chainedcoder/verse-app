@@ -1,5 +1,8 @@
 import nextJest from 'next/jest.js'
- 
+
+// Pin the timezone so date-formatting snapshots match between local machines and CI
+process.env.TZ = 'UTC'
+
 const createJestConfig = nextJest({
   dir: './',
 })
