@@ -12,6 +12,13 @@ interface Soundscape {
   bgGlow: string;
 }
 
+const soundscapes: Soundscape[] = [
+  { id: 'rain', name: 'Midnight Rain', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', icon: '🌧️', defaultVol: 60, color: '#3b82f6', bgGlow: 'rgba(59, 130, 246, 0.05)' },
+  { id: 'lofi', name: 'Lofi Serenade', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', icon: '🎹', defaultVol: 40, color: '#ec4899', bgGlow: 'rgba(236, 72, 153, 0.05)' },
+  { id: 'hearth', name: 'Hearth Crackle', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', icon: '🔥', defaultVol: 30, color: '#f97316', bgGlow: 'rgba(249, 115, 22, 0.05)' },
+  { id: 'drone', name: 'Astral Drone', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', icon: '🌌', defaultVol: 20, color: '#8b5cf6', bgGlow: 'rgba(139, 92, 246, 0.05)' }
+];
+
 export const VibeSoundboardMixer: React.FC = () => {
   const [playing, setPlaying] = useState<string | null>(null);
   const [volumes, setVolumes] = useState<Record<string, number>>({
@@ -21,23 +28,11 @@ export const VibeSoundboardMixer: React.FC = () => {
     'drone': 20
   });
 
-  const audioRefs = {
-    'rain': useRef<HTMLAudioElement | null>(null),
-    'lofi': useRef<HTMLAudioElement | null>(null),
-    'hearth': useRef<HTMLAudioElement | null>(null),
-    'drone': useRef<HTMLAudioElement | null>(null)
-  };
-
-  const soundscapes: Soundscape[] = [
-    { id: 'rain', name: 'Midnight Rain', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', icon: '🌧️', defaultVol: 60, color: '#3b82f6', bgGlow: 'rgba(59, 130, 246, 0.05)' },
-    { id: 'lofi', name: 'Lofi Serenade', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', icon: '🎹', defaultVol: 40, color: '#ec4899', bgGlow: 'rgba(236, 72, 153, 0.05)' },
-    { id: 'hearth', name: 'Hearth Crackle', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', icon: '🔥', defaultVol: 30, color: '#f97316', bgGlow: 'rgba(249, 115, 22, 0.05)' },
-    { id: 'drone', name: 'Astral Drone', src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', icon: '🌌', defaultVol: 20, color: '#8b5cf6', bgGlow: 'rgba(139, 92, 246, 0.05)' }
-  ];
+  const audioRefs = useRef<Record<string, HTMLAudioElement | null>>({});
 
   useEffect(() => {
     soundscapes.forEach(s => {
-      const audio = audioRefs[s.id as keyof typeof audioRefs]?.current;
+      const audio = audioRefs.current[s.id];
       if (audio) {
         audio.volume = volumes[s.id] / 100;
         audio.loop = true;
@@ -46,7 +41,7 @@ export const VibeSoundboardMixer: React.FC = () => {
   }, [volumes]);
 
   const toggleSound = (id: string) => {
-    const audio = audioRefs[id as keyof typeof audioRefs]?.current;
+    const audio = audioRefs.current[id];
     if (!audio) return;
 
     if (playing === id) {
@@ -54,7 +49,7 @@ export const VibeSoundboardMixer: React.FC = () => {
       setPlaying(null);
     } else {
       if (playing) {
-        audioRefs[playing as keyof typeof audioRefs]?.current?.pause();
+        audioRefs.current[playing]?.pause();
       }
       audio.play().catch(() => {});
       setPlaying(id);
@@ -64,7 +59,7 @@ export const VibeSoundboardMixer: React.FC = () => {
   const adjustVolume = (id: string, amount: number) => {
     setVolumes(prev => {
       const nextVol = Math.max(0, Math.min(100, prev[id] + amount));
-      const audio = audioRefs[id as keyof typeof audioRefs]?.current;
+      const audio = audioRefs.current[id];
       if (audio) audio.volume = nextVol / 100;
       return { ...prev, [id]: nextVol };
     });
@@ -75,7 +70,7 @@ export const VibeSoundboardMixer: React.FC = () => {
       
       {/* HTML5 Audio Elements */}
       {soundscapes.map(s => (
-        <audio key={s.id} ref={audioRefs[s.id as keyof typeof audioRefs]} src={s.src} preload="none" />
+        <audio key={s.id} ref={el => { audioRefs.current[s.id] = el; }} src={s.src} preload="none" />
       ))}
 
       {/* Header */}

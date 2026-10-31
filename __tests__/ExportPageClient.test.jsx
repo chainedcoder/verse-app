@@ -17,7 +17,7 @@ jest.mock('next/navigation', () => ({
 // We need to mock next/image for export page client
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: (props) => <img {...props} />
+  default: ({ alt, ...props }) => <img alt={alt} {...props} />
 }))
 
 jest.mock('html-to-image', () => ({

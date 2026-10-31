@@ -566,3 +566,68 @@ describe("AdminUsersClient — Style Modularity & Design System Consistency", ()
     expect(asFragment()).toMatchSnapshot()
   })
 })
+
+describe("AdminUsersClient — server prop sync", () => {
+  const groups = [{ id: 1, name: "USER" }, { id: 2, name: "MODERATOR" }, { id: 3, name: "ADMIN" }]
+
+  it("replaces the user list when new initialUsers arrive", () => {
+    const { rerender } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" permissionGroups={groups} />)
+    expect(screen.getAllByText("Alice").length).toBeGreaterThan(0)
+
+    const erin = { ...mockUsers[0], id: "u5", name: "Erin", email: "erin@test.com" }
+    rerender(<AdminUsersClient initialUsers={[erin]} currentUserRole="ADMIN" permissionGroups={groups} />)
+
+    expect(screen.getAllByText("Erin").length).toBeGreaterThan(0)
+    expect(screen.queryByText("Alice")).not.toBeInTheDocument()
+  })
+
+  it("keeps local edits while the initialUsers prop is unchanged", async () => {
+    updateUserStatus.mockResolvedValue({ success: true })
+    const solo = [mockUsers[0]]
+    const { container, rerender } = render(<AdminUsersClient initialUsers={solo} currentUserRole="ADMIN" permissionGroups={groups} />)
+    const statusPill = () => container.querySelector(".status-pill").textContent
+
+    expect(statusPill()).toBe("Active")
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: /^ban$/i })))
+    expect(updateUserStatus).toHaveBeenCalledWith("u1", "BANNED")
+    expect(statusPill()).toBe("Banned")
+
+    // Re-rendering with the same array (e.g. a parent re-render) must not reset the local edit
+    rerender(<AdminUsersClient initialUsers={solo} currentUserRole="ADMIN" permissionGroups={groups} />)
+    expect(statusPill()).toBe("Banned")
+
+    // A fresh array from the server wins
+    rerender(<AdminUsersClient initialUsers={[{ ...mockUsers[0] }]} currentUserRole="ADMIN" permissionGroups={groups} />)
+    expect(statusPill()).toBe("Active")
+  })
+
+  it("follows the viewMode prop when it changes", () => {
+    const { container, rerender } = render(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" permissionGroups={groups} viewMode="table" />)
+    const activeToggle = () => container.querySelector(".view-toggle-btn.active")
+
+    const toggles = container.querySelectorAll(".view-toggle-btn")
+    expect(activeToggle()).toBe(toggles[0])
+
+    rerender(<AdminUsersClient initialUsers={mockUsers} currentUserRole="ADMIN" permissionGroups={groups} viewMode="board" />)
+    expect(activeToggle()).toBe(container.querySelectorAll(".view-toggle-btn")[1])
+  })
+})
+
+describe("AdminUsersClient — scheduled deletion countdown", () => {
+  afterEach(() => jest.useRealTimers())
+
+  it("counts down as time passes without re-reading the clock during render", () => {
+    jest.useFakeTimers()
+    const deletedAt = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+    const archived = { ...mockUsers[3], deletedAt }
+    render(<AdminUsersClient initialUsers={[archived]} currentUserRole="ADMIN" permissionGroups={[]} />)
+
+    const pillBtn = () => screen.getByText("Archived").closest("button")
+    expect(pillBtn()).toHaveAttribute("title", "Scheduled deletion (25d left)")
+
+    act(() => {
+      jest.advanceTimersByTime(24 * 60 * 60 * 1000)
+    })
+    expect(pillBtn()).toHaveAttribute("title", "Scheduled deletion (24d left)")
+  })
+})

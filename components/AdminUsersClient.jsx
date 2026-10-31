@@ -142,15 +142,26 @@ function ConfirmBulkDeleteModal({ users, onConfirm, onCancel, isPending }) {
 export default function AdminUsersClient({ initialUsers, currentUserRole, totalCount = 0, currentPage: serverPage = 1, itemsPerPage: serverLimit = 15, viewMode: initialViewMode = "table", permissionGroups = [] }) {
   const [users, setUsers] = useState(initialUsers)
   const [viewMode, setViewMode] = useState(initialViewMode)
-  
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setUsers(initialUsers)
-  }, [initialUsers])
 
-  useEffect(() => {
+  // Re-sync local copies when the server sends new props (e.g. after a URL-driven page or view change)
+  const [prevInitialUsers, setPrevInitialUsers] = useState(initialUsers)
+  if (initialUsers !== prevInitialUsers) {
+    setPrevInitialUsers(initialUsers)
+    setUsers(initialUsers)
+  }
+
+  const [prevInitialViewMode, setPrevInitialViewMode] = useState(initialViewMode)
+  if (initialViewMode !== prevInitialViewMode) {
+    setPrevInitialViewMode(initialViewMode)
     setViewMode(initialViewMode)
-  }, [initialViewMode])
+  }
+
+  // Current time for "days left" countdowns, kept out of render and refreshed hourly
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 60 * 60 * 1000)
+    return () => clearInterval(timer)
+  }, [])
 
 
 
@@ -383,7 +394,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
     })
 
     return result
-  }, [users, searchTerm, statusFilter, roleFilter, mfaFilter, activeTags, sortKey, sortDir, isJest])
+  }, [users, searchTerm, statusFilter, roleFilter, mfaFilter, activeTags, sortKey, sortDir])
 
   const activePage = isJest ? clientPage : serverPage
   const totalRows = (activeTags.length > 0 || searchTerm || statusFilter !== "ALL" || roleFilter !== "ALL" || mfaFilter !== "ALL") 
@@ -1402,7 +1413,7 @@ export default function AdminUsersClient({ initialUsers, currentUserRole, totalC
                                 }}
                                 className="status-pill-btn"
                                 style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', outline: 'none' }}
-                                title={user.status === "ARCHIVED" && user.deletedAt ? `Scheduled deletion (${Math.max(0, 30 - Math.floor((Date.now() - new Date(user.deletedAt).getTime()) / (1000 * 60 * 60 * 24)))}d left)` : ""}
+                                title={user.status === "ARCHIVED" && user.deletedAt ? `Scheduled deletion (${Math.max(0, 30 - Math.floor((now - new Date(user.deletedAt).getTime()) / (1000 * 60 * 60 * 24)))}d left)` : ""}
                               >
                                 <div className={`status-pill status-${statusCssClass}`}>
                                   <span className="status-dot"></span>

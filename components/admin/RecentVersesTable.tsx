@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { togglePoemFeatured } from '@/app/actions/admin';
 import Avatar from '@/components/Avatar';
 
@@ -19,12 +19,18 @@ interface RecentVersesTableProps {
 }
 
 export const RecentVersesTable: React.FC<RecentVersesTableProps> = ({ recentPoems }) => {
-  const [poems, setPoems] = useState<RecentPoem[]>(recentPoems);
   const [featuredIds, setFeaturedIds] = useState<Record<string, boolean>>({});
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(() => new Set());
 
-  useEffect(() => {
-    setPoems(recentPoems);
-  }, [recentPoems]);
+  // Fresh props from the server replace any local removals
+  const [prevRecentPoems, setPrevRecentPoems] = useState(recentPoems);
+  if (recentPoems !== prevRecentPoems) {
+    setPrevRecentPoems(recentPoems);
+    setHiddenIds(new Set());
+  }
+
+  // Derive the table rows from props, minus poems that faded out after being featured
+  const poems = recentPoems.filter(p => !hiddenIds.has(p.id));
 
   const formatDate = (isoString: string) => {
     const d = new Date(isoString);
@@ -38,7 +44,7 @@ export const RecentVersesTable: React.FC<RecentVersesTableProps> = ({ recentPoem
       
       // Smoothly fade out curation candidates after 800ms
       setTimeout(() => {
-        setPoems(prev => prev.filter(p => p.id !== poemId));
+        setHiddenIds(prev => new Set(prev).add(poemId));
       }, 800);
     } catch (e) {
       console.error(e);

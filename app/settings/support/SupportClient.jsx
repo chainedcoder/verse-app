@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation"
 
 export default function SupportClient({ initialTickets, initialChats, userId }) {
   const [tickets, setTickets] = useState(initialTickets || [])
-  const [chats, setChats] = useState(initialChats || [])
+  const [prevInitialTickets, setPrevInitialTickets] = useState(initialTickets)
+  const chats = initialChats || []
   const [activeTab, setActiveTab] = useState("tickets") // "tickets" | "chats"
   const [loading, setLoading] = useState(false)
   const [selectedTicketId, setSelectedTicketId] = useState(null)
@@ -73,13 +74,12 @@ export default function SupportClient({ initialTickets, initialChats, userId }) 
     }
   }
 
-  useEffect(() => {
+  // Reset optimistic replies whenever the server sends a fresh ticket list (e.g. after router.refresh())
+  if (initialTickets !== prevInitialTickets) {
+    setPrevInitialTickets(initialTickets)
     setTickets(initialTickets || [])
-  }, [initialTickets])
+  }
 
-  useEffect(() => {
-    setChats(initialChats || [])
-  }, [initialChats])
   const dialogRef = useRef(null)
   const router = useRouter()
 

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useSyncExternalStore } from 'react';
 import { getTheme, getAccent, setTheme as setAppTheme, setAccent as setAppAccent } from '@/lib/theme';
 import { useSession } from 'next-auth/react';
 
@@ -23,6 +23,26 @@ const IconSun = () => <svg width="20" height="20" fill="none" stroke="currentCol
 const IconMoon = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>;
 const IconMonitor = () => <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>;
 
+const SIDEBAR_EXPANDED_KEY = 'admin_sidebar_expanded';
+
+const subscribeNoop = () => () => {};
+const getStoredExpanded = () => {
+  try {
+    return localStorage.getItem(SIDEBAR_EXPANDED_KEY) === 'true';
+  } catch {
+    return false;
+  }
+};
+
+const subscribeTheme = (onChange: () => void) => {
+  window.addEventListener('themechange', onChange);
+  return () => window.removeEventListener('themechange', onChange);
+};
+const subscribeAccent = (onChange: () => void) => {
+  window.addEventListener('accentchange', onChange);
+  return () => window.removeEventListener('accentchange', onChange);
+};
+
 export default function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
@@ -37,17 +57,22 @@ export default function Sidebar() {
   const hasAnyPermission = Object.keys(userPerms).some(key => Array.isArray(userPerms[key]) && userPerms[key].length > 0) || userPerms.manageSupport;
   const isAdminOrMod = isSuperAdmin || userRole === "MODERATOR" || hasAnyPermission;
   
-  // Sidebar expand state (default to narrow/collapsed)
-  const [isExpandedState, setIsExpandedState] = useState(false);
+  // Sidebar expand state (default to narrow/collapsed, restored from localStorage after hydration)
+  const storedExpanded = useSyncExternalStore(subscribeNoop, getStoredExpanded, () => false);
+  const [expandedOverride, setExpandedOverride] = useState<boolean | null>(null);
+  const isExpandedState = expandedOverride ?? storedExpanded;
 
   // Responsive mobile states
   const [isMobile, setIsMobile] = useState(false);
+
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   // Auto-close mobile sidebar when navigating
-  useEffect(() => {
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setIsMobileOpen(false);
-  }, [pathname]);
+  }
 
   // Accordion expanded folders in wide state
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({
@@ -64,29 +89,16 @@ export default function Sidebar() {
   // User menu and Theme panel states
   const [showThemePanel, setShowThemePanel] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [theme, setThemeState] = useState('light');
-  const [accent, setAccentState] = useState('indigo');
+  const theme = useSyncExternalStore(subscribeTheme, getTheme, () => 'light');
+  const accent = useSyncExternalStore(subscribeAccent, getAccent, () => 'indigo');
   const accents = ['indigo', 'rose', 'emerald', 'amber', 'violet', 'ocean'];
 
   useEffect(() => {
-    // Load from localStorage if present
-    try {
-      const storedExpand = localStorage.getItem('admin_sidebar_expanded');
-      if (storedExpand) setIsExpandedState(storedExpand === 'true');
-    } catch {}
-
-    setThemeState(getTheme());
-    setAccentState(getAccent());
-    const handleThemeChange = (e: any) => setThemeState(e.detail.theme);
-    const handleAccentChange = (e: any) => setAccentState(e.detail.accent);
-
     const handleResize = () => {
       setIsMobile(window.innerWidth < 1024);
     };
     handleResize();
 
-    window.addEventListener('themechange', handleThemeChange);
-    window.addEventListener('accentchange', handleAccentChange);
     window.addEventListener('resize', handleResize);
 
     // Click outside to close menus
@@ -106,8 +118,6 @@ export default function Sidebar() {
     document.addEventListener('click', clickOutside);
 
     return () => {
-      window.removeEventListener('themechange', handleThemeChange);
-      window.removeEventListener('accentchange', handleAccentChange);
       window.removeEventListener('resize', handleResize);
       document.removeEventListener('click', clickOutside);
     };
@@ -115,8 +125,8 @@ export default function Sidebar() {
 
   const handleToggleExpand = () => {
     const nextVal = !isExpandedState;
-    setIsExpandedState(nextVal);
-    try { localStorage.setItem('admin_sidebar_expanded', String(nextVal)); } catch {}
+    setExpandedOverride(nextVal);
+    try { localStorage.setItem(SIDEBAR_EXPANDED_KEY, String(nextVal)); } catch {}
   };
 
   const handleToggleFolder = (folderId: string) => {
